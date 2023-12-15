@@ -1,0 +1,867 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>EUVDashboard &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PMA" href="PMA.html" />
+    <link rel="prev" title="API Reference" href="api_reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">EUVDashboard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.EUVDashboard.clients">Clients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.EUVDashboard.common">Common</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.EUVDashboard.shared">Shared</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PMA.html">PMA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RT_Processing.html">RT_Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parsers.html">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Collector.html">Collector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Do_It.html">Do_It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TinManagement.html">TinManagement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Shared.html">Shared</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers.html">helpers</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+        
+      <li>EUVDashboard</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/EUVDashboard.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="euvdashboard">
+<h1>EUVDashboard<a class="headerlink" href="#euvdashboard" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyeuv.EUVDashboard.clients">
+<span id="clients"></span><h2>Clients<a class="headerlink" href="#module-pyeuv.EUVDashboard.clients" title="Permalink to this headline">¶</a></h2>
+<p>clients.py
+Author: RLBL
+Date:  2019-01-10</p>
+<p>The UserClient provides a single interface to the EUVDashboard for use with Jupyter Notebooks or external tooling
+created by users. It exposes convenient functions without requiring complex setup, loggers or Redis.</p>
+<p><em>Example usage</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">EUVDashboardClient.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">UserLANClient</span><span class="p">()</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span><span class="s1">&#39;s62253.Scanner.DW_SLIE&#39;</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2017-01-01&#39;</span><span class="p">),</span> <span class="n">to_time</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2017-01-02&#39;</span><span class="p">))</span>
+
+<span class="c1"># If username is not provided, the client will default to your ASML username</span>
+<span class="c1"># If password is not provided, the client will ask you for it.</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.clients.get_euvdb_test_credentials">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.clients.</code><code class="sig-name descname">get_euvdb_test_credentials</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#get_euvdb_test_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.get_euvdb_test_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the credential file and return username, password and api_key. The
+credential file is pointed to by the credential_file variable of this
+module. The text file must contain at least the following config section:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">EUVDB</span><span class="p">]</span>
+<span class="n">username</span><span class="o">=&lt;</span><span class="n">username</span><span class="o">&gt;</span>
+<span class="n">password</span><span class="o">=&lt;</span><span class="n">password</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Also, see the Unit testing section of the Pyeuv Manual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>username, password</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple&lt;str&gt;</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.EUVDashboard.clients.</code><code class="sig-name descname">UserLANClient</code><span class="sig-paren">(</span><em class="sig-param">username=None</em>, <em class="sig-param">password=None</em>, <em class="sig-param">cache_dir='~/.pyeuv/cache'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.chunk_signal">
+<code class="sig-name descname">chunk_signal</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">from_time=None</em>, <em class="sig-param">to_time=None</em>, <em class="sig-param">chunksize=50000</em>, <em class="sig-param">verify_tags=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.chunk_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.chunk_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator, yields data for a signal in chunks. Timestamps are returned in UTC.</p>
+<p>Signals must be specified according to the following pattern</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">source_nr</span><span class="o">&gt;.&lt;</span><span class="n">signal_type</span><span class="o">&gt;.&lt;</span><span class="n">signal_name</span><span class="o">&gt;</span><span class="p">[</span><span class="n">field</span><span class="p">]{</span><span class="n">tag</span><span class="p">}</span><span class="o">.&lt;</span><span class="n">aggregate_time</span><span class="o">&gt;.&lt;</span><span class="n">aggregate_func</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p><em>Examples</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">s62440</span><span class="o">.</span><span class="n">ScannerLog</span><span class="o">.</span><span class="n">de_err</span><span class="p">{</span><span class="n">code</span><span class="o">=</span><span class="n">DW</span><span class="o">-</span><span class="mi">3411</span><span class="p">}</span><span class="o">.</span><span class="mi">1</span><span class="n">d</span><span class="o">.</span><span class="n">max</span>
+<span class="n">s62179</span><span class="o">.</span><span class="n">DWMD</span><span class="o">.</span><span class="n">MCDWMD_EXPOSURE_MODE_PARAMS_EXPOSURE_MODE_DATA_MINI_BURST_MODE_PARAMETERS_BURST_DUTY_CYCLE_TAG</span><span class="p">[</span><span class="n">value01</span><span class="p">]</span>
+<span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="mi">1</span><span class="n">h</span><span class="o">.</span><span class="n">last</span>
+<span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">transmission</span><span class="o">.</span><span class="mi">1</span><span class="n">h</span><span class="o">.</span><span class="n">mean</span>
+<span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">transmission</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal</strong> (<em>str</em>) – Signal using the following format:</p></li>
+<li><p><strong>from_time</strong> (<em>pandas.Timestamp</em>) – Epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is 0</p></li>
+<li><p><strong>to_time</strong> (<em>pandas.Timestamp</em>) – Epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is now</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em>) – Approximate number of records to return per iteration (default 50000)</p></li>
+<li><p><strong>verify_tags</strong> (<em>bool</em><em> (</em><em>Default=True</em><em>)</em>) – Verify that given tag keys and values are available for the given signal.
+Will raise an error if they don’t exist. Has a small performance penalty
+because it needs to send some extra queries to influx. This may become
+noticeable in rare cases where the list of signals is very long. So it can
+be disabled with this option.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print chunk sizes if True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_aggregated_dataframe">
+<code class="sig-name descname">get_aggregated_dataframe</code><span class="sig-paren">(</span><em class="sig-param">report_date</em>, <em class="sig-param">signals</em>, <em class="sig-param">machines</em>, <em class="sig-param">max_retention=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_aggregated_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_aggregated_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain aggregated values for the given day. Use only for KPI.DayAggregates._ signals.</p>
+<dl class="simple">
+<dt><em>This function makes the following assumptions for the signal</em></dt><dd><ul class="simple">
+<li><p>The aggregated value for a given day is written with a timestamp 00:00:00 (start of the day)
+a tolerance of +/- 1s is used.</p></li>
+<li><p>There is only one aggregated value in this range</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>report_date</strong> (<em>datetime.datetime</em>) – Date for which to get the aggregated (KPI) data</p></li>
+<li><p><strong>signals</strong> (<em>list</em><em> or </em><em>str</em>) – list of signal names to extract. (Uses value column)</p></li>
+<li><p><strong>machines</strong> (<em>list</em>) – list of machines to include.</p></li>
+<li><p><strong>max_retention</strong> (<em>int</em>) – integer number of days, default is 0. Allow the this function to return older aggregated
+values if no values are available for the given day. Values will not be older than [max_retention] days.
+If set to 0 no older values will be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with the results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_first_value_after">
+<code class="sig-name descname">get_first_value_after</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_first_value_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_first_value_after" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first value of the given signal after the given timestamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal</strong> (<em>str</em>) – The full name of the signal in influxdb</p></li>
+<li><p><strong>timestamp</strong> (<em>pandas.Timestamp</em>) – Minimum age of value to look for</p></li>
+</ul>
+</dd>
+</dl>
+<p><em>Optional</em></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>default</strong> – Value to return if no result</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_last_value_before">
+<code class="sig-name descname">get_last_value_before</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_last_value_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_last_value_before" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the last value of the given signal before the given timestamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal</strong> (<em>str</em>) – The full name of the signal in influxdb</p></li>
+<li><p><strong>timestamp</strong> (<em>pandas.Timestamp</em>) – Maximum age of value to look for</p></li>
+</ul>
+</dd>
+</dl>
+<p><em>Optional</em></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>default</strong> – Value to return if no result</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_machine_list">
+<code class="sig-name descname">get_machine_list</code><span class="sig-paren">(</span><em class="sig-param">return_type='list'</em>, <em class="sig-param">verify_ssl=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_machine_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_machine_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list (default) or a dataframe containing all available
+machines in grafana.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>custom_sll</strong> – on the HPC this needs to be set to True</p></li>
+<li><p><strong>return_type</strong> (<em>str</em>) – Set to ‘list’ to return a list, or ‘dataframe’ to
+return a dataframe.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List or dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_signal_list">
+<code class="sig-name descname">get_signal_list</code><span class="sig-paren">(</span><em class="sig-param">machine</em>, <em class="sig-param">return_type='list'</em>, <em class="sig-param">verify_ssl=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_signal_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_signal_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of available measurements (signals) for the given
+machine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>machine</strong> (<em>dict</em><em> or </em><em>str</em>) – Machine to get the signal list for. Provide a machine
+number, source number or a machine dict. e.g. s38911
+or m6224.</p></li>
+<li><p><strong>return_type</strong> – Set to ‘list’ to return a list, or ‘dataframe’ to
+return a dataframe.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List or dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_signals">
+<code class="sig-name descname">get_signals</code><span class="sig-paren">(</span><em class="sig-param">signals</em>, <em class="sig-param">from_time=None</em>, <em class="sig-param">to_time=None</em>, <em class="sig-param">chunksize=50000</em>, <em class="sig-param">defaults=None</em>, <em class="sig-param">last_value=False</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">verify_tags=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get signals from the database between from_time and to_time. Uses chunk_signal() to send multiple
+small queries to the database that will return at most CHUNK_SIZE points. Returned points are
+concatenated in a single dataframe.</p>
+<dl>
+<dt>Each signal in the list should follow the following format:</dt><dd><p>&lt;source_nr&gt;.&lt;signal_type&gt;.&lt;signal_name&gt;[field]{tag}.&lt;aggregate_time&gt;.&lt;aggregate_func&gt;</p>
+<p><em>Examples:</em></p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard</span>
+<span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">transmission</span>
+<span class="c1"># Rolling mean 1h</span>
+<span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">transmission</span><span class="o">.</span><span class="mi">1</span><span class="n">h</span><span class="o">.</span><span class="n">mean</span>
+<span class="c1"># Specify field</span>
+<span class="n">s62179</span><span class="o">.</span><span class="n">DWMD</span><span class="o">.</span><span class="n">MCDWMD_EXPOSURE_MODE_PARAMS_EXPOSURE_MODE_DATA_MINI_BURST_MODE_PARAMETERS_BURST_DUTY_CYCLE_TAG</span><span class="p">[</span><span class="n">value01</span><span class="p">]</span>
+<span class="c1"># Last of the hour</span>
+<span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="mi">1</span><span class="n">h</span><span class="o">.</span><span class="n">last</span>
+<span class="c1"># Single tag filter</span>
+<span class="n">s62440</span><span class="o">.</span><span class="n">ScannerLog</span><span class="o">.</span><span class="n">de_err</span><span class="p">{</span><span class="n">code</span><span class="o">=</span><span class="n">DW</span><span class="o">-</span><span class="mi">3411</span><span class="p">}</span><span class="o">.</span><span class="mi">1</span><span class="n">d</span><span class="o">.</span><span class="n">max</span>
+<span class="c1"># Multi tag filter</span>
+<span class="n">s62265</span><span class="o">.</span><span class="n">RT23</span><span class="o">.</span><span class="n">TFMmajorAxis</span><span class="p">{</span><span class="n">subroutine</span><span class="o">=</span><span class="n">MP</span><span class="p">}{</span><span class="n">in_spec</span><span class="o">=</span><span class="kc">True</span><span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signals</strong> (<em>list&lt;str&gt;</em><em> or </em><em>str</em>) – Signal or list of signals</p></li>
+<li><p><strong>from_time</strong> (<em>pandas.Timestamp</em>) – Lower time limit</p></li>
+<li><p><strong>to_time</strong> (<em>pandas.Timestamp</em>) – Upper time limit</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em>) – The maximum number of points requested per query</p></li>
+<li><p><strong>verify_tags</strong> (<em>bool</em><em> (</em><em>Default=True</em><em>)</em>) – Verify that given tag keys and values are available for the given signal.
+Will raise an error if they don’t exist. Has a small performance penalty
+because it needs to send some extra queries to influx. This may become
+noticeable in rare cases where the list of signals is very long. So it can
+be disabled with this option.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print the name of the signal that’s currently being
+downloaded. Default is False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_signals_cached">
+<code class="sig-name descname">get_signals_cached</code><span class="sig-paren">(</span><em class="sig-param">signals</em>, <em class="sig-param">from_time=None</em>, <em class="sig-param">to_time=None</em>, <em class="sig-param">chunksize=50000</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">verify_tags=True</em>, <em class="sig-param">cache_only=False</em>, <em class="sig-param">cache_limit=Timedelta('0 days 00:00:00')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_signals_cached"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_signals_cached" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to get_signals, but builds up a disk cache of the retrieved data. This function offers a substantial
+performance improvement for data that is requested more than once. The cache will persist after the program
+has stopped.</p>
+<p>For more information see the documentation of get_signals. Note that the defaults and last_value options
+are not supported by this version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signals</strong> (<em>list&lt;str&gt;</em><em> or </em><em>str</em>) – Signal or list of signals</p></li>
+<li><p><strong>from_time</strong> (<em>pandas.Timestamp</em>) – Lower time limit</p></li>
+<li><p><strong>to_time</strong> (<em>pandas.Timestamp</em>) – Upper time limit</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em>) – The maximum number of points requested per query</p></li>
+<li><p><strong>verify_tags</strong> (<em>bool</em><em> (</em><em>Default=True</em><em>)</em>) – Verify tag avialability before running the query. See the documentation
+of get_signals for more information.</p></li>
+<li><p><strong>cache_only</strong> (<em>bool</em>) – Don’t query Influx, only return results from cache</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print the name of the signal that’s currently being
+downloaded. Default is False</p></li>
+<li><p><strong>cache_limit</strong> (<em>pandas.Timedelta</em>) – Time in days for which the cached data has to be refreshed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_signals_dict">
+<code class="sig-name descname">get_signals_dict</code><span class="sig-paren">(</span><em class="sig-param">signals_dict</em>, <em class="sig-param">source_id</em>, <em class="sig-param">from_time=None</em>, <em class="sig-param">to_time=None</em>, <em class="sig-param">chunksize=50000</em>, <em class="sig-param">last_value=False</em>, <em class="sig-param">defaults=None</em>, <em class="sig-param">create_columns=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_signals_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_signals_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe with signals from influx. The column names have been renamed
+to more human readable names, as provided in the signal_dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_dict</strong> – dictionary for signals to be retrieved and their human readable representation (as key)</p></li>
+<li><p><strong>source_id</strong> (<em>string</em>) – the source_id for which the signals have to be retrieved</p></li>
+<li><p><strong>from_time</strong> (<em>pandas.Timestamp</em>) – Lower time limit</p></li>
+<li><p><strong>to_time</strong> (<em>pandas.Timestamp</em>) – Upper time limit</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em>) – The maximum number of points requested per query</p></li>
+<li><p><strong>defaults</strong> (<em>dict</em>) – List of defaults if the requested signals yield no data.
+{‘signalA’: defaultA, ‘signalB’: defaultB, …}</p></li>
+<li><p><strong>last_value</strong> (<em>bool</em>) – <p>If there’s no data available for the given time
+window, return the last known value instead.</p>
+<p>If used in combination with the defaults option the
+last value will take precedence over the default.</p>
+</p></li>
+<li><p><strong>create_columns</strong> – if for a signal, no data is available, create the column containing NaNs (default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_tag_keys">
+<code class="sig-name descname">get_tag_keys</code><span class="sig-paren">(</span><em class="sig-param">signal_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_tag_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_tag_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns available tag keys for the given signal. Will return an empty
+list if there are none.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>signal_name</strong> (<em>str</em>) – Signal name e.g. s66224.RT23.TFMdebrisArea</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.EUVDashboard.clients.UserLANClient.get_tag_values">
+<code class="sig-name descname">get_tag_values</code><span class="sig-paren">(</span><em class="sig-param">signal_name</em>, <em class="sig-param">tag_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/clients.html#UserLANClient.get_tag_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.clients.UserLANClient.get_tag_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns available tag values for the given tag key. Will return
+an empty list if there are none.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_name</strong> (<em>str</em>) – Signal name e.g. s66224.RT23.TFMdebrisArea</p></li>
+<li><p><strong>tag_key</strong> (<em>str</em>) – Tag name e.g. ‘root_cause’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.EUVDashboard.common">
+<span id="common"></span><h2>Common<a class="headerlink" href="#module-pyeuv.EUVDashboard.common" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.common.has_etl_environment">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.common.</code><code class="sig-name descname">has_etl_environment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/common.html#has_etl_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.common.has_etl_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if pyeuv is running as part of the ETL environment.</p>
+<p>:returns True/False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.common.has_hpc_environment">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.common.</code><code class="sig-name descname">has_hpc_environment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/common.html#has_hpc_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.common.has_hpc_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if pyeuv is running on the HPC.</p>
+<p>:returns True/False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.common.has_sf18_environment">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.common.</code><code class="sig-name descname">has_sf18_environment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/common.html#has_sf18_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.common.has_sf18_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if pyeuv is running on the SF18 host machine.</p>
+<p>:returns True/False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.common.has_unix_environment">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.common.</code><code class="sig-name descname">has_unix_environment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/common.html#has_unix_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.common.has_unix_environment" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.EUVDashboard.shared">
+<span id="shared"></span><h2>Shared<a class="headerlink" href="#module-pyeuv.EUVDashboard.shared" title="Permalink to this headline">¶</a></h2>
+<p>shared.py
+Authors: RLBL, PKVB
+Date:  2019-09-25</p>
+<p>Modified version of ETL/shared.py for distribution with pyeuv.</p>
+<p><em>Avoid using this module directly, use clients.UserLANClient instead.</em></p>
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.chunk_signal">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">chunk_signal</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">user</em>, <em class="sig-param">from_time=None</em>, <em class="sig-param">to_time=None</em>, <em class="sig-param">chunksize=50000</em>, <em class="sig-param">dbclient=None</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">verify_tags=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#chunk_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.chunk_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data of a list of signals in chunks.
+The signal are aligned in time and are converted to the local time of the machine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>signal</strong> – Signal to get</p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Each</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">the</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">follow</span> <span class="n">the</span> <span class="n">following</span> <span class="nb">format</span><span class="p">:</span>
+    <span class="o">&lt;</span><span class="n">source_nr</span><span class="o">&gt;.&lt;</span><span class="n">signal_type</span><span class="o">&gt;.&lt;</span><span class="n">signal_name</span><span class="o">&gt;</span><span class="p">[</span><span class="n">field</span><span class="p">]{</span><span class="n">tag</span><span class="p">}</span><span class="o">.&lt;</span><span class="n">aggregate_time</span><span class="o">&gt;.&lt;</span><span class="n">aggregate_func</span><span class="o">&gt;</span>
+        <span class="n">Examples</span><span class="p">:</span>
+            <span class="n">Standard</span>          <span class="o">--&gt;</span> <span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">transmission</span>
+            <span class="n">Rolling</span> <span class="n">mean</span> <span class="mi">1</span><span class="n">h</span>   <span class="o">--&gt;</span> <span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">transmission</span><span class="o">.</span><span class="mi">1</span><span class="n">h</span><span class="o">.</span><span class="n">mean</span>
+            <span class="n">Specify</span> <span class="n">field</span>     <span class="o">--&gt;</span> <span class="n">s62179</span><span class="o">.</span><span class="n">DWMD</span><span class="o">.</span><span class="n">MCDWMD_EXPOSURE_MODE_PARAMS_EXPOSURE_MODE_DATA_MINI_BURST_MODE_PARAMETERS_BURST_DUTY_CYCLE_TAG</span><span class="p">[</span><span class="n">value01</span><span class="p">]</span>
+            <span class="n">Last</span> <span class="n">of</span> <span class="n">the</span> <span class="n">hour</span>  <span class="o">--&gt;</span> <span class="n">s62240</span><span class="o">.</span><span class="n">LUER</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="mi">1</span><span class="n">h</span><span class="o">.</span><span class="n">last</span>
+            <span class="n">Single</span> <span class="n">tag</span> <span class="nb">filter</span> <span class="o">--&gt;</span> <span class="n">s62440</span><span class="o">.</span><span class="n">ScannerLog</span><span class="o">.</span><span class="n">de_err</span><span class="p">{</span><span class="n">code</span><span class="o">=</span><span class="n">DW</span><span class="o">-</span><span class="mi">3411</span><span class="p">}</span><span class="o">.</span><span class="mi">1</span><span class="n">d</span><span class="o">.</span><span class="n">max</span>
+            <span class="n">Multi</span> <span class="n">tag</span> <span class="nb">filter</span>  <span class="o">--&gt;</span> <span class="n">s62265</span><span class="o">.</span><span class="n">RT23</span><span class="o">.</span><span class="n">TFMmajorAxis</span><span class="p">{</span><span class="n">subroutine</span><span class="o">=</span><span class="n">MP</span><span class="p">}{</span><span class="n">in_spec</span><span class="o">=</span><span class="kc">True</span><span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user</strong> (<em>str</em>) – name of the user that is requesting the data (will be used for authorisation)</p></li>
+<li><p><strong>from_time</strong> (<em>epoch</em><em> or </em><em>pd.Timestamp</em>) – epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is 0</p></li>
+<li><p><strong>to_time</strong> (<em>epoch</em><em> or </em><em>pd.Timestamp</em>) – epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is now</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em>) – Approximate number of records to return per iteration (default 5000)</p></li>
+<li><p><strong>dbclient</strong> (<em>DataFrameClient</em>) – Use the provided DataframeClient instead of automatically determinine the client based on</p></li>
+<li><p><strong>verify_tags</strong> (<em>bool</em><em> (</em><em>Default=True</em><em>)</em>) – Verify that given tag keys and values are available for the given signal.
+Will raise an error if they don’t exist. Has a small performance penalty
+because it needs to send some extra queries to influx. This may become
+noticeable in rare cases where the list of signals is very long. So it can
+be disabled with this option.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Prints chunk sizes if True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.first_value_after">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">first_value_after</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">from_time</em>, <em class="sig-param">default=None</em>, <em class="sig-param">dbclient=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#first_value_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.first_value_after" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the last value of a signal after the given timestamp</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.generate_influxdb_query">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">generate_influxdb_query</code><span class="sig-paren">(</span><em class="sig-param">signal_name</em>, <em class="sig-param">from_time</em>, <em class="sig-param">to_time</em>, <em class="sig-param">limit</em>, <em class="sig-param">dbclient</em>, <em class="sig-param">verify_tags=True</em>, <em class="sig-param">order_by_desc=False</em>, <em class="sig-param">adjust_groupby_boundaries=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#generate_influxdb_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.generate_influxdb_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate InfluxQL query from signal name. If group by is used will also
+suggest a new from_time for the next chunk. Otherwise the third return
+value will be None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>from_time</strong> (<em>Unix timestamp in</em><em> [</em><em>ns</em><em>] </em><em>as int64</em>) – From time</p></li>
+<li><p><strong>to_time</strong> (<em>Unix timestamp in</em><em> [</em><em>ns</em><em>] </em><em>as int64</em>) – To time</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – Max number of points to be returned by this query</p></li>
+<li><p><strong>dbclient</strong> (<em>InfluxClient</em>) – Influx client used to lookup meta information</p></li>
+<li><p><strong>verify_tags</strong> (<em>bool</em><em> (</em><em>Default=True</em><em>)</em>) – Verify that given tag keys and values are available for the given signal.
+Will raise an error if they don’t exist. Has a small performance penalty
+because it needs to send some extra queries to influx. This may become
+noticeable in rare cases where the list of signals is very long. So it can
+be disabled with this option.</p></li>
+<li><p><strong>order_by_desc</strong> (<em>bool</em>) – Return results in reverse order if true.</p></li>
+<li><p><strong>adjust_groupby_boundaries</strong> (<em>bool</em>) – When groupby is used, adjusts the boundaries of the query such that groups
+aren’t broken up as this would otherwise cause inconsistent aggregates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>database name and InfluxQL Query</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str, str, pd.Timestamp/None)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.get_aggregated_dataframe">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">get_aggregated_dataframe</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">report_date</em>, <em class="sig-param">signals</em>, <em class="sig-param">machines</em>, <em class="sig-param">clear_cache=False</em>, <em class="sig-param">max_retention=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#get_aggregated_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.get_aggregated_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain aggregated values for the given day. Use only for KPI.DayAggregates._ signals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – Influx client to use</p></li>
+<li><p><strong>report_date</strong> – datetime.datetime.</p></li>
+<li><p><strong>signals</strong> – list of signal names to extract. (Uses value column)</p></li>
+<li><p><strong>machines</strong> – list of machines to include.</p></li>
+<li><p><strong>clear_cache</strong> – Set to true to clear the query cache</p></li>
+<li><p><strong>max_retention</strong> – integer number of days, default is 0. Allow the this function to return older aggregated values
+if no values are available for the given day. Values will not be older than [max_retention] days. If set to 0
+no older values will be used.</p></li>
+</ul>
+</dd>
+</dl>
+<p><em>This function makes the following assumptions for the signal</em></p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>The aggregated value for a given day is written with a timestamp 00:00:00 (start of the day)</dt><dd><p>a tolerance of +/- 1s is used.</p>
+</dd>
+</dl>
+</li>
+<li><p>There is only one aggregated value in this range</p></li>
+</ul>
+<p>Returns: pandas.DataFrame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.get_signals">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">get_signals</code><span class="sig-paren">(</span><em class="sig-param">signals</em>, <em class="sig-param">user</em>, <em class="sig-param">from_time=None</em>, <em class="sig-param">to_time=None</em>, <em class="sig-param">chunksize=50000</em>, <em class="sig-param">defaults=None</em>, <em class="sig-param">last_value=False</em>, <em class="sig-param">dbclient=None</em>, <em class="sig-param">verify_tags=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#get_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.get_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get signals from the database between from_time and to_time. Uses chunk_signal() to send multiple
+small queries to the database that will return at most CHUNK_SIZE points. Returned points are
+cocatenated in a single dataframe. Returned timestamps are in UTC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signals</strong> (<em>list&lt;str&gt;</em><em> or </em><em>str</em>) – Signal or list of signals
+This parameter can contain modifiers to manupulate the signal. See chunk_signal() for details.</p></li>
+<li><p><strong>user</strong> – The InfluxDB user account name</p></li>
+<li><p><strong>from_time</strong> (<em>pandas.Timestamp</em>) – Lower time limit</p></li>
+<li><p><strong>to_time</strong> (<em>pandas.Timestamp</em>) – Upper time limit</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em>) – The maximum number of points requested per query</p></li>
+<li><p><strong>defaults</strong> (<em>dict</em>) – Dict with defaults if the requested signals yield no data.
+{‘signalA’: defaultA, ‘signalB’: defaultB, …}</p></li>
+<li><p><strong>last_value</strong> (<em>bool</em>) – <p>If there’s no data available for the given time
+window, return the last known value instead.</p>
+<p>If used in combination with the defaults option the
+last value will take precedence over the default.</p>
+</p></li>
+<li><p><strong>dbclient</strong> – Use the provided DataframeClient instead of automatically
+determining the client based on hostname.</p></li>
+<li><p><strong>verify_tags</strong> (<em>bool</em><em> (</em><em>Default=True</em><em>)</em>) – Verify that given tag keys and values are available for the given signal.
+Will raise an error if they don’t exist. Has a small performance penalty
+because it needs to send some extra queries to influx. This may become
+noticeable in rare cases where the list of signals is very long. So it can
+be disabled with this option.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print the name of the signal that’s currently being
+downloaded as well as the chunk sizes. Default is False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rtype pandas.DataFrame</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.get_signals_dict">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">get_signals_dict</code><span class="sig-paren">(</span><em class="sig-param">signals_dict</em>, <em class="sig-param">source_id</em>, <em class="sig-param">user</em>, <em class="sig-param">from_time=None</em>, <em class="sig-param">to_time=None</em>, <em class="sig-param">chunksize=50000</em>, <em class="sig-param">defaults=None</em>, <em class="sig-param">last_value=False</em>, <em class="sig-param">create_columns=False</em>, <em class="sig-param">dbclient=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#get_signals_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.get_signals_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe with signals from influx. The column names have been renamed
+to more human readable names, as provided in the signal_dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_dict</strong> – dictionary for signals to be retrieved and their human readable representation (as key)</p></li>
+<li><p><strong>source_id</strong> (<em>string</em>) – the source_id for which the signals have to be retrieved</p></li>
+<li><p><strong>from_time</strong> (<em>pandas.Timestamp</em>) – Lower time limit</p></li>
+<li><p><strong>to_time</strong> (<em>pandas.Timestamp</em>) – Upper time limit</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em>) – The maximum number of points requested per query</p></li>
+<li><p><strong>defaults</strong> (<em>dict</em>) – List of defaults if the requested signals yield no data.
+{‘signalA’: defaultA, ‘signalB’: defaultB, …}</p></li>
+<li><p><strong>last_value</strong> (<em>bool</em>) – <p>If there’s no data available for the given time
+window, return the last known value instead.</p>
+<p>If used in combination with the defaults option the
+last value will take precedence over the default.</p>
+</p></li>
+<li><p><strong>create_columns</strong> – if for a signal, no data is available, create the column containing NaNs (default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.get_tag_keys">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">get_tag_keys</code><span class="sig-paren">(</span><em class="sig-param">signal_name</em>, <em class="sig-param">dbclient</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#get_tag_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.get_tag_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns available tag keys for the given signal. Will return an empty
+list if there are none.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_name</strong> (<em>str</em>) – Signal name e.g. s66224.RT23.TFMdebrisArea</p></li>
+<li><p><strong>dbclient</strong> (<em>InfluxDB client</em>) – Influx client to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.get_tag_values">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">get_tag_values</code><span class="sig-paren">(</span><em class="sig-param">signal_name</em>, <em class="sig-param">tag_key</em>, <em class="sig-param">dbclient</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#get_tag_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.get_tag_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns available tag values for the given tag key. Will return
+an empty list if there are none.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_name</strong> (<em>str</em>) – Signal name e.g. s66224.RT23.TFMdebrisArea</p></li>
+<li><p><strong>tag_key</strong> (<em>str</em>) – Tag name e.g. ‘root_cause’</p></li>
+<li><p><strong>dbclient</strong> (<em>InfluxDB client</em>) – Influx client to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.last_value_before">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">last_value_before</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">to_time</em>, <em class="sig-param">default=None</em>, <em class="sig-param">dbclient=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#last_value_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.last_value_before" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the last value of a signal before the given timestamp</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.query_with_retry">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">query_with_retry</code><span class="sig-paren">(</span><em class="sig-param">query</em>, <em class="sig-param">database</em>, <em class="sig-param">user</em>, <em class="sig-param">dbclient</em>, <em class="sig-param">n_retry=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#query_with_retry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.query_with_retry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the query and retry if it fails.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – InfluxQL query</p></li>
+<li><p><strong>database</strong> (<em>str</em>) – Database (source_nr) to query on</p></li>
+<li><p><strong>dbclient</strong> (<em>influx.DataFrameClient</em>) – Influx client to use</p></li>
+<li><p><strong>n_retry</strong> (<em>int</em>) – Max number of retries</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Query result</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.EUVDashboard.shared.results_to_dataframe">
+<code class="sig-prename descclassname">pyeuv.EUVDashboard.shared.</code><code class="sig-name descname">results_to_dataframe</code><span class="sig-paren">(</span><em class="sig-param">resultset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/EUVDashboard/shared.html#results_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.EUVDashboard.shared.results_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts results from the InfluxClient to dataframes. This is a workaround
+for the ‘broken’ DataFrameClient where it doesn’t support execution of multiple
+queries.</p>
+<p>Borrowed from influxdb.DataFrameClient._to_dataframe.
+Modified to return one dataframe per resultset.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="PMA.html" class="btn btn-neutral float-right" title="PMA" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api_reference.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,189 @@
+.. highlight:: python
+
+Examples
+========
+The .py files for these examples can be found in the doc/examples folder.
+
+1. Download & plot some RT5
+---------------------------
+This example uses the matplotlib module to plot the results. If you get an
+import error for this module you can install it using conda or pip.
+
+::
+
+    conda install matplotlib
+
+or
+
+::
+
+    pip install matplotlib
+
+::
+
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    from pyeuv.EUVDashboard.clients import UserLANClient
+
+    if __name__ == '__main__':
+        # Create the client instance, this will invoke a password prompt.
+        c = UserLANClient()
+
+        # Get data. The signal name is the same as the one used in Grafana
+        # Note that by adding the .1h.mean we downsample the data to an hourly mean.
+        df = c.get_signals(
+            signals=['s38441.RT05.BDenergyAvgOn.1h.mean'],
+            from_time=pd.Timestamp('2018-02-01'),
+            to_time=pd.Timestamp('2018-02-10')
+        )
+
+        df.columns = ['BDenergyAvgOn']  # Set convenient column name
+
+        # Thats it, lets plot the data to see if it worked.
+        plt.plot(df.index, df['BDenergyAvgOn'], '.r')
+        plt.show()
+
+
+
+2. Using tag filters
+--------------------
+Some signals contain tags. Tags are used to mark data points with a certain
+condition. For example the tag 'subroutine' will tell you the subroutine that
+was used to take the measurement. You can use these tags to efficiently
+filter your data points so if you want to get only the points that were taken
+during the MP subroutine, your tag filter will be {subroutine=MP}. You can
+specify these filters by enclosing them inside curly brackets, at the end of
+a signal. It's possible to use multiple tag filters as the example below
+illustrates.
+
+::
+
+    import pandas as pd
+    from pyeuv.EUVDashboard.clients import UserLANClient
+
+    if __name__ == '__main__':
+
+        # Create the client object
+        c = UserLANClient()
+
+        # Get data. The signal name is the same as the one used in Grafana
+        # Note that by adding the {subroutine=MP} part we retrieve only the points
+        # where this condition is true. It's possible to add multiple tag filters.
+        data = c.get_signals(
+            ['s62265.RT23.TFMmajorAxis{subroutine=MP}{in_spec=True}'],
+            pd.Timestamp('2018-08-23 14:00:00'),
+            pd.Timestamp('2018-08-23 15:00:00')
+        )
+
+        print(data)
+
+3. Selecting fields
+-------------------
+Most signals in the EUV Dashbaord database have only one field called 'value'. 
+In these cases, like the previous examples, you don't need to specify the field,
+and pyeuv will assume that you meant the 'value' field.
+
+Some signals however have multiple fields, the example below shows how to obtain
+data from a particular field other than 'value'.
+
+::
+
+    import pandas as pd
+    from pyeuv.EUVDashboard.clients import UserLANClient
+
+    if __name__ == '__main__':
+
+        # Create the client object
+        c = UserLANClient()
+
+        # Define time window to get the data for
+        tstart = pd.Timestamp('2018-09-01 00:00:00')
+        tstop = pd.Timestamp('2018-09-05 00:00:00')
+
+        # Retrive a single field using []
+        data = c.get_signals(
+            ["s62269.SourceLog.OSD-0200[target_euv]"],
+            pd.Timestamp('2018-09-01 14:00:00'),
+            pd.Timestamp('2018-09-05 15:00:00')
+        )
+        print(data.head(5))
+
+        # Retrieve all fields using the [*]
+        data = c.get_signals(
+            ["s62269.SourceLog.OSD-0200[*]"],
+            pd.Timestamp('2018-09-01 14:00:00'),
+            pd.Timestamp('2018-09-05 15:00:00')
+        )
+
+        print(data.head(5))
+
+4. Parse a DAT file
+--------------------
+The example below illustrates how to use pyeuv to parse DAT files into a dataframe
+and then plot the contents. Pyeuv supports DATv0, DATv1 and DATv2.
+
+Note: DATv1 files require metadata, usually provided in a 'SignalMetadata.csv' or
+'SignalMetadata.txt' file that can be found in the directory where you found the data.
+Pyeuv will look for this file in the same directory as the data files. If the file is
+elsewhere you can use the datv1_metadatafile parameter of the parse_dat function to 
+specify it.
+
+parse_dat will only extract signals that have been specifically requested, the example
+below extracts only the BDenergyAvgOn signal. If you want to know wich signals are 
+available in a particular dat file, you can use the ls_dat function of the dat_parser.
+See API Reference for more information.
+
+::
+
+    import matplotlib.pyplot as plt
+
+    from pyeuv.Parsers import dat_parser
+
+    if __name__ == '__main__':
+        # Provide  the list of filenames to process
+        filenames = ['RT5_test.xz']
+
+        signal_list = ['BDenergyAvgOn']
+        df = dat_parser.parse_dat(filenames, signal_list)
+
+        plt.plot(df.index, df['BDenergyAvgOn'])
+        plt.show()
+
+5. Download DW_SLIE data from PMA NG
+------------------------------------
+The example below illustrates how to download and plot scanner KPI a.k.a. scanner parameters
+from PMA NG. Note that you need a user account with PMA Authorization as well as an API key.
+For more information on obtaining an API key, please visit the `PMA knowledge base
+<https://my.asml.com/sectors/bf/ops/FieldCS/CSInfra/PMAKB/All%20you%20need%20to%20know%20on%20Secure%20API/02.%20Tool%20development%20on%20Secure%20API.aspx>`_.
+or contact dl-pma-developer-support@asml.com
+
+::
+
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    from pyeuv.PMA.clients import PMAClient
+
+
+    # PMA credentials and api_key. Please refer to example #5 in the documentation for more info.
+    username = "<your_pma_username>"
+
+    # Warning: This is for testing only. Do not store passwords in your code.
+    password = "<your_pma_password>"
+    api_key = "<your_pma_api_key>"
+
+    machine = {
+        'machine_nr': 9445,
+        'name': 'TSMC 7'
+    }
+
+    # Download the data
+    pma_client = PMAClient(username, password, api_key)
+    df_slie = pma_client.get_parameters(['DW_SLIE'], machine, pd.Timestamp('2019-04-01'),
+                                        pd.Timestamp('2019-05-01'), verbose=True)['DW_SLIE']
+
+    # Plot the results
+    plt.plot(df_slie.index, df_slie['value'], '.r')
+    plt.show()
+

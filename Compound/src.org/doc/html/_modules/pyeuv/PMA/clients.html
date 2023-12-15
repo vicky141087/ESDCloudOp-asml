@@ -1,0 +1,771 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.PMA.clients &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.PMA.clients</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.PMA.clients</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">**PMA NG Readers**</span>
+
+<span class="sd">SQL queries are based on the PMA Secure API Developer guide</span>
+<span class="sd">which can be obtained from dl-pma-developer-support@asml.com.</span>
+
+<span class="sd">Author: RLBL</span>
+<span class="sd">Date: 2019-07-29</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">psycopg2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="PMAClient"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient">[docs]</a><span class="k">class</span> <span class="nc">PMAClient</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Downloads data from PMA and parses it into dataframes. Requires api-key and user with PMA-NG authorization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;pma.asml.com&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">35432</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes connection to PMA</span>
+
+<span class="sd">        :param username: ASML account name with PMA NG authorizations</span>
+<span class="sd">        :type username: str</span>
+<span class="sd">        :param password: Password for the account</span>
+<span class="sd">        :type password: str</span>
+<span class="sd">        :param api_key: Secure API key for PMA NG. For more information on how to request a key contact</span>
+<span class="sd">                        dl-pma-developer-support@asml.com.</span>
+<span class="sd">        :type api_key: str</span>
+<span class="sd">        :param host: Hostname of the PMA API provider, default: pma.asml.com</span>
+<span class="sd">        :type host: str</span>
+<span class="sd">        :param port: Port of the PMA API, default: 35432</span>
+<span class="sd">        :type port: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conn_str</span> <span class="o">=</span> <span class="s2">&quot;dbname=PMA.3 user=</span><span class="si">{0}</span><span class="s2">+</span><span class="si">{1}</span><span class="s2"> password=</span><span class="si">{2}</span><span class="s2"> host=</span><span class="si">{3}</span><span class="s2"> port=</span><span class="si">{4}</span><span class="s2">;disableLocalTxn=true&quot;</span> \
+                   <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connecting to PMA NG&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">conn_str</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PMAClient.get_parameters"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient.get_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Downloads scanner parameters a.k.a. Scanner KPI from CDL trough the PMA NG interface.</span>
+
+<span class="sd">        :param parameters: List of PMA parameters to download. Use list_parameters to find out</span>
+<span class="sd">                           which parameter names are available</span>
+<span class="sd">        :type parameters: list&lt;str&gt;</span>
+<span class="sd">        :param machine: Machine information to download data for. Requires pyeuv machine dict.</span>
+<span class="sd">        :type machine: dict</span>
+<span class="sd">        :param tstart: Start time of the window</span>
+<span class="sd">        :type tstart: pandas.Timestamp</span>
+<span class="sd">        :param tstop: Stop time of the window</span>
+<span class="sd">        :type tstop: pandas.Timestamp</span>
+<span class="sd">        :param verbose: Print messages</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        :param n_retries: Number of times to retry a query</span>
+<span class="sd">        :type n_retries: int</span>
+<span class="sd">        :param retry_sleep: Time to sleep in [s] between retries.</span>
+<span class="sd">        :type retry_sleep: int</span>
+<span class="sd">        :return: Dict containing a result dataframes per given parameter.</span>
+<span class="sd">        :rtype: dict{parameter_name: pd.DataFrame}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            fact.SAMPLE_DT AS &quot;timestamp&quot;,</span>
+<span class="s2">            CAST(fact.VALUE AS FLOAT) AS &quot;value&quot;</span>
+<span class="s2">        FROM</span>
+<span class="s2">              &quot;PARAMETER_DIM&quot; t, &quot;PARAMETER_FACT&quot; fact</span>
+<span class="s2">        WHERE</span>
+<span class="s2">          t.NAME = &#39;</span><span class="si">{parameter}</span><span class="s2">&#39; AND</span>
+<span class="s2">          fact.PARAMETER_DIM_ID = t.PARAMETER_DIM_ID AND</span>
+<span class="s2">          fact.EQUIPMENT_NR = &#39;</span><span class="si">{machine_nr}</span><span class="s2">&#39; AND </span>
+<span class="s2">          fact.SAMPLE_DT &gt; PARSETIMESTAMP(&#39;</span><span class="si">{tstart}</span><span class="s2">&#39;, &#39;yyyy-MM-dd hh:mm:ss&#39;) AND</span>
+<span class="s2">          fact.SAMPLE_DT &lt; PARSETIMESTAMP(&#39;</span><span class="si">{tstop}</span><span class="s2">&#39;, &#39;yyyy-MM-dd hh:mm:ss&#39;)</span>
+<span class="s2">        ORDER BY</span>
+<span class="s2">              fact.SAMPLE_DT</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="n">qry_tpl</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Obtaining: </span><span class="si">{0}</span><span class="s2"> [</span><span class="si">{1}</span><span class="s2"> - </span><span class="si">{2}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">p</span><span class="p">,</span>
+                    <span class="n">tstart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">),</span>
+                    <span class="n">tstop</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)))</span>
+
+            <span class="n">qry</span> <span class="o">=</span> <span class="n">qry_tpl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+                <span class="s2">&quot;parameter&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+                <span class="s2">&quot;machine_nr&quot;</span><span class="p">:</span> <span class="n">machine</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;tstart&quot;</span><span class="p">:</span> <span class="n">tstart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;tstop&quot;</span><span class="p">:</span> <span class="n">tstop</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+            <span class="p">})</span>
+
+            <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_qry_with_retry</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="n">n_retries</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="n">retry_sleep</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="n">signal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="PMAClient.list_parameters"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient.list_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">list_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of available parameters. If full=True will also return the unit and</span>
+<span class="sd">        description of the signal in a nested list of size Nx3. Currently (2019-07-15) the list</span>
+<span class="sd">        of units is incomplete, and descriptions are missing completely so this option is</span>
+<span class="sd">        disabled by default.</span>
+
+<span class="sd">        :param full: Include unit and description (default: False)</span>
+<span class="sd">        :type full: bool</span>
+<span class="sd">        :param n_retries: Number of times to retry a query</span>
+<span class="sd">        :type n_retries: int</span>
+<span class="sd">        :param retry_sleep: Time to sleep in [s] between retries.</span>
+<span class="sd">        :type retry_sleep: int</span>
+<span class="sd">        :return: Dataframe with the test results</span>
+
+<span class="sd">        :rtype: list&lt;str&gt; (default) or list&lt;list&lt;str&gt;&gt;&gt; (full=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;SELECT * FROM PARAMETER_DIM&quot;&quot;&quot;</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qry_with_retry</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="n">n_retries</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="n">retry_sleep</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_pivot_cpd_results</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the dataframe with CPD results such that each TAG value becomes a column.</span>
+
+<span class="sd">        :param df: Dataframe with cpd results</span>
+<span class="sd">        :return: Pivoted df</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Formats starting with COL contain multiple columns. Make the columns names unique using the array index</span>
+        <span class="n">idx_col</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;FORMAT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;COL&#39;</span><span class="p">)</span>  <span class="c1"># get index of those lines in FORMAT column that start with COL</span>
+        <span class="c1"># replace the column TAG content with the merging of the content of TAG and ARRAY_INDEX at the indices just</span>
+        <span class="c1"># found</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_col</span><span class="p">,</span> <span class="s1">&#39;TAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_col</span><span class="p">,</span> <span class="s1">&#39;TAG&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_col</span><span class="p">,</span> <span class="s1">&#39;ARRAY_INDEX&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;str&#39;</span><span class="p">)</span>
+
+        <span class="c1"># create df having as index TEST_FACT_ID and column name from the column TAG, sort by VALUE</span>
+        <span class="n">dfp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;TAG&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;VALUE&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dfp</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_pivot_cpd_results</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the dataframe with CPD results such that each TAG value becomes a column.</span>
+
+<span class="sd">        :param df: Dataframe with cpd results</span>
+<span class="sd">        :return: Pivoted df</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># create df having as index TEST_FACT_ID and column name from the column TAG, sort by VALUE</span>
+        <span class="c1"># drop those columns that are all empty</span>
+        <span class="n">dfp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;TAG&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;VALUE_&#39;</span> <span class="o">+</span> <span class="n">data_type</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dfp</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_pivot_cpd_results_eq</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the dataframe with CPD results such that each TAG value becomes a column.</span>
+
+<span class="sd">        :param df: Dataframe with cpd results</span>
+<span class="sd">        :return: Pivoted df</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;EQUIPMENT_NR&#39;</span><span class="p">,</span> <span class="s1">&#39;TAG&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># create df having as index TEST_FACT_ID and column name from the column TAG, sort by VALUE</span>
+        <span class="c1"># drop those columns that are all empty</span>
+        <span class="n">dfp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span><span class="s1">&#39;EQUIPMENT_NR&#39;</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;TAG&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;VALUE_&#39;</span> <span class="o">+</span> <span class="n">data_type</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dfp</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_tag</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the dataframe with CPD results such that each TAG value becomes a column name.</span>
+
+<span class="sd">        :param df: Dataframe with cpd results</span>
+<span class="sd">        :return:  Dataframe with cpd results with formatted columns names in &#39;TAG&#39; column</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Formats starting with COL contain multiple columns. Make the columns names unique using the array index</span>
+        <span class="n">idx_col</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;FORMAT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;COL&#39;</span><span class="p">)</span>  <span class="c1"># get index of those lines in FORMAT column that start with COL</span>
+        <span class="c1"># replace the column TAG content with the merging of the content of TAG and ARRAY_INDEX at the indices just</span>
+        <span class="c1"># found</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_col</span><span class="p">,</span> <span class="s1">&#39;TAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_col</span><span class="p">,</span> <span class="s1">&#39;TAG&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_col</span><span class="p">,</span> <span class="s1">&#39;ARRAY_INDEX&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;str&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_qry_with_retry</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute a query and retry on failure.</span>
+
+<span class="sd">        :param cur: Cursor with qry() method</span>
+<span class="sd">        :type cur: psycopg2 cursor</span>
+<span class="sd">        :param qry: The query to execute</span>
+<span class="sd">        :param qry: str</span>
+<span class="sd">        :param n_retries: Number of retries</span>
+<span class="sd">        :type n_retries: int</span>
+<span class="sd">        :param retry_sleep: Number of seconds between retries</span>
+<span class="sd">        :type retry_sleep: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">retry_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">retry_count</span> <span class="o">&lt;=</span> <span class="n">n_retries</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">OperationalError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">retry_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Could not complete query: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Retry in </span><span class="si">{0}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">retry_sleep</span><span class="p">))</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">retry_sleep</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PMAClient.get_cpd_results"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient.get_cpd_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_cpd_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpd_name</span><span class="p">,</span> <span class="n">machines</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">pivot_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">n_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get CPD (Control Performance Diagnostics) test results.</span>
+
+<span class="sd">        :param cpd_name: Name of the CPD, e.g. LUES or WDDC</span>
+<span class="sd">        :type cpd_name: str</span>
+<span class="sd">        :param machines: Machines to obtain the results for</span>
+<span class="sd">        :type machines: list&lt;dict&gt;  (Pyeuv machine dict)</span>
+<span class="sd">        :param tstart: Start time of the test must be greater than this</span>
+<span class="sd">        :type tstart:  pandas.Timestamp()</span>
+<span class="sd">        :param tstop: Start time of the test must be smaller than this</span>
+<span class="sd">        :type tstop: pandas.Timestamp()</span>
+<span class="sd">        :param pivot_results: Pivot results, see pivot_cpd_table</span>
+<span class="sd">        :type pivot_results: bool</span>
+<span class="sd">        :param verbose: Bitch and moan a lot</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        :param n_retries: Number of times to retry a query</span>
+<span class="sd">        :type n_retries: int</span>
+<span class="sd">        :param retry_sleep: Time to sleep in [s] between retries.</span>
+<span class="sd">        :type retry_sleep: int</span>
+<span class="sd">        :return: Dataframe with the test results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pma_types</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;BOOL&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;INT&#39;</span><span class="p">:</span> <span class="s1">&#39;Int64&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;DOUBLE&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;TEXT&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span>
+        <span class="p">}</span>
+
+        <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="c1"># query template</span>
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT</span>
+<span class="s2">          TESTREPORT_FACT_ID,</span>
+<span class="s2">          TESTREPORT_FACT_TEST_DT as TEST_DT,</span>
+<span class="s2">          TESTREPORT_FACT_EQUIPMENT_NR as EQUIPMENT_NR,</span>
+<span class="s2">          TAG,</span>
+<span class="s2">          FORMAT as FORMATORG,</span>
+<span class="s2">          CASE WHEN FORMAT IN (&#39;INT&#39;,&#39;COL_INT&#39;) THEN (</span>
+<span class="s2">                                                       CASE WHEN TAG = &#39;LUES_MACHINE_NUMBER_TAG&#39; THEN &#39;TEXT&#39; ELSE FORMAT END</span>
+<span class="s2">                                                     ) </span>
+<span class="s2">                                                ELSE FORMAT END  AS FORMAT,                 </span>
+<span class="s2">          ARRAY_INDEX,</span>
+<span class="s2">          CASE WHEN FORMAT IN (&#39;TEXT&#39;,&#39;COL_TEXT&#39;) THEN VALUE_TEXT </span>
+<span class="s2">                                                  ELSE  (</span>
+<span class="s2">                                                       CASE WHEN TAG = &#39;LUES_MACHINE_NUMBER_TAG&#39; THEN  VALUE_TEXT ELSE NULL END</span>
+<span class="s2">                                                     ) END</span>
+<span class="s2">                                                      AS VALUE_TEXT,</span>
+<span class="s2">          CASE WHEN FORMAT IN (&#39;BOOL&#39;,&#39;COL_BOOL&#39;) THEN VALUE_BOOLEAN ELSE NULL END AS VALUE_BOOL,</span>
+<span class="s2">          CASE WHEN FORMAT IN (&#39;INT&#39;,&#39;COL_INT&#39;) THEN (</span>
+<span class="s2">                                                       CASE WHEN TAG = &#39;LUES_MACHINE_NUMBER_TAG&#39; THEN NULL ELSE VALUE_INTEGER END</span>
+<span class="s2">                                                     ) </span>
+<span class="s2">                                                 ELSE NULL END AS VALUE_INT,</span>
+<span class="s2">          CASE WHEN FORMAT IN (&#39;DOUBLE&#39;,&#39;COL_DOUBLE&#39;) THEN VALUE_DOUBLE ELSE NULL END AS VALUE_DOUBLE,</span>
+<span class="s2">          CASE WHEN FORMAT IN (&#39;DOUBLE&#39;,&#39;COL_DOUBLE&#39;) THEN VALUE_EXPONENT ELSE NULL END AS VALUE_EXPONENT,</span>
+<span class="s2">          TESTREPORT_FACT_TEST_NAME</span>
+<span class="s2">        FROM     TESTREPORT_VALUE_FACT</span>
+<span class="s2">         WHERE    TESTREPORT_FACT_EQUIPMENT_NR IN </span><span class="si">{1}</span><span class="s2"></span>
+<span class="s2">           AND     TESTREPORT_FACT_TEST_DT BETWEEN &#39;</span><span class="si">{2}</span><span class="s2">&#39; AND &#39;</span><span class="si">{3}</span><span class="s2">&#39;</span>
+<span class="s2">           AND     TESTREPORT_FACT_TEST_NAME = &#39;</span><span class="si">{0}</span><span class="s2">&#39;</span>
+<span class="s2">         ORDER BY       TESTREPORT_FACT_EQUIPMENT_NR,</span>
+<span class="s2">           TESTREPORT_FACT_TEST_DT,</span>
+<span class="s2">           TAG,</span>
+<span class="s2">           ARRAY_INDEX;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="n">qry_tpl</span><span class="p">)</span>
+        <span class="n">tstart_str</span> <span class="o">=</span> <span class="n">tstart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">tstop_str</span> <span class="o">=</span> <span class="n">tstop</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">machines_str</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">qry</span> <span class="o">=</span> <span class="n">qry_tpl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cpd_name</span><span class="p">,</span> <span class="n">machines_str</span><span class="p">,</span> <span class="n">tstart_str</span><span class="p">,</span> <span class="n">tstop_str</span><span class="p">)</span>  <span class="c1"># fill in</span>
+            <span class="c1"># the spots of the template table_type with the given parameters</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qry_with_retry</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="n">n_retries</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="n">retry_sleep</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="c1">#</span>
+            <span class="n">all_results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">description</span><span class="p">])</span>
+            <span class="n">table_types</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">pma_types</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="k">for</span> <span class="n">table_type</span> <span class="ow">in</span> <span class="n">table_types</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Formatting </span><span class="si">{0}</span><span class="s2"> FACT TABLE&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_type</span><span class="p">))</span>
+                <span class="n">col_name</span> <span class="o">=</span> <span class="s1">&#39;VALUE_&#39;</span> <span class="o">+</span> <span class="n">table_type</span>
+                <span class="n">all_results_df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_results_df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pma_types</span><span class="p">[</span><span class="n">table_type</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">table_type</span> <span class="o">==</span> <span class="s1">&#39;DOUBLE&#39;</span><span class="p">:</span>
+                    <span class="n">all_results_df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span>
+                        <span class="mf">10.0</span><span class="p">,</span> <span class="n">all_results_df</span><span class="p">[</span><span class="s1">&#39;VALUE_EXPONENT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;double&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span>
+                    <span class="n">all_results_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;VALUE_EXPONENT&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># remove column once used</span>
+            <span class="n">all_results_df</span><span class="p">[</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_results_df</span><span class="p">[</span><span class="s1">&#39;TESTREPORT_FACT_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
+            <span class="n">all_results_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;TESTREPORT_FACT_ID&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># remove column once used</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">dfp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pivot_results</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_results_df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Concatenate columns and sort along rows</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_tag</span><span class="p">(</span><span class="n">all_results_df</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">table_types</span><span class="p">:</span>
+                <span class="n">pivot_df</span><span class="o">=</span><span class="n">all_results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">all_results_df</span><span class="p">[</span><span class="s1">&#39;FORMAT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;TAG&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_&#39;</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="s1">&#39;EQUIPMENT_NR&#39;</span><span class="p">]]</span>
+                <span class="n">piv_sub_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pivot_cpd_results_eq</span><span class="p">(</span><span class="n">pivot_df</span><span class="p">,</span>
+                                                     <span class="n">k</span><span class="p">)</span>  <span class="c1"># every time the tag is re considered, change it</span>
+                <span class="n">dfp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dfp</span><span class="p">,</span> <span class="n">piv_sub_df</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">dfp</span> <span class="o">=</span> <span class="n">dfp</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">)</span>
+            <span class="n">dfp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;EQUIPMENT_NR&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># if no data retrieved do nothing</span>
+            <span class="k">pass</span>
+        <span class="c1"># dfp = pd.concat([results[k] for k in results], sort=True)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_results_df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Add columns from TESTREPORT_FACT that were removed during pivoting</span>
+            <span class="n">dfp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">left</span><span class="o">=</span><span class="n">dfp</span><span class="p">,</span>
+                <span class="c1"># the merged dataframe are the columns TEST_FACT_ID&#39;, &#39;TEST_DT&#39;, &#39;EQUIPMENT_NR of the  the DOUBLE df from</span>
+                <span class="c1"># which the duplicates in TEST_FACT_ID are removed</span>
+                <span class="n">right</span><span class="o">=</span><span class="n">all_results_df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+                    <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;TEST_DT&#39;</span><span class="p">,</span> <span class="s1">&#39;EQUIPMENT_NR&#39;</span><span class="p">]],</span>
+                <span class="n">on</span><span class="o">=</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+
+            <span class="n">dfp</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;TEST_FACT_ID&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">dfp</span></div>
+
+<div class="viewcode-block" id="PMAClient.get_machine_constants"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient.get_machine_constants">[docs]</a>    <span class="k">def</span> <span class="nf">get_machine_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mc_name</span><span class="p">,</span> <span class="n">machines</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dataframe with the requested machine constant data.</span>
+
+<span class="sd">        :param mc_name: Name of the machine constant, e.g. MCULTF_FFMPeriph_MIRROR_STATE_MIRROR_STATE_TAG</span>
+<span class="sd">        :type mc_name: str</span>
+<span class="sd">        :param machines: List of machines to include</span>
+<span class="sd">        :type machines: list&lt;dict&gt; (Pyeuv machine dict)</span>
+<span class="sd">        :param tstart: Include machine constant changes after this timestamp</span>
+<span class="sd">        :type tstart: pd.Timestamp</span>
+<span class="sd">        :param tstop: Include machine constant changes before this timestamp</span>
+<span class="sd">        :type tstop: pd.Timestamp</span>
+<span class="sd">        :param verbose: Print the signal that&#39;s being retrieved</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        :param n_retries: Number of times to retry a query</span>
+<span class="sd">        :type n_retries: int</span>
+<span class="sd">        :param retry_sleep: Time to sleep in [s] between retries.</span>
+<span class="sd">        :type retry_sleep: int</span>
+<span class="sd">        :return: Dataframe with the MC&#39;s</span>
+<span class="sd">        :rtype: pd.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            MACHINE_NR,</span>
+<span class="s2">            COMPONENT_NAME,</span>
+<span class="s2">            CONSTANT_UNIT,</span>
+<span class="s2">            CONSTANT_FORMAT,</span>
+<span class="s2">            VALID_FROM_DATE,</span>
+<span class="s2">            VALID_TO_DATE,</span>
+<span class="s2">            ARRAY_INDEX,</span>
+<span class="s2">            VALUE_TEXT,</span>
+<span class="s2">            VALUE_NUMERICAL,</span>
+<span class="s2">            VALUE_EXPONENT</span>
+<span class="s2">        FROM    </span>
+<span class="s2">            CONSTANT_SUMMARY</span>
+<span class="s2">        WHERE    </span>
+<span class="s2">            CONSTANT_NAME = &#39;</span><span class="si">{mc_name}</span><span class="s2">&#39;</span>
+<span class="s2">            AND     VALID_FROM_DATE BETWEEN &#39;</span><span class="si">{tstart}</span><span class="s2">&#39; AND &#39;</span><span class="si">{tstop}</span><span class="s2">&#39; </span>
+<span class="s2">            AND    MACHINE_NR IN </span><span class="si">{machines_str}</span><span class="s2"></span>
+<span class="s2">;&quot;&quot;&quot;</span>
+
+
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="n">qry_tpl</span><span class="p">)</span>
+        <span class="n">machines_str</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+        <span class="n">qry_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mc_name&#39;</span><span class="p">:</span> <span class="n">mc_name</span><span class="p">,</span>
+            <span class="s1">&#39;machines_str&#39;</span><span class="p">:</span> <span class="n">machines_str</span><span class="p">,</span>
+            <span class="s1">&#39;tstart&#39;</span><span class="p">:</span> <span class="n">tstart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;tstop&#39;</span><span class="p">:</span> <span class="n">tstop</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="n">qry_tpl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">qry_params</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading MC for </span><span class="si">{3}</span><span class="s2">: </span><span class="si">{0}</span><span class="s2"> [</span><span class="si">{1}</span><span class="s2">- </span><span class="si">{2}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">qry_params</span><span class="p">[</span><span class="s1">&#39;mc_name&#39;</span><span class="p">],</span> <span class="n">qry_params</span><span class="p">[</span><span class="s1">&#39;tstart&#39;</span><span class="p">],</span>
+                    <span class="n">qry_params</span><span class="p">[</span><span class="s1">&#39;tstop&#39;</span><span class="p">],</span> <span class="n">qry_params</span><span class="p">[</span><span class="s1">&#39;machines_str&#39;</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qry_with_retry</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="n">n_retries</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="n">retry_sleep</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">,</span> <span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;from_time&#39;</span><span class="p">,</span> <span class="s1">&#39;to_time&#39;</span><span class="p">,</span> <span class="s1">&#39;array_index&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;value_text&#39;</span><span class="p">,</span> <span class="s1">&#39;value_numerical&#39;</span><span class="p">,</span> <span class="s1">&#39;value_exponent&#39;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="PMAClient.get_machine_equipment_info"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient.get_machine_equipment_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_machine_equipment_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">type_filter</span><span class="o">=</span><span class="s1">&#39;NXE:3&#39;</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                   <span class="n">retry_sleep</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dataframe with contents from the PMA MACHINE_EQUIPMENT_HIST</span>
+<span class="sd">        table for the given machines. By default only NXE3xyz machines are returned</span>
+<span class="sd">        but the filter behaviour can be changed with the type_filter parameter. The</span>
+<span class="sd">        returned df will contain the entire known history of the equipment. Every</span>
+<span class="sd">        entry has a validity date (UK_MACHINE_VALID_FROM) to indicate when the entry</span>
+<span class="sd">        is valid. Entries are valid until the validity date of the next entry.</span>
+
+<span class="sd">        :param machines: List of machines to get the data for. Can also be set</span>
+<span class="sd">                         to None to include all machines.</span>
+<span class="sd">        :type machines: list&lt;dict&gt; (pyeuv machine dict) or NoneType (default)</span>
+<span class="sd">        :param type_filter: Return only results that match the given equipment</span>
+<span class="sd">                            type. Some examples are:</span>
+<span class="sd">                            - &#39;NXE:3&#39;: returns NXE3xyz scanners</span>
+<span class="sd">                            - &#39;EUVSOURCE&#39;: Returns EUV Sources</span>
+<span class="sd">        :type type_filter: str</span>
+<span class="sd">        :param n_retries: Number of times to retry a query</span>
+<span class="sd">        :type n_retries: int</span>
+<span class="sd">        :param retry_sleep: Time to sleep in [s] between retries.</span>
+<span class="sd">        :type retry_sleep: int</span>
+<span class="sd">        :param verbose: Print the signal that&#39;s being retrieved</span>
+<span class="sd">        :type verbose: bool</span>
+
+<span class="sd">        :return: Dataframe with the equipment information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">qry_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type_filter&#39;</span><span class="p">:</span> <span class="n">type_filter</span>
+        <span class="p">}</span>
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT *</span>
+<span class="s2">        FROM MACHINE_EQUIPMENT_HIST</span>
+<span class="s2">        WHERE A_EQ_COMMERCIAL_TYPE LIKE &#39;%</span><span class="si">{type_filter}</span><span class="s2">%&#39;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">machines</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">qry_tpl</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;AND UK_MACHINE_EQUIPMENT_NR IN </span><span class="si">{machines_str}</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="n">qry_params</span><span class="p">[</span><span class="s1">&#39;machines_str&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="n">qry_tpl</span><span class="p">)</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="n">qry_tpl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">qry_params</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading Equipment info for </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qry_with_retry</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="n">n_retries</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="n">retry_sleep</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">description</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="PMAClient.get_pvp_config"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient.get_pvp_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_pvp_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machines</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain scanner product variability items (PVP items). These high level settings</span>
+<span class="sd">        provide the TWINSCAN software with information about the machine it&#39;s running</span>
+<span class="sd">        on and which options have been enabled on it.</span>
+
+<span class="sd">        :param machines: List of machines to get the data for. Can also be set</span>
+<span class="sd">                         to None to include all machines.</span>
+<span class="sd">        :type machines: list&lt;dict&gt; (pyeuv machine dict) or NoneType (default)</span>
+<span class="sd">        :param options: List of PVP option names to include</span>
+<span class="sd">        :type options: list&lt;str&gt;</span>
+<span class="sd">        :param tstart: Return pvp config records newer than this</span>
+<span class="sd">        :type tstart: pd.Timestamp</span>
+<span class="sd">        :param tstop: return pvp config records older than this</span>
+<span class="sd">        :type tstop: pd.Timestamp</span>
+<span class="sd">        :param n_retries: Number of times to retry a query</span>
+<span class="sd">        :type n_retries: int</span>
+<span class="sd">        :param retry_sleep: Time to sleep in [s] between retries.</span>
+<span class="sd">        :type retry_sleep: int</span>
+<span class="sd">        :param verbose: Print the signal that&#39;s being retrieved</span>
+<span class="sd">        :type verbose: bool</span>
+
+<span class="sd">        :return: Dataframe with the equipment information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Options parameter must be of type list&lt;str&gt;&quot;</span><span class="p">)</span>
+
+        <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT </span>
+<span class="s2">            UK_MACHINE_EQUIPMENT_NR,</span>
+<span class="s2">            UK_CONFIG_POINT_IN_TIME_DATE,</span>
+<span class="s2">            UK_CONFIG_OPTION_NAME,</span>
+<span class="s2">            UK_CONFIG_OPTION_DESCRIPTION,</span>
+<span class="s2">            A_CONFIG_OPTION_VALUE_NAME,</span>
+<span class="s2">            A_CONFIG_OPTION_VALUE_DESCRIPTION</span>
+<span class="s2">        FROM CONFIG_OPTION_INFO</span>
+<span class="s2">        WHERE UK_MACHINE_EQUIPMENT_NR IN </span><span class="si">{machs}</span><span class="s2"></span>
+<span class="s2">            AND UK_CONFIG_OPTION_NAME IN </span><span class="si">{opts}</span><span class="s2"></span>
+<span class="s2">            AND UK_CONFIG_POINT_IN_TIME_DATE &gt; PARSETIMESTAMP(&#39;</span><span class="si">{tstart}</span><span class="s2">&#39;, &#39;yyyy-MM-dd hh:mm:ss&#39;)</span>
+<span class="s2">            AND UK_CONFIG_POINT_IN_TIME_DATE &lt; PARSETIMESTAMP(&#39;</span><span class="si">{tstop}</span><span class="s2">&#39;, &#39;yyyy-MM-dd hh:mm:ss&#39;);</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="n">qry_tpl</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="n">qry_tpl</span><span class="p">)</span>
+
+        <span class="n">machs</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">options</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="n">qry_tpl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+            <span class="s1">&#39;machs&#39;</span><span class="p">:</span> <span class="n">machs</span><span class="p">,</span>
+            <span class="s1">&#39;opts&#39;</span><span class="p">:</span> <span class="n">opts</span><span class="p">,</span>
+            <span class="s1">&#39;tstart&#39;</span><span class="p">:</span> <span class="n">tstart</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;tstop&#39;</span><span class="p">:</span> <span class="n">tstop</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)})</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading config items for </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qry_with_retry</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">n_retries</span><span class="o">=</span><span class="n">n_retries</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="o">=</span><span class="n">retry_sleep</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">description</span><span class="p">])</span>
+
+        <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="PMAClient.close"><a class="viewcode-back" href="../../../PMA.html#pyeuv.PMA.clients.PMAClient.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Close the Postgress connection &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

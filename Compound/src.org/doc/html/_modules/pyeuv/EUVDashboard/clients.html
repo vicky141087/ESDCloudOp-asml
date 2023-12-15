@@ -1,0 +1,789 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.EUVDashboard.clients &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.EUVDashboard.clients</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.EUVDashboard.clients</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">clients.py</span>
+<span class="sd">Author: RLBL</span>
+<span class="sd">Date:  2019-01-10</span>
+
+<span class="sd">The UserClient provides a single interface to the EUVDashboard for use with Jupyter Notebooks or external tooling</span>
+<span class="sd">created by users. It exposes convenient functions without requiring complex setup, loggers or Redis.</span>
+
+<span class="sd">*Example usage*</span>
+
+<span class="sd">::</span>
+
+<span class="sd">    from EUVDashboardClient.clients import UserLANClient</span>
+<span class="sd">    c = UserLANClient()</span>
+<span class="sd">    df = c.get_signals(&#39;s62253.Scanner.DW_SLIE&#39;, from_time=pd.Timestamp(&#39;2017-01-01&#39;), to_time=pd.Timestamp(&#39;2017-01-02&#39;))</span>
+
+<span class="sd">    # If username is not provided, the client will default to your ASML username</span>
+<span class="sd">    # If password is not provided, the client will ask you for it.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">getpass</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span><span class="o">,</span> <span class="nn">urllib.error</span><span class="o">,</span> <span class="nn">urllib.parse</span>
+<span class="kn">import</span> <span class="nn">simplejson</span> <span class="k">as</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">urllib3.exceptions</span> <span class="kn">import</span> <span class="n">InsecureRequestWarning</span>
+<span class="kn">from</span> <span class="nn">influxdb.exceptions</span> <span class="kn">import</span> <span class="n">InfluxDBClientError</span>
+
+<span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard</span> <span class="kn">import</span> <span class="n">common</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Shared.cache</span> <span class="kn">import</span> <span class="n">SignalCache</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">shared</span>
+
+<span class="k">if</span> <span class="n">common</span><span class="o">.</span><span class="n">has_etl_environment</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">shared</span> <span class="k">as</span> <span class="nn">etl_shared</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">._InfluxUrlClient</span> <span class="kn">import</span> <span class="n">DataFrameUrlClient</span>
+
+<span class="c1"># Disable insecure request warnings</span>
+<span class="n">requests</span><span class="o">.</span><span class="n">packages</span><span class="o">.</span><span class="n">urllib3</span><span class="o">.</span><span class="n">disable_warnings</span><span class="p">(</span><span class="n">InsecureRequestWarning</span><span class="p">)</span>
+
+
+<span class="n">test_credential_file</span> <span class="o">=</span> <span class="s2">&quot;~/.pyeuv/test_credentials.conf&quot;</span>
+
+<div class="viewcode-block" id="get_euvdb_test_credentials"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.get_euvdb_test_credentials">[docs]</a><span class="k">def</span> <span class="nf">get_euvdb_test_credentials</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read the credential file and return username, password and api_key. The</span>
+<span class="sd">    credential file is pointed to by the credential_file variable of this</span>
+<span class="sd">    module. The text file must contain at least the following config section:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        [EUVDB]</span>
+<span class="sd">        username=&lt;username&gt;</span>
+<span class="sd">        password=&lt;password&gt;</span>
+
+<span class="sd">    Also, see the Unit testing section of the Pyeuv Manual.</span>
+
+<span class="sd">    :returns: username, password</span>
+<span class="sd">    :rtype: tuple&lt;str&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">test_credential_file</span><span class="p">)):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">test_credential_file</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="n">username</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;EUVDB&#39;</span><span class="p">][</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;EUVDB&#39;</span><span class="p">][</span><span class="s1">&#39;password&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Missing test credential file: </span><span class="si">{0}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                <span class="s2">&quot;Please refer to the testing section of the manual.&quot;</span>
+                                <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">test_credential_file</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span></div>
+
+
+<div class="viewcode-block" id="UserLANClient"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient">[docs]</a><span class="k">class</span> <span class="nc">UserLANClient</span><span class="p">:</span>
+    <span class="n">_host</span> <span class="o">=</span> <span class="s1">&#39;euv-dashboard.asml.com&#39;</span>
+    <span class="n">_baseurl</span> <span class="o">=</span> <span class="s1">&#39;https://euv-dashboard.asml.com/data/&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;~/.pyeuv/cache&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        EUV Dashboard client. Instantiate this to obtain interfaces to InfluxDB  </span>
+<span class="sd">        </span>
+<span class="sd">        :param username: ASML Username, used to login to the EUV Dashboard.</span>
+<span class="sd">        :type username: str</span>
+<span class="sd">        :param password: Password, will be requested by getpass if set to None</span>
+<span class="sd">        :type password: str</span>
+<span class="sd">        :param cache_dir: Location to store cached data for get_signals_cached()</span>
+<span class="sd">        :type cache_dir: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">common</span><span class="o">.</span><span class="n">has_etl_environment</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">password</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="s2">&quot;Enter password of user </span><span class="si">{0}</span><span class="s2"> for &quot;</span>
+                                       <span class="s2">&quot;euv-dashboard.asml.com: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">common</span><span class="o">.</span><span class="n">has_etl_environment</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">etl_shared</span><span class="o">.</span><span class="n">get_influx_dataframe_client</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">DataFrameUrlClient</span><span class="p">(</span>
+                <span class="n">host</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_host</span><span class="p">,</span>
+                <span class="n">baseurl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_baseurl</span><span class="p">,</span>
+                <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+                <span class="n">ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check if our login is successful</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;SHOW DATABASES&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">InfluxDBClientError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InfluxDBClientError</span><span class="p">(</span><span class="s2">&quot;User </span><span class="si">{0}</span><span class="s2"> not authorized. &quot;</span>
+                                      <span class="s2">&quot;Check your credentials.&quot;</span>
+                                      <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">))</span>
+
+        <span class="c1"># Initialize cache for get_signal_cached()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">SignalCache</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">))</span>
+
+<div class="viewcode-block" id="UserLANClient.chunk_signal"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.chunk_signal">[docs]</a>    <span class="k">def</span> <span class="nf">chunk_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">shared</span><span class="o">.</span><span class="n">CHUNK_SIZE</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generator, yields data for a signal in chunks. Timestamps are returned in UTC.</span>
+
+<span class="sd">        Signals must be specified according to the following pattern</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            &lt;source_nr&gt;.&lt;signal_type&gt;.&lt;signal_name&gt;[field]{tag}.&lt;aggregate_time&gt;.&lt;aggregate_func&gt;</span>
+
+<span class="sd">        *Examples*</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            s62440.ScannerLog.de_err{code=DW-3411}.1d.max</span>
+<span class="sd">            s62179.DWMD.MCDWMD_EXPOSURE_MODE_PARAMS_EXPOSURE_MODE_DATA_MINI_BURST_MODE_PARAMETERS_BURST_DUTY_CYCLE_TAG[value01]</span>
+<span class="sd">            s62240.LUER.image.1h.last</span>
+<span class="sd">            s62240.LUER.transmission.1h.mean</span>
+<span class="sd">            s62240.LUER.transmission</span>
+
+<span class="sd">        :param signal: Signal using the following format:</span>
+<span class="sd">        :type signal: str</span>
+<span class="sd">        :param from_time: Epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is 0</span>
+<span class="sd">        :type from_time: pandas.Timestamp</span>
+<span class="sd">        :param to_time:   Epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is now</span>
+<span class="sd">        :type to_time: pandas.Timestamp</span>
+<span class="sd">        :param chunksize: Approximate number of records to return per iteration (default 50000)</span>
+<span class="sd">        :type chunksize: int</span>
+<span class="sd">        :param verify_tags: Verify that given tag keys and values are available for the given signal.</span>
+<span class="sd">                            Will raise an error if they don&#39;t exist. Has a small performance penalty</span>
+<span class="sd">                            because it needs to send some extra queries to influx. This may become</span>
+<span class="sd">                            noticeable in rare cases where the list of signals is very long. So it can</span>
+<span class="sd">                            be disabled with this option.</span>
+<span class="sd">        :type verify_tags: bool (Default=True)</span>
+
+<span class="sd">        :param verbose: Print chunk sizes if True</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">chunk_signal</span><span class="p">(</span>
+            <span class="n">signal</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">from_time</span><span class="o">=</span><span class="n">from_time</span><span class="p">,</span>
+            <span class="n">to_time</span><span class="o">=</span><span class="n">to_time</span><span class="p">,</span>
+            <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
+            <span class="n">dbclient</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">,</span>
+            <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_signals"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_signals">[docs]</a>    <span class="k">def</span> <span class="nf">get_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">chunksize</span><span class="o">=</span><span class="n">shared</span><span class="o">.</span><span class="n">CHUNK_SIZE</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">last_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get signals from the database between from_time and to_time. Uses chunk_signal() to send multiple</span>
+<span class="sd">        small queries to the database that will return at most CHUNK_SIZE points. Returned points are</span>
+<span class="sd">        concatenated in a single dataframe.</span>
+
+<span class="sd">        Each signal in the list should follow the following format:</span>
+<span class="sd">            &lt;source_nr&gt;.&lt;signal_type&gt;.&lt;signal_name&gt;[field]{tag}.&lt;aggregate_time&gt;.&lt;aggregate_func&gt;</span>
+
+<span class="sd">            *Examples:*</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            # Standard</span>
+<span class="sd">            s62240.LUER.transmission</span>
+<span class="sd">            # Rolling mean 1h</span>
+<span class="sd">            s62240.LUER.transmission.1h.mean</span>
+<span class="sd">            # Specify field</span>
+<span class="sd">            s62179.DWMD.MCDWMD_EXPOSURE_MODE_PARAMS_EXPOSURE_MODE_DATA_MINI_BURST_MODE_PARAMETERS_BURST_DUTY_CYCLE_TAG[value01]</span>
+<span class="sd">            # Last of the hour</span>
+<span class="sd">            s62240.LUER.image.1h.last</span>
+<span class="sd">            # Single tag filter</span>
+<span class="sd">            s62440.ScannerLog.de_err{code=DW-3411}.1d.max</span>
+<span class="sd">            # Multi tag filter</span>
+<span class="sd">            s62265.RT23.TFMmajorAxis{subroutine=MP}{in_spec=True}</span>
+
+
+<span class="sd">        :param signals: Signal or list of signals</span>
+<span class="sd">        :type signals: list&lt;str&gt; or str</span>
+<span class="sd">        :param from_time: Lower time limit</span>
+<span class="sd">        :type from_time: pandas.Timestamp</span>
+<span class="sd">        :param to_time: Upper time limit</span>
+<span class="sd">        :type to_time: pandas.Timestamp</span>
+<span class="sd">        :param chunksize: The maximum number of points requested per query</span>
+<span class="sd">        :type chunksize: int</span>
+<span class="sd">        :param verify_tags: Verify that given tag keys and values are available for the given signal.</span>
+<span class="sd">                            Will raise an error if they don&#39;t exist. Has a small performance penalty</span>
+<span class="sd">                            because it needs to send some extra queries to influx. This may become</span>
+<span class="sd">                            noticeable in rare cases where the list of signals is very long. So it can</span>
+<span class="sd">                            be disabled with this option.</span>
+<span class="sd">        :type verify_tags: bool (Default=True)</span>
+
+<span class="sd">        :param verbose: Print the name of the signal that&#39;s currently being</span>
+<span class="sd">                    downloaded. Default is False</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        :rtype: Dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+            <span class="n">signals</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">from_time</span><span class="o">=</span><span class="n">from_time</span><span class="p">,</span>
+            <span class="n">to_time</span><span class="o">=</span><span class="n">to_time</span><span class="p">,</span>
+            <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
+            <span class="n">dbclient</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">,</span>
+            <span class="n">last_value</span><span class="o">=</span><span class="n">last_value</span><span class="p">,</span>
+            <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span><span class="p">,</span>
+            <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_signals_cached"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_signals_cached">[docs]</a>    <span class="k">def</span> <span class="nf">get_signals_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">shared</span><span class="o">.</span><span class="n">CHUNK_SIZE</span><span class="p">,</span>
+                           <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_limit</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Similar to get_signals, but builds up a disk cache of the retrieved data. This function offers a substantial</span>
+<span class="sd">        performance improvement for data that is requested more than once. The cache will persist after the program</span>
+<span class="sd">        has stopped.</span>
+
+<span class="sd">        For more information see the documentation of get_signals. Note that the defaults and last_value options</span>
+<span class="sd">        are not supported by this version.</span>
+
+<span class="sd">        :param signals: Signal or list of signals</span>
+<span class="sd">        :type signals: list&lt;str&gt; or str</span>
+<span class="sd">        :param from_time: Lower time limit</span>
+<span class="sd">        :type from_time: pandas.Timestamp</span>
+<span class="sd">        :param to_time: Upper time limit</span>
+<span class="sd">        :type to_time: pandas.Timestamp</span>
+<span class="sd">        :param chunksize: The maximum number of points requested per query</span>
+<span class="sd">        :type chunksize: int</span>
+<span class="sd">        :param verify_tags: Verify tag avialability before running the query. See the documentation</span>
+<span class="sd">                            of get_signals for more information.</span>
+<span class="sd">        :type verify_tags: bool (Default=True)</span>
+<span class="sd">        :param cache_only: Don&#39;t query Influx, only return results from cache</span>
+<span class="sd">        :type cache_only: bool</span>
+<span class="sd">        :param verbose: Print the name of the signal that&#39;s currently being</span>
+<span class="sd">                    downloaded. Default is False</span>
+<span class="sd">        :type verbose: bool</span>
+<span class="sd">        :rtype: Dataframe</span>
+<span class="sd">        :param cache_limit: Time in days for which the cached data has to be refreshed</span>
+<span class="sd">        :type cache_limit: pandas.Timedelta</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make sure to only cache UTC timestamps</span>
+        <span class="n">tstart</span> <span class="o">=</span> <span class="n">from_time</span>
+        <span class="n">tstop</span> <span class="o">=</span> <span class="n">to_time</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tstart</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
+            <span class="n">tstart</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">from_time</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tstart</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
+            <span class="n">tstop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">to_time</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Force UTC</span>
+        <span class="k">if</span> <span class="n">tstart</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tstart</span> <span class="o">=</span> <span class="n">tstart</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tstart</span> <span class="o">=</span> <span class="n">tstart</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tstop</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tstop</span> <span class="o">=</span> <span class="n">tstop</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tstop</span> <span class="o">=</span> <span class="n">tstop</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+
+        <span class="n">df_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">df_cache</span><span class="p">,</span> <span class="n">wr</span><span class="p">,</span> <span class="n">wl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_signal</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">cache_limit</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">df_cache</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+                <span class="n">wr</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">wl</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">cache_only</span><span class="p">:</span>
+                <span class="n">df_out</span> <span class="o">=</span> <span class="n">df_out</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_cache</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+                <span class="k">continue</span>
+
+            <span class="n">df_new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">df_cache</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="c1"># No cached data, get everything fresh</span>
+                <span class="n">df_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="n">from_time</span><span class="o">=</span><span class="n">tstart</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="n">tstop</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
+                    <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">last_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                    <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Partially cached data, request missing data</span>
+                <span class="k">if</span> <span class="n">wl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Partially cached, get missing points on the left</span>
+                    <span class="n">df_new_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="n">from_time</span><span class="o">=</span><span class="n">wl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">to_time</span><span class="o">=</span><span class="n">wl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">last_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">)</span>
+
+                    <span class="n">df_new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_new_left</span><span class="p">,</span> <span class="n">df_new</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">wr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># Partially cached, get missing points on the right</span>
+                    <span class="n">df_new_right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="n">from_time</span><span class="o">=</span><span class="n">wr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">to_time</span><span class="o">=</span><span class="n">wr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">last_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">)</span>
+
+                    <span class="n">df_new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_new</span><span class="p">,</span> <span class="n">df_new_right</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">df_new</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">df_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">cache_signal</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">df_new</span><span class="p">,</span> <span class="n">return_updated</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df_result</span> <span class="o">=</span> <span class="n">df_cache</span>
+
+            <span class="n">df_out</span> <span class="o">=</span> <span class="n">df_out</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_result</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">df_out</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_signals_dict"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_signals_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_signals_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signals_dict</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">chunksize</span><span class="o">=</span><span class="n">shared</span><span class="o">.</span><span class="n">CHUNK_SIZE</span><span class="p">,</span> <span class="n">last_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">create_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dataframe with signals from influx. The column names have been renamed </span>
+<span class="sd">        to more human readable names, as provided in the signal_dict</span>
+<span class="sd">        </span>
+<span class="sd">        :param signal_dict: dictionary for signals to be retrieved and their human readable representation (as key)</span>
+<span class="sd">        :type signals_dict: dict</span>
+<span class="sd">        :param source_id: the source_id for which the signals have to be retrieved</span>
+<span class="sd">        :type source_id: string</span>
+<span class="sd">        :param from_time: Lower time limit</span>
+<span class="sd">        :type from_time: pandas.Timestamp</span>
+<span class="sd">        :param to_time: Upper time limit</span>
+<span class="sd">        :type to_time: pandas.Timestamp</span>
+<span class="sd">        :param chunksize: The maximum number of points requested per query</span>
+<span class="sd">        :type chunksize: int</span>
+<span class="sd">        :param defaults: List of defaults if the requested signals yield no data.</span>
+<span class="sd">                         {&#39;signalA&#39;: defaultA, &#39;signalB&#39;: defaultB, ...}</span>
+<span class="sd">        :type defaults: dict</span>
+<span class="sd">        :param last_value: If there&#39;s no data available for the given time</span>
+<span class="sd">                           window, return the last known value instead.</span>
+<span class="sd">    </span>
+<span class="sd">                           If used in combination with the defaults option the</span>
+<span class="sd">                           last value will take precedence over the default.</span>
+<span class="sd">        :type last_value: bool</span>
+<span class="sd">        :param create_columns: if for a signal, no data is available, create the column containing NaNs (default: False)</span>
+<span class="sd">        :type last_value: bool</span>
+<span class="sd">        :rtype: Dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span>
+            <span class="n">signals_dict</span><span class="p">,</span>
+            <span class="n">source_id</span><span class="p">,</span> 
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">from_time</span><span class="o">=</span><span class="n">from_time</span><span class="p">,</span>
+            <span class="n">to_time</span><span class="o">=</span><span class="n">to_time</span><span class="p">,</span>
+            <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
+            <span class="n">dbclient</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">,</span>
+            <span class="n">last_value</span><span class="o">=</span><span class="n">last_value</span><span class="p">,</span>
+            <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span><span class="p">,</span>
+            <span class="n">create_columns</span><span class="o">=</span><span class="n">create_columns</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UserLANClient.get_aggregated_dataframe"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_aggregated_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">get_aggregated_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_date</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">machines</span><span class="p">,</span> <span class="n">max_retention</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain aggregated values for the given day. Use only for KPI.DayAggregates._ signals.</span>
+
+<span class="sd">        *This function makes the following assumptions for the signal*</span>
+<span class="sd">          * The aggregated value for a given day is written with a timestamp 00:00:00 (start of the day)</span>
+<span class="sd">            a tolerance of +/- 1s is used.</span>
+<span class="sd">          * There is only one aggregated value in this range</span>
+
+<span class="sd">        :param report_date: Date for which to get the aggregated (KPI) data</span>
+<span class="sd">        :type report_date: datetime.datetime</span>
+<span class="sd">        :param signals: list of signal names to extract. (Uses value column)</span>
+<span class="sd">        :type signals: list or str</span>
+<span class="sd">        :param machines: list of machines to include.</span>
+<span class="sd">        :type machines: list</span>
+
+<span class="sd">        :param max_retention: integer number of days, default is 0. Allow the this function to return older aggregated</span>
+<span class="sd">                              values if no values are available for the given day. Values will not be older than [max_retention] days.</span>
+<span class="sd">                              If set to 0 no older values will be used.</span>
+
+<span class="sd">        :type max_retention: int</span>
+
+<span class="sd">        :return: Dataframe with the results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_aggregated_dataframe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">,</span>
+            <span class="n">report_date</span><span class="p">,</span>
+            <span class="n">signals</span><span class="p">,</span>
+            <span class="n">machines</span><span class="p">,</span>
+            <span class="n">clear_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">max_retention</span><span class="o">=</span><span class="n">max_retention</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_last_value_before"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_last_value_before">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_value_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the last value of the given signal before the given timestamp.</span>
+
+<span class="sd">        :param signal: The full name of the signal in influxdb</span>
+<span class="sd">        :type signal: str</span>
+
+<span class="sd">        :param timestamp: Maximum age of value to look for</span>
+<span class="sd">        :type timestamp: pandas.Timestamp</span>
+
+<span class="sd">        *Optional*</span>
+
+<span class="sd">        :param default: Value to return if no result</span>
+
+<span class="sd">        :rtype: Dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">last_value_before</span><span class="p">(</span>
+            <span class="n">signal</span><span class="p">,</span>
+            <span class="n">timestamp</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">dbclient</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_first_value_after"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_first_value_after">[docs]</a>    <span class="k">def</span> <span class="nf">get_first_value_after</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the first value of the given signal after the given timestamp.</span>
+
+<span class="sd">        :param signal: The full name of the signal in influxdb</span>
+<span class="sd">        :type signal: str</span>
+
+<span class="sd">        :param timestamp: Minimum age of value to look for</span>
+<span class="sd">        :type timestamp: pandas.Timestamp</span>
+
+<span class="sd">        *Optional*</span>
+
+<span class="sd">        :param default: Value to return if no result</span>
+
+<span class="sd">        :rtype: Dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">first_value_after</span><span class="p">(</span>
+            <span class="n">signal</span><span class="p">,</span>
+            <span class="n">timestamp</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">dbclient</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_http</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_url</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to download html content</span>
+
+<span class="sd">        :param list_url: url pointing to http(s) content</span>
+<span class="sd">        :param verify_ssl: switch for ssl verification, turned off for unix</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">common</span><span class="o">.</span><span class="n">has_unix_environment</span><span class="p">():</span>
+            <span class="c1"># on unix (hpc, centos hosts, etc.) ssl verification fails.</span>
+            <span class="c1"># turn it off, since it is within the asml network anyway.</span>
+            <span class="n">verify_ssl</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">passman</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">HTTPPasswordMgrWithDefaultRealm</span><span class="p">()</span>
+        <span class="n">passman</span><span class="o">.</span><span class="n">add_password</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_username</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_password</span><span class="p">)</span>
+        <span class="n">authhandler</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">HTTPBasicAuthHandler</span><span class="p">(</span><span class="n">passman</span><span class="p">)</span>
+        <span class="n">opener</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">build_opener</span><span class="p">(</span><span class="n">authhandler</span><span class="p">)</span>
+        <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">install_opener</span><span class="p">(</span><span class="n">opener</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">verify_ssl</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">ssl</span>
+            <span class="n">ssl</span><span class="o">.</span><span class="n">_create_default_https_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">_create_unverified_context</span>
+
+        <span class="k">return</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">list_url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="UserLANClient.get_machine_list"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_machine_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_machine_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list (default) or a dataframe containing all available</span>
+<span class="sd">        machines in grafana.</span>
+
+<span class="sd">        :param custom_sll: on the HPC this needs to be set to True</span>
+<span class="sd">        :param return_type: Set to &#39;list&#39; to return a list, or &#39;dataframe&#39; to</span>
+<span class="sd">                            return a dataframe.</span>
+<span class="sd">        :type return_type: str</span>
+
+<span class="sd">        :return: List or dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://euv-dashboard.asml.com/service/machines.json&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_http</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="n">verify_ssl</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s1">&#39;dataframe&#39;</span><span class="p">:</span>
+            <span class="n">machines</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">machines</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">machines</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_signal_list"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_signal_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_signal_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the list of available measurements (signals) for the given</span>
+<span class="sd">        machine.</span>
+
+<span class="sd">        :param machine: Machine to get the signal list for. Provide a machine</span>
+<span class="sd">                        number, source number or a machine dict. e.g. s38911</span>
+<span class="sd">                        or m6224.</span>
+
+<span class="sd">        :type machine: dict or str</span>
+<span class="sd">        :param return_type: Set to &#39;list&#39; to return a list, or &#39;dataframe&#39; to</span>
+<span class="sd">                            return a dataframe.</span>
+<span class="sd">        :rtype: List or dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">return_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;dataframe&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown return type, expected &#39;dataframe&#39; or &#39;list&#39;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="n">source_nr</span> <span class="o">=</span> <span class="s1">&#39;s&#39;</span> <span class="o">+</span> <span class="n">machine</span><span class="p">[</span><span class="s1">&#39;source_nr&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">machine</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">]:</span>
+            <span class="n">source_nr</span> <span class="o">=</span> <span class="n">machine</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Machine number must start with &#39;m&#39; or &#39;s&#39;&quot;</span><span class="p">)</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://euv-dashboard.asml.com/service/signals&#39;</span>
+        <span class="n">url</span> <span class="o">+=</span> <span class="s2">&quot;?machine=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_nr</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_http</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">verify_ssl</span><span class="o">=</span><span class="n">verify_ssl</span><span class="p">))</span>
+
+        <span class="n">signal_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">measurement</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+            <span class="n">signal_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">measurement</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">measurement</span><span class="p">[</span><span class="s1">&#39;signal&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s1">&#39;dataframe&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">signal_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">signal_list</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_tag_keys"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_tag_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_tag_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns available tag keys for the given signal. Will return an empty</span>
+<span class="sd">        list if there are none.</span>
+
+<span class="sd">        :param signal_name: Signal name e.g. s66224.RT23.TFMdebrisArea</span>
+<span class="sd">        :type signal_name: str</span>
+<span class="sd">        :rtype: list of strings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_tag_keys</span><span class="p">(</span><span class="n">signal_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserLANClient.get_tag_values"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.clients.UserLANClient.get_tag_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_tag_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_name</span><span class="p">,</span> <span class="n">tag_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns available tag values for the given tag key. Will return</span>
+<span class="sd">        an empty list if there are none.</span>
+
+<span class="sd">        :param signal_name: Signal name e.g. s66224.RT23.TFMdebrisArea</span>
+<span class="sd">        :type signal_name: str</span>
+<span class="sd">        :param tag_key: Tag name e.g. &#39;root_cause&#39;</span>
+<span class="sd">        :type tag_key: str</span>
+
+<span class="sd">        :rtype: list of strings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_tag_values</span><span class="p">(</span><span class="n">signal_name</span><span class="p">,</span> <span class="n">tag_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

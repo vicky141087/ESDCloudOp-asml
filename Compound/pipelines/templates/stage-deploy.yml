@@ -1,0 +1,103 @@
+parameters:
+    environment: ''
+    adoAgentPool: ''
+    stageDisplayName: ''
+    tfvarsArtifact: 'TerraformVariables'
+    tfvarsPAth: ''
+    tfArtifact: 'Terraform'
+    varsPath: ''
+    mode: 'plan' # plan/trial/destroy
+    condition: succeeded()
+    workingDirectory: ''
+
+stages:
+  - ${{ if in(parameters.mode, 'plan', 'trial') }}:
+    - stage: ${{ parameters.environment }}_plan
+      ${{ if ne(parameters.stageDisplayName, '') }}:
+        displayName: Plan ${{ parameters.stageDisplayName }} 
+      condition: ${{ parameters.condition }}
+      jobs:
+        - template: job-action.yml
+          parameters:
+            adoAgentPool: ${{ parameters.adoAgentPool }}
+            workingDirectory: ${{ parameters.workingDirectory }}
+            terraformAction: 'plan'
+            environment: ${{ parameters.environment }}_plan
+            artifactName: 'TerraformPlan_${{ parameters.environment }}'
+            tfvarsArtifact: ${{ parameters.tfvarsArtifact }}
+            tfArtifact: ${{ parameters.tfArtifact }}
+            varsPath: ${{ parameters.varsPath }}
+            tfstateKey: ${{ parameters.environment }}
+            tfCommandOptions: '-var-file="$(System.DefaultWorkingDirectory)/tfvarsArtifact/${{ parameters.tfvarsPath }}" -out terraform.plan'
+
+    - stage: ${{ parameters.environment }}_apply
+      ${{ if ne(parameters.stageDisplayName, '') }}:
+        displayName: Apply ${{ parameters.stageDisplayName }}
+      condition: ${{ parameters.condition }}
+      dependsOn: 
+        - ${{ parameters.environment }}_plan
+      jobs:
+        - template: job-action.yml
+          parameters:
+            adoAgentPool: ${{ parameters.adoAgentPool }}
+            workingDirectory: ${{ parameters.workingDirectory }}
+            terraformAction: 'apply'
+            environment: ${{ parameters.environment }}_apply
+            artifactName: 'TerraformPlan_${{ parameters.environment }}'
+            tfvarsArtifact: ${{ parameters.tfvarsArtifact }}
+            tfArtifact: ${{ parameters.tfArtifact }}
+            varsPath: ${{ parameters.varsPath }}
+            tfstateKey: ${{ parameters.environment }}
+            tfCommandOptions: 'terraform.plan'
+            custom: true
+
+    - template: stage-deploy-src.yml
+      parameters:
+        condition: ${{ parameters.condition }}
+        dependson: ${{ parameters.environment }}_apply
+        environment: ${{ parameters.environment }}
+        adoAgentPool: 'Azure Pipelines'
+        stageDisplayName: ${{ parameters.stageDisplayName }}
+        varsPath: '/pipelines/variables/${{ parameters.stageDisplayName }}.yml'
+
+  - ${{ if in(parameters.mode, 'destroy', 'trial') }}:
+    - stage: ${{ parameters.environment }}_destroy_plan
+      ${{ if ne(parameters.stageDisplayName, '') }}:
+        displayName: Plan destroy ${{ parameters.stageDisplayName }} 
+      condition: ${{ parameters.condition }}
+      ${{ if in(parameters.mode, 'plan', 'trial') }}:
+        dependsOn: 
+          - ${{ parameters.environment }}_apply
+      jobs:
+        - template: job-action.yml
+          parameters:
+            adoAgentPool: ${{ parameters.adoAgentPool }}
+            workingDirectory: ${{ parameters.workingDirectory }}
+            terraformAction: 'plan'
+            environment: ${{ parameters.environment }}_plan
+            artifactName: 'TerraformPlan_${{ parameters.environment }}_Destroy'
+            tfvarsArtifact: ${{ parameters.tfvarsArtifact }}
+            tfArtifact: ${{ parameters.tfArtifact }}
+            varsPath: ${{ parameters.varsPath }}
+            tfstateKey: ${{ parameters.environment }}
+            tfCommandOptions: '-destroy -var-file="$(System.DefaultWorkingDirectory)/tfvarsArtifact/${{ parameters.tfvarsPath }}" -out terraform.plan'
+
+    - stage: ${{ parameters.environment }}_destroy_apply
+      ${{ if ne(parameters.stageDisplayName, '') }}:
+        displayName: Apply destroy ${{ parameters.stageDisplayName }}
+      condition: ${{ parameters.condition }}
+      dependsOn: 
+        - ${{ parameters.environment }}_destroy_plan
+      jobs:
+        - template: job-action.yml
+          parameters:
+            adoAgentPool: ${{ parameters.adoAgentPool }}
+            workingDirectory: ${{ parameters.workingDirectory }}
+            terraformAction: 'apply'
+            environment: ${{ parameters.environment }}_apply
+            artifactName: 'TerraformPlan_${{ parameters.environment }}_Destroy'
+            tfvarsArtifact: ${{ parameters.tfvarsArtifact }}
+            tfArtifact: ${{ parameters.tfArtifact }}
+            varsPath: ${{ parameters.varsPath }}
+            tfstateKey: ${{ parameters.environment }}
+            tfCommandOptions: 'terraform.plan'

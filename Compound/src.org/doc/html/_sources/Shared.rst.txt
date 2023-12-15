@@ -1,0 +1,27 @@
+Shared
+======
+
+Signal processing
+-----------------
+
+.. automodule:: pyeuv.Shared.signal_processing
+    :members:
+
+Smoothing algorithms
+--------------------
+
+.. automodule:: pyeuv.Shared.smoothing_algorithms
+    :members:
+
+Configuration
+-------------
+
+.. automodule:: pyeuv.Shared.configuration
+    :members:
+
+Collector selection
+-------------------
+
+.. automodule:: pyeuv.Shared.collector_selection
+    :members:
+

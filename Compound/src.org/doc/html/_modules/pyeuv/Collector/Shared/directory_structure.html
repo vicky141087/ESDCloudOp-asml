@@ -1,0 +1,665 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Shared.directory_structure &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Shared.directory_structure</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Shared.directory_structure</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Wed Feb  6 13:34:31 2019</span>
+
+<span class="sd">@author: rwiegger</span>
+
+<span class="sd">This contains a set of functions to be able to browse through the collector performance reports drive.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.common</span> <span class="kn">import</span> <span class="n">has_hpc_environment</span><span class="p">,</span> <span class="n">has_sf18_environment</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Shared.shared</span> <span class="kn">import</span> <span class="n">get_collectors</span><span class="p">,</span> <span class="n">get_machine_from_machine_id</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Shared.configuration</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+
+
+<span class="c1"># functions to search for directories</span>
+<div class="viewcode-block" id="get_directories_from_substring"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.get_directories_from_substring">[docs]</a><span class="k">def</span> <span class="nf">get_directories_from_substring</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">substring</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    this function looks for directory names of the subdirectories within &#39;directory&#39;, </span>
+<span class="sd">    which contain &#39;substring&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    :param directory: directory in which one tries to find directory names</span>
+<span class="sd">    :param substring: the substring to look for</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: list of directory names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">matching</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">substring</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+        <span class="n">matching</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>  
+    
+    <span class="k">return</span> <span class="n">matching</span></div>
+    
+
+<div class="viewcode-block" id="get_annotations_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.get_annotations_directory">[docs]</a><span class="k">def</span> <span class="nf">get_annotations_directory</span><span class="p">(</span><span class="n">collector_directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the annotations directory, a sub directory of the collector directory</span>
+<span class="sd">    </span>
+<span class="sd">    :param collector_directory: the collector directory, in which an annotations_directory is expected to exist()</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: path of annotations directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_directory</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;collector_monitoring&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_luer_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.get_luer_directory">[docs]</a><span class="k">def</span> <span class="nf">get_luer_directory</span><span class="p">(</span><span class="n">collector_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">machine_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collector_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the luer directory, a sub directory of the collector directory</span>
+<span class="sd">    If the collector directory is provided, it uses this to determine the luer directory.</span>
+<span class="sd">    Otherwise, it will be determined based on the other parameters</span>
+
+<span class="sd">    :param collector_directory: the collector directory (default=None)</span>
+<span class="sd">    :param client: connection to influx (default=None)</span>
+<span class="sd">    :param base_dir: base directory of the directory structure of all machines and collectors (default=None)</span>
+<span class="sd">    :param machine_id: machine id, e.g. &#39;m1234&#39; (default=None)</span>
+<span class="sd">    :param collector_name: collector name, used to select collector properties from influx (default=None)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: path of luer directory</span>
+<span class="sd">    :raise: Exception in case the required input parameters are not provided</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">collector_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">elif</span> <span class="n">client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">base_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">machine_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">collector_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">machine</span> <span class="o">=</span> <span class="n">get_machine_from_machine_id</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">machine_id</span><span class="p">)</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">()</span>
+        <span class="n">conf</span><span class="o">.</span><span class="n">set_configuration</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">collector_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">collector_directory</span> <span class="o">=</span> <span class="n">get_collector_directory</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Missing input (collector directory or both source_id and collector_name)&#39;</span><span class="p">)</span>
+
+    <span class="n">luer_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_directory</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;RADON&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">luer_directory</span></div>
+
+
+<div class="viewcode-block" id="get_machine_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.get_machine_directory">[docs]</a><span class="k">def</span> <span class="nf">get_machine_directory</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the directory within the collector performance directory structure that</span>
+<span class="sd">    belongs tothe specified machine</span>
+<span class="sd">    </span>
+<span class="sd">    :param conf: object containing properties of a machine</span>
+<span class="sd">    :param base_dir: root directory in which data for all machines is stored</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: the directory for the specified machine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">source_generation_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">source_generation</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">get_matching_machine_directories</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Could not find the shared drive for </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">machine_name</span><span class="p">))</span>
+
+        <span class="n">machine_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_generation_path</span><span class="p">,</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not find the shared drive for </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">machine_name</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Looking in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_generation_path</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">machine_path</span></div>
+
+
+<div class="viewcode-block" id="get_matching_machine_directories"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.get_matching_machine_directories">[docs]</a><span class="k">def</span> <span class="nf">get_matching_machine_directories</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds all matching machine directories. It checks for the substring containing the vessel_id and source_id.</span>
+<span class="sd">    In case multiple directories are found, it will also return multiple. This could happen in case:</span>
+
+<span class="sd">     - a pilot system goes to the customer. The vessel_id and source_id do not change, however,</span>
+<span class="sd">       the machine identifier changes.</span>
+<span class="sd">     - For some reason, a directory is duplicated (suspecting some user doing this manually,</span>
+<span class="sd">       at the risk of breaking tooling</span>
+
+<span class="sd">    :param conf: the machine configuration, based on the machine list</span>
+<span class="sd">    :param base_dir: The (CPR) base directory</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: list of matching directories</span>
+<span class="sd">    :raise: Exception from get_directories_from_substring</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">source_generation_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">source_generation</span><span class="p">)</span>
+
+    <span class="c1"># find correct machine directory</span>
+    <span class="n">vessel_nr</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">vessel_id</span><span class="p">[</span><span class="n">conf</span><span class="o">.</span><span class="n">vessel_id</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+    <span class="n">substring</span> <span class="o">=</span> <span class="s1">&#39;V</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vessel_nr</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">source_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">get_directories_from_substring</span><span class="p">(</span><span class="n">source_generation_path</span><span class="p">,</span> <span class="n">substring</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matches</span></div>
+
+
+<div class="viewcode-block" id="get_collector_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.get_collector_directory">[docs]</a><span class="k">def</span> <span class="nf">get_collector_directory</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the directory within the collector performance directory structure that</span>
+<span class="sd">    belongs to the specified collector</span>
+
+<span class="sd">    :param conf: object containing properties of a machine</span>
+<span class="sd">    :param base_dir: root directory in which data for all machines is stored</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: the directory for the specified machine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># find correct collector directory</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">machine_directory</span> <span class="o">=</span> <span class="n">get_machine_directory</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">get_directories_from_substring</span><span class="p">(</span><span class="n">machine_directory</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">collector_name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># filter all directories that do not have the correct format</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">matches</span> <span class="k">if</span> <span class="n">is_collector_directory</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)]</span>
+
+        <span class="c1"># take SDMSCXXX(.Rxx.Hxx) (remove prefix and postfix)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">conf</span><span class="o">.</span><span class="n">collector_name</span><span class="p">]</span>
+
+        <span class="c1"># &#39;SDMSC123&#39; is in [&#39;#11_SDMSC123.R01&#39;, &#39;#1_SDMSC123_34SC0208&#39;, &#39;#2_SDMSC124&#39;, ...] twice,</span>
+        <span class="c1"># take part between &#39;_&#39;, take exact match</span>
+        <span class="n">collector_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">machine_directory</span><span class="p">,</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">collector_path</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not find the shared drive for </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">machine_name</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Looking in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_dir</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Expected directory name containing </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">collector_name</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="is_collector_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.is_collector_directory">[docs]</a><span class="k">def</span> <span class="nf">is_collector_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks for several conditions to validate a string is a collector directory name</span>
+<span class="sd">    The format of a valid collector directory is &#39;#X_SDMSCxxx_Y&#39;, where X and xxx are numeric</span>
+
+<span class="sd">    :param directory: the string to be checked</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: True in case the string is formatted correctly, otherwise it return False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">directory_split</span> <span class="o">=</span> <span class="n">directory</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">directory_split</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">directory_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">counter</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">collector_name_with_extension</span> <span class="o">=</span> <span class="n">directory_split</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">collector_name</span> <span class="o">=</span> <span class="n">collector_name_with_extension</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">collector_name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">collector_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;SDMSC&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">collector_name</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="get_share_base_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.get_share_base_directory">[docs]</a><span class="k">def</span> <span class="nf">get_share_base_directory</span><span class="p">(</span><span class="n">local</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Obtain the collector performance base directory</span>
+
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: path of the collector performance base directory</span>
+<span class="sd">    :rtype: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">has_hpc_environment</span><span class="p">():</span>
+        <span class="k">return</span> <span class="sa">r</span><span class="s1">&#39;/shared/nl011087/Collector/PIT/Collector_Performance_Reports&#39;</span>
+    <span class="k">elif</span> <span class="n">has_sf18_environment</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">local</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">r</span><span class="s1">&#39;/home/anaconda/cpr&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">r</span><span class="s1">&#39;/asml_shared/nl011150/Collector/PIT/Collector_Performance_Reports&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">local</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">r</span><span class="s1">&#39;c:\Localdata\CPR&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">asml.com\eu\shared\nl011150\Collector\PIT\Collector_Performance_Reports&#39;</span></div>
+
+
+<div class="viewcode-block" id="create_directory_structure"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.create_directory_structure">[docs]</a><span class="k">def</span> <span class="nf">create_directory_structure</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">machine_list</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates the directory structure as used on the Collector Performance Reports share drive</span>
+
+<span class="sd">    :param client: connection to influxDB</span>
+<span class="sd">    :param root: root path of the directory structure</span>
+<span class="sd">    :param machine_list: dataframee of machines</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)x</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+    <span class="n">created_directories</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">create_directory</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">machine_list</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Create directory structure for&#39;</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">displayname</span><span class="p">)</span>
+        <span class="n">hardware_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">hardware</span><span class="p">)</span>
+        <span class="n">create_directory</span><span class="p">(</span><span class="n">hardware_dir</span><span class="p">)</span>
+        <span class="n">machine_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">displayname</span>
+        <span class="n">source_id</span> <span class="o">=</span> <span class="s1">&#39;s</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">source_nr</span><span class="p">)</span>
+        <span class="n">machine_name</span> <span class="o">=</span> <span class="n">convert_display_name_to_simplified_name</span><span class="p">(</span><span class="n">machine_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">machine_name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: machine_name is empty, do not create directory&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">vessel</span><span class="p">:</span>
+            <span class="c1"># content of machine_list inferior, skip this machine</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;incorrect vessel id </span><span class="si">{}</span><span class="s1"> at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">vessel</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">displayname</span><span class="p">))</span>
+            <span class="c1"># continue</span>
+        <span class="n">machine_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hardware_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">machine_name</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">machine_nr</span><span class="p">,</span>
+                                                                      <span class="n">row</span><span class="o">.</span><span class="n">vessel</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;e #&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span>
+                                                                      <span class="n">row</span><span class="o">.</span><span class="n">source_nr</span><span class="p">))</span>
+        <span class="n">create_directory</span><span class="p">(</span><span class="n">machine_dir</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">collectors</span> <span class="o">=</span> <span class="n">get_collectors</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Skip machine </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">displayname</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">collector</span> <span class="ow">in</span> <span class="n">collectors</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">collector_name</span> <span class="o">=</span> <span class="n">collector</span><span class="o">.</span><span class="n">swap</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">machine_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">collector_name</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># already exists, skip it</span>
+                <span class="k">continue</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;create collector_dir for </span><span class="si">{}</span><span class="s1"> | </span><span class="si">{}</span><span class="s1"> in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">machine_name</span><span class="p">,</span> <span class="n">collector_name</span><span class="p">,</span> <span class="n">machine_dir</span><span class="p">))</span>
+            <span class="n">created_directories</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">collector_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">machine_dir</span><span class="p">,</span> <span class="s1">&#39;#</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">collector_name</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">)</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;1.new&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;collector_monitoring&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;Escalation&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;Escalation&#39;</span><span class="p">,</span> <span class="s1">&#39;Log&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;Escalation&#39;</span><span class="p">,</span> <span class="s1">&#39;PCCSTRAIM&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;Escalation&#39;</span><span class="p">,</span> <span class="s1">&#39;Presentations&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;Photo&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;Photo&#39;</span><span class="p">,</span> <span class="s1">&#39;1_ddmmmyy&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;RADON&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;RADON&#39;</span><span class="p">,</span> <span class="s1">&#39;13FP&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;RADON&#39;</span><span class="p">,</span> <span class="s1">&#39;radon_output&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;RADON&#39;</span><span class="p">,</span> <span class="s1">&#39;unblurred&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;RSF&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;RSF&#39;</span><span class="p">,</span> <span class="s1">&#39;Backup&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;_Reports&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;Daily&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;Daily&#39;</span><span class="p">,</span> <span class="s1">&#39;Operation&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;Daily&#39;</span><span class="p">,</span> <span class="s1">&#39;RADON&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;Weekly&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;Backup&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;CFO&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;CFO&#39;</span><span class="p">,</span> <span class="s1">&#39;Backup&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;2.in-use&#39;</span><span class="p">,</span> <span class="s1">&#39;SCP_Reports&#39;</span><span class="p">,</span> <span class="s1">&#39;RBD&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;3.used&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;3.used&#39;</span><span class="p">,</span> <span class="s1">&#39;1.pre-clean&#39;</span><span class="p">))</span>
+            <span class="n">create_directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collector_dir</span><span class="p">,</span> <span class="s1">&#39;3.used&#39;</span><span class="p">,</span> <span class="s1">&#39;2.post-clean&#39;</span><span class="p">))</span>
+
+    <span class="n">now</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">created_directories</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: Created directory tree. Elapsed time: </span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span>
+                                                                      <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">seconds</span><span class="p">,</span>
+                                                                      <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">microseconds</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="update_directory_structure"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.update_directory_structure">[docs]</a><span class="k">def</span> <span class="nf">update_directory_structure</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">machine_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates the machine directory name for old machines by adding the tag &#39;_old&#39; to the directory name</span>
+
+<span class="sd">    :param root: root path of the directory structure</span>
+<span class="sd">    :param machine_list: dataframee of machines</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+    <span class="n">updated_directories</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">machine_list</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">hardware_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">hardware</span><span class="p">)</span>
+        <span class="n">create_directory</span><span class="p">(</span><span class="n">hardware_dir</span><span class="p">)</span>
+        <span class="n">machine_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">displayname</span>
+        <span class="n">machine_name</span> <span class="o">=</span> <span class="n">convert_display_name_to_simplified_name</span><span class="p">(</span><span class="n">machine_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">machine_name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;machine_name is empty, do not create directory&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">postfix</span> <span class="o">=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">vessel</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;e #&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">row</span><span class="o">.</span><span class="n">source_nr</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">hardware_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">postfix</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">machine_directory_name</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;_old&#39;</span>
+        <span class="k">if</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">machine_directory_name</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">machine_directory_name_updated</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">machine_directory_name</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hardware_dir</span><span class="p">,</span> <span class="n">machine_directory_name</span><span class="p">),</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hardware_dir</span><span class="p">,</span> <span class="n">machine_directory_name_updated</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Update </span><span class="si">{}</span><span class="s1"> to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">machine_directory_name</span><span class="p">,</span> <span class="n">machine_directory_name_updated</span><span class="p">))</span>
+        <span class="n">updated_directories</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">updated_directories</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: Updated directory tree. Elapsed time: </span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">seconds</span><span class="p">,</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">microseconds</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="create_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.create_directory">[docs]</a><span class="k">def</span> <span class="nf">create_directory</span><span class="p">(</span><span class="n">directory_name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates, in case it did not exist, the directory given by directory_name.</span>
+<span class="sd">    In case the directory name already exists as a file, and force is enabled,</span>
+<span class="sd">    it removes the file and creates the directory</span>
+
+<span class="sd">    :param directory_name: Full path of directory name to be made</span>
+<span class="sd">    :param force: Enforces to create the directory, even if it currently exists as file instead of directory</span>
+<span class="sd">        (default: False)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory_name</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory_name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;path for directory already exists, but is no directory!&#39;</span><span class="p">)</span>
+                <span class="c1"># path exists, but is not a directory</span>
+            <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">directory_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">directory_name</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory_name</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">directory_name</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_display_name_to_simplified_name"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Shared.directory_structure.convert_display_name_to_simplified_name">[docs]</a><span class="k">def</span> <span class="nf">convert_display_name_to_simplified_name</span><span class="p">(</span><span class="n">display_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates the simplified name from a machine&#39;s display name, using some regular expressions.</span>
+<span class="sd">    These names are typically used oin the directory names of machines, etc.</span>
+
+<span class="sd">    :param display_name: the display name of a machine</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: simplified machine name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;[GFASML]* \(P[ilotr]</span><span class="si">{4}</span><span class="s1"> [0-9]*\)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">display_name</span><span class="p">):</span> <span class="c1"># ASML (Pilot 1), GF (Pilot 8) etc.</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">display_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Pilot &quot;</span><span class="p">,</span> <span class="s2">&quot;Pi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Proto &quot;</span><span class="p">,</span> <span class="s2">&quot;Pr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;ASML&quot;</span><span class="p">,</span> <span class="s2">&quot;VHV&quot;</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;[a-zA-Z]*-[0-9]*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">display_name</span><span class="p">):</span> <span class="c1"># TSMC-5, Intel-3 etc.</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;[a-zA-Z]*-[0-9]*&#39;</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;[a-zA-Z]*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">display_name</span><span class="p">):</span> <span class="c1"># Micron etc.</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;[a-zA-Z]*&#39;</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Regex could not extract name&#39;</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

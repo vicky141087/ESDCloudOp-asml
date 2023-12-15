@@ -1,0 +1,874 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.TinManagement.vanes &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.TinManagement.vanes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.TinManagement.vanes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">vanes.py</span>
+<span class="sd">Authors: RWKL</span>
+<span class="sd">Date: 2018-10-16</span>
+
+<span class="sd">Derive KPIs related to thermal cycling</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<div class="viewcode-block" id="get_specifications"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_specifications">[docs]</a><span class="k">def</span> <span class="nf">get_specifications</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to return the specifications for thermal cycles</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">specification</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;config&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;REV3 TVB+&#39;</span><span class="p">,</span> <span class="s1">&#39;REV4 (MK2)&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;improved cooling&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;temperature_hot_threshold&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">250</span><span class="p">],</span>
+        <span class="s1">&#39;temperature_warm_threshold&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">232</span><span class="p">,</span> <span class="mi">232</span><span class="p">],</span>
+        <span class="s1">&#39;hot_duration_min&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">30</span> <span class="o">*</span> <span class="mi">60</span><span class="p">],</span>
+        <span class="s1">&#39;hot_duration_max&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">600</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">150</span> <span class="o">*</span> <span class="mi">60</span><span class="p">],</span>
+        <span class="s1">&#39;first_hot_duration_min&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">30</span> <span class="o">*</span> <span class="mi">60</span><span class="p">],</span>
+        <span class="s1">&#39;first_hot_duration_max&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">600</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">150</span> <span class="o">*</span> <span class="mi">60</span><span class="p">],</span>
+        <span class="s1">&#39;hot_CO2_assistance&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>
+        <span class="s1">&#39;warm_duration_min&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="s1">&#39;warm_duration_max&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">48</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">48</span> <span class="o">*</span> <span class="mi">60</span><span class="p">],</span>
+        <span class="s1">&#39;warm_CO2_assistance&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>
+        <span class="s1">&#39;sensors_continuously_hot&#39;</span><span class="p">:</span> <span class="p">[[],</span> <span class="p">[</span><span class="s1">&#39;02&#39;</span><span class="p">,</span> <span class="s1">&#39;03&#39;</span><span class="p">]]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_vanes_temperature_signal_names_KPI"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_KPI">[docs]</a><span class="k">def</span> <span class="nf">get_vanes_temperature_signal_names_KPI</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable</span>
+<span class="sd">    names as keys. The dictionary includes all the mean temperature signals of the vanes.</span>
+
+<span class="sd">    :return: dictionary with signal names for vanes thermal data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">aggregation</span> <span class="o">=</span> <span class="s1">&#39;.5m.mean&#39;</span>
+
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;S02B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane02_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S03T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane03_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S07B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane07_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S08T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane08_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S12B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane12_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S13T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane13_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S17B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane17_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S18T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane18_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S22B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane22_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S23T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane23_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S27B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane27_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S28T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane28_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S32B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane32_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S33T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane33_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S37B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane37_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S38T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane38_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S42B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane42_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S43T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane43_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S47B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane47_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S48T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane48_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S52B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane52_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S53T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane53_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S57B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_BottomVane57_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S58T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_TopVane58_Temperature_VALUE&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">signal_names_mapping</span><span class="p">:</span>
+        <span class="n">signal_names_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">aggregation</span>
+
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+
+<div class="viewcode-block" id="get_vanes_temperature_signal_names_KPI_FV"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_KPI_FV">[docs]</a><span class="k">def</span> <span class="nf">get_vanes_temperature_signal_names_KPI_FV</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable</span>
+<span class="sd">    names as keys. The dictionary includes all the mean temperature signals of the vanes.</span>
+
+<span class="sd">    :return: dictionary with signal names for vanes thermal data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">aggregation</span> <span class="o">=</span> <span class="s1">&#39;.5m.mean&#39;</span>
+
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;S03T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group01Top_Temperature_Vane03_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S04B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group01Bottom_Temperature_Vane04_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S09T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group02Top_Temperature_Vane09_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S11B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group02Bottom_Temperature_Vane11_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S15T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group03Top_Temperature_Vane15_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S17B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group03Bottom_Temperature_Vane17_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S21T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group04Top_Temperature_Vane21_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S23B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group04Bottom_Temperature_Vane23_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S28T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group05Top_Temperature_Vane28_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S29B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group05Bottom_Temperature_Vane29_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S33T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group06Top_Temperature_Vane33_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S34B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group06Bottom_Temperature_Vane34_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S39T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group07Top_Temperature_Vane39_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S41B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group07Bottom_Temperature_Vane41_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S45T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group08Top_Temperature_Vane45_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S47B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group08Bottom_Temperature_Vane47_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S51T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group09Top_Temperature_Vane51_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S53B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group09Bottom_Temperature_Vane53_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S58T&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group10Top_Temperature_Vane58_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S59B&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FV_Group10Bottom_Temperature_Vane59_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;FVG_DGSideDoor_Temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FVG_DGSideDoor_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;FVG_DGSideScanner_Temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FVG_DGSideScanner_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;FVG_SDM_Temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FVG_SDM_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;FVG_TCSideDoor_Temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FVG_TCSideDoor_Temperature_VALUE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;FVG_TCSideScanner_Temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.FVG_TCSideScanner_Temperature_VALUE&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">signal_names_mapping</span><span class="p">:</span>
+        <span class="n">signal_names_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">aggregation</span>
+
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+
+<div class="viewcode-block" id="get_aggregated_vanes_temperature_signal_names"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_aggregated_vanes_temperature_signal_names">[docs]</a><span class="k">def</span> <span class="nf">get_aggregated_vanes_temperature_signal_names</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable</span>
+<span class="sd">    names as keys. The dictionary includes all the mean temperature signals of the vanes.</span>
+
+<span class="sd">    :return: dictionary with signal names for vanes thermal data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;vanes_bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_Bottom_Temperature_MEAN&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;vanes_top&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_Top_Temperature_MEAN&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;vanes_bottom_min&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_Bottom_Temperature_MIN&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;vanes_bottom_max&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_Bottom_Temperature_MAX&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;vanes_top_min&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_Top_Temperature_MIN&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;vanes_top_max&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI.Vanes_Top_Temperature_MAX&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+
+<div class="viewcode-block" id="get_vanes_temperature_signal_names_TinVanesStatus"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_TinVanesStatus">[docs]</a><span class="k">def</span> <span class="nf">get_vanes_temperature_signal_names_TinVanesStatus</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable</span>
+<span class="sd">    names as keys. The dictionary includes all the mean temperature signals of the vanes.</span>
+
+<span class="sd">    :return: dictionary with signal names for vanes thermal data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">aggregation</span> <span class="o">=</span> <span class="s1">&#39;.5m.mean&#39;</span>
+
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;S02B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE02_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S03T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE03_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S07B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE07_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S08T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE08_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S12B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE12_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S13T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE13_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S17B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE17_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S18T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE18_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S22B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE22_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S23T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE23_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S27B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE27_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S28T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE28_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S32B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE32_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S33T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE33_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S37B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE37_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S38T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE38_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S42B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE42_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S43T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE43_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S47B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE47_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S48T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE48_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S52B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE52_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S53T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE53_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S57B&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE57_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S58T&#39;</span><span class="p">:</span> <span class="s1">&#39;TinVanesStatus.VHCC_VANE58_TOP_TMP&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">signal_names_mapping</span><span class="p">:</span>
+        <span class="n">signal_names_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">aggregation</span>
+
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+
+<div class="viewcode-block" id="get_vanes_temperature_signal_names_VDC_VANES_SENSORS"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_VDC_VANES_SENSORS">[docs]</a><span class="k">def</span> <span class="nf">get_vanes_temperature_signal_names_VDC_VANES_SENSORS</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable</span>
+<span class="sd">    names as keys. The dictionary includes all the mean temperature signals of the vanes.</span>
+
+<span class="sd">    :return: dictionary with signal names for vanes thermal data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">aggregation</span> <span class="o">=</span> <span class="s1">&#39;.5m.mean&#39;</span>
+
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;S02B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE02_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S03T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE03_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S07B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE07_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S08T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE08_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S12B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE12_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S13T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE13_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S17B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE17_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S18T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE18_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S22B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE22_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S23T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE23_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S27B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE27_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S28T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE28_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S32B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE32_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S33T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE33_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S37B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE37_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S38T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE38_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S42B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE42_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S43T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE43_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S47B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE47_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S48T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE48_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S52B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE52_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S53T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE53_TOP_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S57B&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE57_BOT_TMP&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;S58T&#39;</span><span class="p">:</span> <span class="s1">&#39;VDC_VANES_SENSORS.VHCC_VANE58_TOP_TMP&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">signal_names_mapping</span><span class="p">:</span>
+        <span class="n">signal_names_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">aggregation</span>
+
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+
+<div class="viewcode-block" id="get_pulse_count_signal_names"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_pulse_count_signal_names">[docs]</a><span class="k">def</span> <span class="nf">get_pulse_count_signal_names</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable</span>
+<span class="sd">    names as keys. The dictionary contains the collector pulse count.</span>
+
+<span class="sd">    :return: dictionary with signal name for collector pulse count.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;pulse_count&#39;</span><span class="p">:</span> <span class="s1">&#39;Collector._PulseCount&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+
+<div class="viewcode-block" id="get_data_vane_spitting"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_data_vane_spitting">[docs]</a><span class="k">def</span> <span class="nf">get_data_vane_spitting</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">mv_flag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retreives all the data required for vane spitting analysis from influx.</span>
+<span class="sd">    Merges the dataframes from different sources</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: the source_id for which the signals have to be retrieved</span>
+<span class="sd">    :type source_id: string</span>
+<span class="sd">    :param from_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :type from_time: pd.Timestamp</span>
+<span class="sd">    :param to_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :type to_time: pd.Timestamp</span>
+<span class="sd">    :param mv_flag: mv machine or not</span>
+<span class="sd">    :type to_time: boolean</span>
+<span class="sd">    :return: dataframe containing vanes temperatures and pulse_count</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_KPI_FV</span><span class="p">(),</span>
+                                       <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_KPI_FV</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+            <span class="c1"># convert to Celcius</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">273.15</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_KPI</span><span class="p">(),</span>
+                                       <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_KPI</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+            <span class="c1"># convert to Celcius</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">273.15</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_VDC_VANES_SENSORS</span><span class="p">(),</span>
+                                           <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_VDC_VANES_SENSORS</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+                <span class="c1"># convert to Celcius</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">273.15</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_TinVanesStatus</span><span class="p">(),</span>
+                                           <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_TinVanesStatus</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="c1"># Filter out-of-bounds sensor data</span>
+    <span class="n">data</span><span class="p">[(</span><span class="n">data</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="mf">400.0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="extract_vane_spitting_area"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.extract_vane_spitting_area">[docs]</a><span class="k">def</span> <span class="nf">extract_vane_spitting_area</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cooling_config</span><span class="o">=</span><span class="s1">&#39;TVB+MK2&#39;</span><span class="p">,</span>
+                               <span class="n">threshold_temperature</span><span class="o">=</span><span class="mf">232.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine total percent vane area above spitting temperature (threshold)</span>
+
+<span class="sd">    :param data: The dataframe with vanes temperature data</span>
+<span class="sd">    :param cooling_config: the cooling config of the system, options TVB, TVB+, TVB+MK2, MV</span>
+<span class="sd">    :param threshold_temperature: identical to melting temperature in ideal world,</span>
+<span class="sd">                                  possible offset due to sensor locations</span>
+<span class="sd">    :return: Dictionary with series of total vane area above spitting temperature</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Define a dictionary to contain sensor to group mapping information</span>
+    <span class="n">sensor_map_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Sensor to group mapping for the TVB configuration</span>
+    <span class="n">sensor_map_dict</span><span class="p">[</span><span class="s1">&#39;TVB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="s1">&#39;S02B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S03T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S07B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S08T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S12B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S13T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S17B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S18T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S22B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S23T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S27B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S28T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S32B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S33T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S37B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S38T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S42B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S43T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S47B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S48T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S52B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S53T&#39;</span><span class="p">]],</span>
+                                       <span class="p">[[</span><span class="s1">&#39;S57B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S58T&#39;</span><span class="p">]]])</span>
+
+    <span class="c1"># Sensor to group mapping for the TVB+ configuration</span>
+    <span class="n">sensor_map_dict</span><span class="p">[</span><span class="s1">&#39;TVB+&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="s1">&#39;S02B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S03T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S07B&#39;</span><span class="p">,</span> <span class="s1">&#39;S12B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S08T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S17B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S13T&#39;</span><span class="p">,</span> <span class="s1">&#39;S18T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S22B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S23T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S27B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S28T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S32B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S33T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S37B&#39;</span><span class="p">,</span> <span class="s1">&#39;S42B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S38T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S47B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S43T&#39;</span><span class="p">,</span> <span class="s1">&#39;S48T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S52B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S53T&#39;</span><span class="p">]],</span>
+                                        <span class="p">[[</span><span class="s1">&#39;S57B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S58T&#39;</span><span class="p">]]])</span>
+
+    <span class="n">sensor_map_dict</span><span class="p">[</span><span class="s1">&#39;MV&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="s1">&#39;S04B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S03T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S11B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S09T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S17B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S15T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S23B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S21T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S29B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S28T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S34B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S33T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S41B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S39T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S47B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S45T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S53B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S51T&#39;</span><span class="p">]],</span>
+                                      <span class="p">[[</span><span class="s1">&#39;S59B&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S58T&#39;</span><span class="p">]]])</span>
+
+    <span class="c1"># Sensor to group mapping for the TVB+MK2 configuration</span>
+    <span class="c1"># Sensors moved between vanes but not between groups</span>
+    <span class="n">sensor_map_dict</span><span class="p">[</span><span class="s1">&#39;TVB+MK2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sensor_map_dict</span><span class="p">[</span><span class="s1">&#39;TVB+&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Obtain the correct map. The cooling config is stored as the PVP item</span>
+    <span class="c1"># Source_PVP.TIN_VANES_HW_CONFIG.</span>
+    <span class="n">sensor_map</span> <span class="o">=</span> <span class="n">sensor_map_dict</span><span class="p">[</span><span class="n">cooling_config</span><span class="p">]</span>
+
+    <span class="c1"># Obtain the number of vane groups (either 10 or 12)</span>
+    <span class="n">N_vanegroups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sensor_map</span><span class="p">)</span>
+
+    <span class="c1"># Use the sensor map to obtain vane group top and bottom temperatures</span>
+    <span class="n">bottom_temps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">sensor_map</span><span class="p">])))</span>
+    <span class="n">top_temps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                                        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">sensor_map</span><span class="p">])))</span>
+
+    <span class="c1"># Interpolate NaN temperature values with adjacent groups;</span>
+    <span class="c1"># NaN propagates if adjacent groups are also NaN</span>
+    <span class="k">def</span> <span class="nf">interpolate_nans</span><span class="p">(</span><span class="n">temps</span><span class="p">):</span>
+        <span class="n">interpolated_temps</span> <span class="o">=</span> <span class="n">temps</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_vanegroups</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">temps</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">g</span><span class="p">]):</span>
+                    <span class="n">interpolated_temps</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">temps</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">g</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                        <span class="n">temps</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">g</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">N_vanegroups</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">interpolated_temps</span>
+
+    <span class="c1"># Apply the interpolations</span>
+    <span class="n">bottom_temps</span> <span class="o">=</span> <span class="n">interpolate_nans</span><span class="p">(</span><span class="n">bottom_temps</span><span class="p">)</span>
+    <span class="n">top_temps</span> <span class="o">=</span> <span class="n">interpolate_nans</span><span class="p">(</span><span class="n">top_temps</span><span class="p">)</span>
+
+    <span class="c1"># Add correct group temperatures to the dataframe</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_vanegroups</span><span class="p">):</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;G</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">bottom_temps</span><span class="p">[:,</span> <span class="n">g</span><span class="p">],</span> <span class="n">top_temps</span><span class="p">[:,</span> <span class="n">g</span><span class="p">]))</span>
+
+    <span class="c1"># remove the keys; for all data sources (KPI, VDC_VANES_SENSORS, TinVanesStatus),</span>
+    <span class="c1"># these are the same.</span>
+    <span class="k">if</span> <span class="n">cooling_config</span> <span class="o">==</span> <span class="s1">&#39;MV&#39;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_KPI_FV</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_KPI</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">vanegroup_signal_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;G</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_vanegroups</span><span class="p">)]</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;spitting_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="c1"># Function to calculate the percentage area above spitting temperature</span>
+    <span class="c1"># for a given group [top temp, bottom temp]</span>
+    <span class="k">def</span> <span class="nf">calc_spitting_area_group</span><span class="p">(</span><span class="n">temps</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">temps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">temps</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">temps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold_temperature</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span> <span class="o">-</span> <span class="n">threshold_temperature</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">temps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">temps</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># For each timestamp obtain the total percentage area above spitting temperature</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;spitting_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">calc_spitting_area_group</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">vanegroup_signal</span><span class="p">])</span> <span class="k">for</span> <span class="n">vanegroup_signal</span> <span class="ow">in</span>
+             <span class="n">vanegroup_signal_names</span><span class="p">])</span>
+
+    <span class="c1"># Remove vane temperature and utilization columns</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">vanegroup_signal_names</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="get_data_thermal_cycling"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.get_data_thermal_cycling">[docs]</a><span class="k">def</span> <span class="nf">get_data_thermal_cycling</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">mv_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retreives all the data required for thermal cycling analysis from influx.</span>
+<span class="sd">    Merges the dataframes from different sources</span>
+
+<span class="sd">    :param mv_flag: get data for a MV system or not</span>
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: the source_id for which the signals have to be retrieved</span>
+<span class="sd">    :param from_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :param to_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :return: dataframe containing vanes temperatures and pulse_count</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_vanes_temperature_signal_names_KPI_FV</span><span class="p">(),</span>
+                                       <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+        <span class="n">columns_mv</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">calc_vanes_top_bot_min_mean_max</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bot_str</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">top_str</span><span class="o">=</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns_mv</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_aggregated_vanes_temperature_signal_names</span><span class="p">(),</span>
+                                       <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_aggregated_vanes_temperature_signal_names</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="n">pulse_count</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_pulse_count_signal_names</span><span class="p">(),</span>
+                                          <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pulse_count</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># remove rows where we only have pulse count data</span>
+    <span class="c1"># data = data.dropna(subset=list(get_mean_vanes_temperature_signal_names()))</span>
+
+    <span class="c1"># convert temperatures from Kelvin to Celsius</span>
+    <span class="k">for</span> <span class="n">vane_signal</span> <span class="ow">in</span> <span class="n">get_aggregated_vanes_temperature_signal_names</span><span class="p">():</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">vane_signal</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">vane_signal</span><span class="p">]</span> <span class="o">-</span> <span class="mf">273.15</span>
+
+    <span class="c1"># convert pulse_count to Gp</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">pulse_count</span> <span class="o">*=</span> <span class="mf">1e-9</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="extract_thermal_cycles"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.extract_thermal_cycles">[docs]</a><span class="k">def</span> <span class="nf">extract_thermal_cycles</span><span class="p">(</span><span class="n">data_bot_top</span><span class="p">,</span> <span class="n">data_vanes_seperate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold_temperature</span><span class="o">=</span><span class="mf">232.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine hot and warm phases and extract metrics.</span>
+<span class="sd">    Per hot/warm phase, determine start, end and duration in both the time and gp domain</span>
+<span class="sd">    Adds metadata per phase.</span>
+
+<span class="sd">    :param data_bot_top: The dataframe with mean vanes temperature data</span>
+<span class="sd">    :param data_vanes_seperate: The dataframe with seperate vanes temperature data</span>
+<span class="sd">    :param threshold_temperature: optional parameter to indicate the threshold of hot versus warm phases</span>
+<span class="sd">    :return: Dictionary with dataframes of kpi&#39;s for both the hot and warm phases</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">orig_columns</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">)</span>
+
+    <span class="c1"># look for hot phases</span>
+    <span class="n">above_threshold</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="o">.</span><span class="n">vanes_bottom</span> <span class="o">&gt;</span> <span class="n">threshold_temperature</span>
+    <span class="n">data_bot_top</span><span class="p">[</span><span class="s1">&#39;hot_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">above_threshold</span> <span class="o">*</span> <span class="mi">1</span>
+    <span class="n">data_bot_top</span><span class="p">[</span><span class="s1">&#39;switch_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="p">[</span><span class="s1">&#39;hot_phase&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
+
+    <span class="c1"># get start of all hot and warm phases</span>
+    <span class="n">phase_hot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_bot_top</span><span class="p">[</span><span class="n">data_bot_top</span><span class="o">.</span><span class="n">switch_phase</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">phase_warm</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_bot_top</span><span class="p">[</span><span class="n">data_bot_top</span><span class="o">.</span><span class="n">switch_phase</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">phase_hot</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_hot</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">phase_warm</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_warm</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="k">if</span> <span class="n">phase_hot</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">phase_warm</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">phase_warm</span><span class="o">.</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">phase_hot</span><span class="o">.</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">phase_hot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">),</span> <span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_warm</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">phase_warm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">),</span> <span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_hot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">)]</span>
+        <span class="n">phase_hot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">),</span> <span class="s1">&#39;pulse_count_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_warm</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">phase_warm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">),</span>
+        <span class="s1">&#39;pulse_count_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_hot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">)]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">phase_hot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">),</span> <span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_warm</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">)]</span>
+        <span class="n">phase_warm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">),</span> <span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_hot</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">phase_hot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">),</span>
+        <span class="s1">&#39;pulse_count_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_warm</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">)]</span>
+        <span class="n">phase_warm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">),</span> <span class="s1">&#39;pulse_count_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_hot</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># Add duration in hours and Gp</span>
+    <span class="n">phase_hot</span> <span class="o">=</span> <span class="n">calculate_duration</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">)</span>
+    <span class="n">phase_warm</span> <span class="o">=</span> <span class="n">calculate_duration</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">)</span>
+
+    <span class="c1"># Add extreme vanes temperatures during phase</span>
+    <span class="n">phase_hot</span> <span class="o">=</span> <span class="n">calculate_extreme_temperatures</span><span class="p">(</span><span class="n">phase_hot</span><span class="p">,</span> <span class="n">data_bot_top</span><span class="p">,</span> <span class="n">data_vanes_seperate</span><span class="p">)</span>
+    <span class="n">phase_warm</span> <span class="o">=</span> <span class="n">calculate_extreme_temperatures</span><span class="p">(</span><span class="n">phase_warm</span><span class="p">,</span> <span class="n">data_bot_top</span><span class="p">,</span> <span class="n">data_vanes_seperate</span><span class="p">)</span>
+
+    <span class="c1"># filter out warm phases without pulse count. This is considered maintenance</span>
+    <span class="n">phase_warm</span> <span class="o">=</span> <span class="n">phase_warm</span><span class="p">[</span><span class="n">phase_warm</span><span class="o">.</span><span class="n">pulse_count_delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># remove columns we do not need</span>
+    <span class="n">signals_to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;switch_phase&#39;</span><span class="p">,</span> <span class="s1">&#39;hot_phase&#39;</span><span class="p">]</span>
+    <span class="n">phase_hot</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">signals_to_remove</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">phase_warm</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">signals_to_remove</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">phase_hot</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">orig_columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">phase_warm</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">orig_columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">phases</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;hot&#39;</span><span class="p">:</span> <span class="n">phase_hot</span><span class="p">,</span>
+              <span class="s1">&#39;warm&#39;</span><span class="p">:</span> <span class="n">phase_warm</span><span class="p">,</span>
+              <span class="p">}</span>
+    <span class="k">return</span> <span class="n">phases</span></div>
+
+
+<div class="viewcode-block" id="calculate_duration"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.calculate_duration">[docs]</a><span class="k">def</span> <span class="nf">calculate_duration</span><span class="p">(</span><span class="n">phases</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds duration of the phases in time (hours) and pulses (Gp)</span>
+
+<span class="sd">    :param phases: The hot or warm phases</span>
+<span class="sd">    :return: phases including columns for duration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">phases_start_values</span> <span class="o">=</span> <span class="n">phases</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">phases_pulse_count_values</span> <span class="o">=</span> <span class="n">phases</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">phases</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">phases_start_values</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3600.0</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;duration_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">phases_start_values</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3600.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;pulse_count_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phases</span><span class="o">.</span><span class="n">pulse_count_end</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">phases_pulse_count_values</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;pulse_count_delta_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">phases_pulse_count_values</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phases</span></div>
+
+
+<div class="viewcode-block" id="calculate_extreme_temperatures"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.calculate_extreme_temperatures">[docs]</a><span class="k">def</span> <span class="nf">calculate_extreme_temperatures</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">data_bot_top</span><span class="p">,</span> <span class="n">data_vanes_seperate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds minimum and maximum vane temperature during the cycle</span>
+
+<span class="sd">    :param phases: The hot or warm phases</span>
+<span class="sd">    :param data_bot_top: mean vanes temperature data</span>
+<span class="sd">    :param data_vanes_seperate: seperate vanes temperature data</span>
+<span class="sd">    :return: phases including columns for extreme temperatures</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data_bot_top</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;temperature_bottom_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;temperature_bottom_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;temperature_top_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;temperature_top_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_bot_top</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">phase</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data_bot_top</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">phase</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+        <span class="n">phases</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;temperature_bottom_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;vanes_bottom_min&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">phases</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;temperature_bottom_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;vanes_bottom_max&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">phases</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;temperature_top_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;vanes_top_min&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">phases</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;temperature_top_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_bot_top</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;vanes_top_max&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">data_vanes_seperate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_vanes_seperate</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_vanes_seperate</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">phases</span><span class="p">[</span><span class="n">c</span> <span class="o">+</span> <span class="s1">&#39;_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">phases</span><span class="p">[</span><span class="n">c</span> <span class="o">+</span> <span class="s1">&#39;_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">phase</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">phase</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">phases</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="s1">&#39;_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">phases</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="s1">&#39;_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_vanes_seperate</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">phases</span></div>
+
+
+<div class="viewcode-block" id="qualify_phases"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.qualify_phases">[docs]</a><span class="k">def</span> <span class="nf">qualify_phases</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds qualification of the phases</span>
+
+<span class="sd">    :param phases: The hot or warm phases</span>
+<span class="sd">    :param config: vessel configuration of the system</span>
+<span class="sd">    :return: phases including columns for qualification</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">specifications</span> <span class="o">=</span> <span class="n">get_specifications</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">specifications</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;configuration </span><span class="si">{}</span><span class="s1"> unknown&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">specs</span> <span class="o">=</span> <span class="n">specifications</span><span class="p">[</span><span class="n">specifications</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="n">config</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">phase</span><span class="o">.</span><span class="n">duration</span> <span class="o">&lt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">hot_duration_min</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: minimum duration not achieved&#39;</span>
+        <span class="k">elif</span> <span class="n">phase</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">hot_duration_max</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: maximum duration exceeded&#39;</span>
+        <span class="k">elif</span> <span class="n">phase</span><span class="o">.</span><span class="n">temperature_bottom_min</span> <span class="o">&lt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">temperature_hot_threshold</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: too low minimum bottom vanes temperature&#39;</span>
+        <span class="k">elif</span> <span class="n">phase</span><span class="o">.</span><span class="n">temperature_top_min</span> <span class="o">&lt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">temperature_hot_threshold</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: too low minimum top vanes temperature&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Passed&#39;</span>
+
+    <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">[</span><span class="s1">&#39;warm&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">phase</span><span class="o">.</span><span class="n">duration</span> <span class="o">&lt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">warm_duration_min</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: minimum duration not achieved&#39;</span>
+        <span class="k">elif</span> <span class="n">phase</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">warm_duration_max</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: maximum duration exceeded&#39;</span>
+        <span class="k">elif</span> <span class="n">phase</span><span class="o">.</span><span class="n">temperature_bottom_max</span> <span class="o">&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">temperature_warm_threshold</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: too high max bottom vanes temperature&#39;</span>
+        <span class="k">elif</span> <span class="n">phase</span><span class="o">.</span><span class="n">temperature_top_max</span> <span class="o">&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">temperature_warm_threshold</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Failed: too high max top vanes temperature&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">phase</span><span class="p">[</span><span class="s1">&#39;qualification&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Passed&#39;</span>
+
+    <span class="k">return</span> <span class="n">phases</span></div>
+
+
+<div class="viewcode-block" id="calc_vanes_top_bot_min_mean_max"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.vanes.calc_vanes_top_bot_min_mean_max">[docs]</a><span class="k">def</span> <span class="nf">calc_vanes_top_bot_min_mean_max</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">bot_str</span><span class="o">=</span><span class="s1">&#39;Bottom_Temperature_Vane&#39;</span><span class="p">,</span> <span class="n">top_str</span><span class="o">=</span><span class="s1">&#39;Top_Temperature_Vane&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Caculate the min mean and max for the bottom and top vanes</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        :param df: return the original columns + calculated columns</span>
+<span class="sd">        :type df: pandas DataFrame</span>
+<span class="sd">        :param bot_str: unique identifier for bottom vanes</span>
+<span class="sd">        :type bot_str: string</span>
+<span class="sd">        :param top_str: unique identifier for top vanes</span>
+<span class="sd">        :type top_str: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bottom_vanes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">bot_str</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="n">top_vanes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">top_str</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;vanes_bottom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">bottom_vanes</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;vanes_bottom_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">bottom_vanes</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;vanes_bottom_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">bottom_vanes</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;vanes_top&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">top_vanes</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;vanes_top_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">top_vanes</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;vanes_top_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">top_vanes</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

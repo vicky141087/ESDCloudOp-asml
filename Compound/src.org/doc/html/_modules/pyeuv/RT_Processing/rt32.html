@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.RT_Processing.rt32 &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.RT_Processing.rt32</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.RT_Processing.rt32</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Nov 25 14:32 2019</span>
+
+<span class="sd">@author: Rob Wieggers (RWKL)</span>
+<span class="sd">@ownership: FC-072</span>
+
+<span class="sd">Based on code from CDL EUVDB</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Do_It</span> <span class="kn">import</span> <span class="n">do_it_library</span> <span class="k">as</span> <span class="n">do_it</span>
+<span class="kn">from</span> <span class="nn">pyeuv.RT_Processing.simple_rt</span> <span class="kn">import</span> <span class="n">SimpleRT</span>
+
+
+<div class="viewcode-block" id="RT32"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt32.RT32">[docs]</a><span class="k">class</span> <span class="nc">RT32</span><span class="p">(</span><span class="n">SimpleRT</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;RT32&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RT32</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RT32.process_signals"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt32.RT32.process_signals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">apply_resampling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate derived data for rt32.</span>
+<span class="sd">        By default it resamples the data to 1Hz, as used for influx. In this case it calculates the</span>
+<span class="sd">        min, mean, max, and std for all the columns.</span>
+<span class="sd">        By setting apply_resampling to False, as used in some data pipelines by ADA4EUV,</span>
+<span class="sd">        no resampling is applyd (neither are the aggregation functions min, mean, max, std).</span>
+
+<span class="sd">        :param df: input dataframe containing raw RT32 data</span>
+<span class="sd">        :param apply_resampling: switches resampling to 1 Hz on or off (default=True)</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        :return: dataframe new_df, including aggregated signals</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="n">df_calculated</span> <span class="o">=</span> <span class="n">RT32</span><span class="o">.</span><span class="n">calculate_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">apply_resampling</span><span class="p">:</span>
+            <span class="n">new_df</span> <span class="o">=</span> <span class="n">RT32</span><span class="o">.</span><span class="n">resample_signals</span><span class="p">(</span><span class="n">df_calculated</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+            <span class="n">new_df</span> <span class="o">=</span> <span class="n">RT32</span><span class="o">.</span><span class="n">calculate_laser_to_droplet</span><span class="p">(</span><span class="n">new_df</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_df</span> <span class="o">=</span> <span class="n">df_calculated</span>
+
+        <span class="k">return</span> <span class="n">new_df</span></div>
+
+<div class="viewcode-block" id="RT32.calculate_signals"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt32.RT32.calculate_signals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">calculate_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate derived data for rt32</span>
+
+<span class="sd">        :param df: input dataframe containing raw RT32 data</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        :return: dataframe df, including additional calculated signals</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of L2D Y</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SELECT_MEAS_SYSTEM_FC_Y__OT_SELECT_MEAS_SYSTEM_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SELECT_MEAS_SYSTEM_FC_Y__OT_SELECT_MEAS_SYSTEM_OUT&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of L2D Z</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SELECT_MEAS_SYSTEM_FC_Z__OT_SELECT_MEAS_SYSTEM_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SELECT_MEAS_SYSTEM_FC_Z__OT_SELECT_MEAS_SYSTEM_OUT&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Calc signals</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_QUAD_CELL_FBD__OT_SI_QUADCELL_SUM_OUT_VALID&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_FBD__OT_MAT_2X2_FLT_OUT1&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_FBD__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_QUAD_CELL_RBD__OT_SI_QUADCELL_SUM_OUT_VALID&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_RBD__OT_MAT_2X2_FLT_OUT1&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_RBD__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_FFA_LD_SI_M150_ENC_M1__OT_SI_INC_FLOAT_OUT&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">19906.0</span> <span class="o">+</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1660.1</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_FFA_LD_SI_M150_ENC_M2__OT_SI_INC_FLOAT_OUT&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">19906.0</span> <span class="o">+</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1723.8</span> <span class="o">+</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT3&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1692.0</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_FFA_LD_SI_M150_ENC_M3__OT_SI_INC_FLOAT_OUT&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">19906.0</span> <span class="o">+</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1723.8</span> <span class="o">+</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M150_MENC_2_MIR__OT_MS_3X3_OUT3&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1692.0</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_M150_ENCODER_DELTA_AX1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_M150_MIRR_ENC_M1__OT_SI_INC_FLOAT_OUT&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;_FFA_LD_SI_M150_ENC_M1__OT_SI_INC_FLOAT_OUT&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_M150_ENCODER_DELTA_AX2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_M150_MIRR_ENC_M2__OT_SI_INC_FLOAT_OUT&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;_FFA_LD_SI_M150_ENC_M2__OT_SI_INC_FLOAT_OUT&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_M150_ENCODER_DELTA_AX3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_M150_MIRR_ENC_M3__OT_SI_INC_FLOAT_OUT&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;_FFA_LD_SI_M150_ENC_M3__OT_SI_INC_FLOAT_OUT&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SELECT_MEAS_SYSTEM_FC_Z__OT_SELECT_MEAS_SYSTEM_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_M150_CONTROL_ERROR_AX1_EUV&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_CO_M150_M1__OT_CO_CTL_ERR&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_M150_CONTROL_ERROR_AX2_EUV&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_CO_M150_M2__OT_CO_CTL_ERR&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_M150_CONTROL_ERROR_AX3_EUV&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_CO_M150_M3__OT_CO_CTL_ERR&quot;</span><span class="p">]</span>
+
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_M150_CONTROL_ERROR_AX1_EUV&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_M150_CONTROL_ERROR_AX2_EUV&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_M150_CONTROL_ERROR_AX3_EUV&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Calc signals for quad cell</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">RT32</span><span class="o">.</span><span class="n">calculate_laser_to_droplet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">post_fix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1"># Filter mirror actuation signals on validity of FBD QC validity</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_QUAD_CELL_FBD__OT_SI_QUADCELL_SUM_OUT_VALID&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M90_MENC_2_MIR__OT_MS_3X3_OUT1&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M90_MENC_2_MIR__OT_MS_3X3_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M120_PHYS2LOG__OT_MS_3X3_OUT1&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M120_PHYS2LOG__OT_MS_3X3_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_3X3_M120_PHYS2LOG__OT_MS_3X3_OUT3&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="RT32.resample_signals"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt32.RT32.resample_signals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">resample_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resample the signals to 1 second buckets</span>
+
+<span class="sd">        :param df: input dataframe containing raw RT32 data</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        :return: dataframe new_df, including aggregated signals</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1"># Re-sample selected signals</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">new_df</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;_mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s1">&#39;1S&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+                <span class="n">new_df</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s1">&#39;1S&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;min&#39;</span><span class="p">)</span>
+                <span class="n">new_df</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s1">&#39;1S&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;max&#39;</span><span class="p">)</span>
+                <span class="n">new_df</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;_std&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s1">&#39;1S&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;std&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 re-sampling&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_df</span></div>
+
+<div class="viewcode-block" id="RT32.calculate_laser_to_droplet"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt32.RT32.calculate_laser_to_droplet">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">calculate_laser_to_droplet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">post_fix</span><span class="o">=</span><span class="s2">&quot;_mean&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate laser to droplet. By default it uses the 1 second mean values to calculate this.</span>
+<span class="sd">        When one needs L2D_x and L2D_y on the raw data, the optional post_fix should be set to &quot;&quot;.</span>
+
+<span class="sd">        :param df: input dataframe containing raw and calculated RT32 data</span>
+<span class="sd">        :param post_fix: option to change (or remove) the postfix, which by default is &#39;_mean&#39;</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        :return: dataframe df including laser to droplet data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="c1"># Calc signals (legacy naming)</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_QUAD_L2D_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_FBD__OT_MAT_2X2_FLT_OUT1</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">post_fix</span><span class="p">)]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_RBD__OT_MAT_2X2_FLT_OUT1</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">post_fix</span><span class="p">)]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_QUAD_L2D_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_FBD__OT_MAT_2X2_FLT_OUT2</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">post_fix</span><span class="p">)]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_MS_FC_QUAD_CELL_RBD__OT_MAT_2X2_FLT_OUT2</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">post_fix</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT32 QUAD_L2D X and Y&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

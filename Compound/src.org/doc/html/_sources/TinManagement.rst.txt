@@ -1,0 +1,13 @@
+TinManagement
+=============
+
+Tin Vanes
+---------
+.. automodule:: pyeuv.TinManagement.vanes
+    :members:
+
+Tin Bucket
+----------
+.. automodule:: pyeuv.TinManagement.bucket
+    :members:
+

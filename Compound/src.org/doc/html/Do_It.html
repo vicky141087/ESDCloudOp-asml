@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Do_It &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TinManagement" href="TinManagement.html" />
+    <link rel="prev" title="Collector" href="Collector.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="EUVDashboard.html">EUVDashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PMA.html">PMA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RT_Processing.html">RT_Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parsers.html">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Collector.html">Collector</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Do_It</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Do_It</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="TinManagement.html">TinManagement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Shared.html">Shared</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers.html">helpers</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+        
+      <li>Do_It</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/Do_It.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="do-it">
+<h1>Do_It<a class="headerlink" href="#do-it" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>Do_It<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyeuv.Do_It.do_it_library"></span><p>do_it_library.py
+Authors: NGER
+Date: 2019-05-10</p>
+<dl class="simple">
+<dt>This file contains the generic library functions for:</dt><dd><ul class="simple">
+<li><p>‘do_it’,</p></li>
+<li><p>‘do_it_something’,</p></li>
+</ul>
+</dd>
+</dl>
+<p>these can be used externally</p>
+<dl class="simple">
+<dt>The _do_it_verbose function is a local utility that displays</dt><dd><ul class="simple">
+<li><p>the name,</p></li>
+<li><p>the arguments,</p></li>
+<li><p>the values of the arguments,</p></li>
+</ul>
+</dd>
+</dl>
+<p>from the function that it is called from, when its ‘verbose’ parameter is True</p>
+<p>To facilitate this utility, all functions in the library must have ‘verbose’
+as last parameter (default value False),
+and a call to _do_it_verbose() as first action, as shown in the examples below.</p>
+<dl class="function">
+<dt id="pyeuv.Do_It.do_it_library.do_it">
+<code class="sig-prename descclassname">pyeuv.Do_It.do_it_library.</code><code class="sig-name descname">do_it</code><span class="sig-paren">(</span><em class="sig-param">param1=True</em>, <em class="sig-param">wave_nr=3</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Do_It/do_it_library.html#do_it"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Do_It.do_it_library.do_it" title="Permalink to this definition">¶</a></dt>
+<dd><p>do_it(…): Returns the value of the parameter supplied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param1</strong> – <p>value to be returned,</p>
+<dl class="simple">
+<dt><strong>details</strong></dt><dd><ul>
+<li><p>’Exception1’ is not allowed as value for param1,</p></li>
+<li><p>default value = True,</p></li>
+</ul>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>wave_nr</strong> – <p>dummy parameter giving the nr of ‘waves’,</p>
+<dl class="simple">
+<dt><strong>details</strong></dt><dd><ul>
+<li><p>default = 3,</p></li>
+</ul>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>verbose</strong> – <p>to switch internal debug info,</p>
+<dl class="simple">
+<dt><strong>details</strong></dt><dd><ul>
+<li><p>default = False,</p></li>
+</ul>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises ValueError</dt>
+<dd class="field-even"><p>not allowed value is passed as parameter,</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the value of param1,</p>
+</dd>
+<dt class="field-even">Change History</dt>
+<dd class="field-even"><p>NGER 20190513 SSPT-202:
+Creation of template for generic function in library,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Do_It.do_it_library.do_it_some_function">
+<code class="sig-prename descclassname">pyeuv.Do_It.do_it_library.</code><code class="sig-name descname">do_it_some_function</code><span class="sig-paren">(</span><em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Do_It/do_it_library.html#do_it_some_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Do_It.do_it_library.do_it_some_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>do_it_nothing (…): Does nothing, just shows ‘verbose’ propagation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbose</strong> – <p>to switch internal debug info,</p>
+<dl class="simple">
+<dt><strong>details</strong></dt><dd><ul class="simple">
+<li><p>default = False,</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Change History</dt>
+<dd class="field-odd"><p>NGER 20190513 SSPT-202
+Creation of template for generic function in library,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Do_It.do_it_library.do_it_verbose">
+<code class="sig-prename descclassname">pyeuv.Do_It.do_it_library.</code><code class="sig-name descname">do_it_verbose</code><span class="sig-paren">(</span><em class="sig-param">frame</em>, <em class="sig-param">verbose</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Do_It/do_it_library.html#do_it_verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Do_It.do_it_library.do_it_verbose" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>_do_it_verbose(…): Shows the name, parameters and values of the function</dt><dd><p>that this is called from (the calling function).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> – frame object of the calling function,</p></li>
+<li><p><strong>verbose</strong> – to switch internal debug info (default: False)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Change History:
+NGER 20190513 SSPT-202 Creation of template for generic function in library</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="TinManagement.html" class="btn btn-neutral float-right" title="TinManagement" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Collector.html" class="btn btn-neutral float-left" title="Collector" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

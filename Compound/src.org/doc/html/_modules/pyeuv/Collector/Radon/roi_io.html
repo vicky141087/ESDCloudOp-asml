@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Radon.roi_io &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Radon.roi_io</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Radon.roi_io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">roi_io.py</span>
+<span class="sd">Authors: RWKL</span>
+<span class="sd">Date:  2019-05-13</span>
+
+<span class="sd">Roi_io contains functionality to read and write ROI definitions from json files into a dict format.</span>
+<span class="sd">The dictionary contains per unique key one ROI. For ewach ROI, the following properties are defined:</span>
+<span class="sd">- &#39;type&#39;: &#39;ROI&#39;</span>
+<span class="sd">- &#39;format&#39;: &#39;polar&#39; or &#39;polygon&#39;</span>
+<span class="sd">- &#39;UCC&#39;: 1 means under change control, 0 is not under change control</span>
+
+<span class="sd">Depending on the format:</span>
+<span class="sd">for polar:</span>
+<span class="sd">- &#39;r_min&#39;: the minimum radius (edge excluded, relative radial position)</span>
+<span class="sd">- &#39;r_max&#39;: the maximum radius (edge included, relative radial position)</span>
+<span class="sd">- &#39;phi_min&#39;: the minimum angle (edge excluded, in degrees)</span>
+<span class="sd">- &#39;phi_max&#39;: the maximum angle (edge included, in degrees)</span>
+
+<span class="sd">for polygon:</span>
+<span class="sd">- &#39;positions&#39;: [[x0, y0], [x1, y1], ..., [xn, yn]] (in absolute coordinates, x0 != xn)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+
+
+<div class="viewcode-block" id="read_rois_from_json"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.roi_io.read_rois_from_json">[docs]</a><span class="k">def</span> <span class="nf">read_rois_from_json</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read rois from json file and return it as a dict. </span>
+<span class="sd">    It ignores all json objects of different tpyes than &#39;ROI&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    :param json_file: full path to json file</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: dict containing the ROIs</span>
+<span class="sd">    :raises: exception in case file cannot be opened</span>
+<span class="sd">    :raises: exception in case json cannot be parsed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">roi_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="n">keys_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">roi_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="s1">&#39;type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">|</span> <span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;ROI&#39;</span><span class="p">):</span>
+                <span class="n">keys_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys_to_delete</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">roi_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">e</span>
+        
+    <span class="k">return</span> <span class="n">roi_dict</span></div>
+
+
+<div class="viewcode-block" id="write_rois_to_json"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.roi_io.write_rois_to_json">[docs]</a><span class="k">def</span> <span class="nf">write_rois_to_json</span><span class="p">(</span><span class="n">roi_dict</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Writes roi dictionary to a json file.</span>
+<span class="sd">    </span>
+<span class="sd">    :param roi_dict: The dictionary containing the ROIs</span>
+<span class="sd">    :param json_file: the pfile in which the ROIs should be stored</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">roi_dict</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">e</span></div>
+
+
+<div class="viewcode-block" id="read_spiderweb_kpis_from_json"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.roi_io.read_spiderweb_kpis_from_json">[docs]</a><span class="k">def</span> <span class="nf">read_spiderweb_kpis_from_json</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read spiderweb KPI mapping from json file and return it as a dict.</span>
+
+<span class="sd">    :param json_file: full path to json file</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: dict containing the spiderweb KPI mapping</span>
+<span class="sd">    :raises: exception in case file cannot be opened</span>
+<span class="sd">    :raises: exception in case json cannot be parsed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">spiderweb_mapping</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="n">keys_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">spiderweb_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Reminder: syntax as below (&#39;string is string&#39;) is not py27 compatible</span>
+            <span class="c1"># if (type(item) is not dict) | (&#39;type&#39; not in item.keys()) | (item[&#39;type&#39;] is &#39;ROI_KPI&#39;):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="s1">&#39;type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">|</span> <span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;ROI_KPI&#39;</span><span class="p">):</span>
+                <span class="n">keys_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys_to_delete</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">spiderweb_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">spiderweb_mapping</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

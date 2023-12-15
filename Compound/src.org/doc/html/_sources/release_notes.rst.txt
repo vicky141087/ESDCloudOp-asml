@@ -1,0 +1,215 @@
+Release Notes
+#############
+
+Pyeuv 1.2
+=========
+
+**New Features**
+
+* [SSPT-587] - Pandas >=1.0 support
+* [NO-JIRA] - Added time_buffer parameter to the cached version of get_signals that can be used limit the retention of the cache.
+
+**Bug Fixes**
+
+* [NO-JIRA] - Fixed bug in context filter application
+* [NO-JIRA] - Return empty dataframe when no lot matches are found to prevent crashing
+* [NO-JIRA] - Feature/missing Collector signals
+* [NO-JIRA] - Fixed issue where get_signal_list would ignore the provided source or machine number
+* [NO-JIRA] - Return tz aware data frame when no lot statistics are found
+* [NO-JIRA] - Prevent crashing when no cumulative pulse count is found.
+* [SSPT-67] - pyeuv install fails on HPC on generation of docs
+* [SSPT-597] - RT23 parsing fails
+* [SSPT-376] - SSL Certificate error on linux machines
+* [SSPT-64] - get_signals_dict() failure for signals with where clause and time aggregation
+* [SSPT-56] - In case of two iDEA root causes only the first is given by function get_signals() in pyeuv
+* [SSPT-538] - Parameters not forwarded in get_signals_cached()
+* [SSPT-544] - Filename in instructions manual incorrect 
+
+**Other**
+* [SSPT-558] - Improve tests
+* [SSPT-539] - Make some dependencies optional in setup.py
+
+Pyeuv 1.1
+* Unreleased internal version*
+
+Pyeuv 1.0
+===========
+*Improvements with respect to pyeuv 0.9.4*
+
+**New Features**
+
+* [SSPT-452] DAT parser functions for entire directories.
+  parse_dat_directory() and parse_dat_directory_gui()
+* [SSPT-489] Add domain metrics that are in the ada pipeline
+* [SSPT-498] SSPT-498 add gv high frequent metrics
+* Radon FFM smoothing Algorithm
+
+**Other**
+
+* [SSPT-496] Refactor simplert class to make use of same naming conventions as the compound metrics
+* Pandas < 0.25 no longer supported
+* Added radon and slie/dt functional diagrams to the documentation
+
+**Bug Fixes**
+
+* PMA Client: CPD Results were concatenated along the wrong axis.
+* PMA Client: Exponent for scientific notations were omitted.
+
+Pyeuv 0.9.4
+===========
+*Improvements with respect to pyeuv 0.9.3*
+
+**New Features**
+
+* [SSPT-489] - add compound metrics that are in ADA4EUV
+
+Pyeuv 0.9.3
+===========
+*Improvements with respect to pyeuv 0.9.2*
+
+**New Features**
+
+* [SSPT-485] - rt removal of meaningless zeros and other cleanups
+* updating the rt configuration file to include input signals for rt processing, and output signals for processing and resampling
+* refactoring to allow for rt processing without resampling (used by ADA4EUV)
+
+Pyeuv 0.9.2
+===========
+*Improvements with respect to pyeuv 0.9.1*
+
+**New Features**
+
+* [SSPT-467] - implement rt_signals in pyeuv
+
+Pyeuv 0.9.1
+===========
+*Improvements with respect to pyeuv 0.9*
+
+**New Features**
+
+* [SSPT-177] - implement change point inflection
+
+
+**Bug fixes**
+
+* [SSPT-464] - on unix getmachinelist fails
+* [SSPT-427] - extract_vane_spitting_area-temperature-calibration-bug
+* hotfix/missing-import
+
+
+Pyeuv 0.9
+=========
+*Improvements with respect to pyeuv 0.8*
+
+**New Features**
+
+* [SSPT 347] - Radon image task
+* [SSPT-185] - Add PMA NG Support: CPD Reader
+* [SSPT-342] - Add PMA NG Support: Parameter reader
+* [SSPT-363] - Add PMA NG Support: Machine constant reader
+* [SSPT-404] - PMANG: Support array tags
+* [SSPT-34] - Add spitting metric to pyeuv/TinManagement
+
+
+**Bug fixes**
+
+* [SSPT-154] - Tag filter doesn't work when using reserved keywords as tag keys
+* [SSPT-317] - get_signals no longer accepts strings
+* [SSPT-51] - slie/dt: Normalization should come after rolling median filter
+* [SSPT-263] - Chunk can stop prematurely when using chunks
+* [SSPT-425] - last_value_before() doesn't work with aggregations
+* common.has_etl_environment now looks for hostname starting with ICS106019 instead of just 'ICS'
+
+**Other improvements**
+
+* [SSPT-314] - Raise error when trying to filter on a non-existent tag.
+* [SSPT-52] - Spike containments for tsmc 8
+* [SSPT-406] - Add retry loop to pma ng reader
+* Collector UML diagrams
+* SLIE/DT Refactoring
+
+
+Pyeuv 0.8
+=========
+*Improvements with respect to Pyeuv 0.7.*
+
+**New Features**
+
+* NXE Source collector monitory and analysis tools
+* NXE Illuminator tools
+* [SSPT-22] - Add functions to retreive list of tag keys and tag values
+* [SSPT-29] - implement illuminator degradation correction
+* [SSPT-33] - Add tin management metrics
+* [SSPT-35] - Thermal cycle metrics
+* [SSPT-42] - Extend SLIE/DT library
+* [SSPT-65] - RT2 ondroplet filter
+* [SSPT-43] - Add CDL algorithm
+* [SSPT-44] - Add SG filter
+
+**Bug fixes**
+
+* [SSPT-12] - last_value_before() doesn't work
+* [SSPT-13] - Add instructions for tag/field support to UserLANClient.get_signals()
+* [SSPT-14] - Not compatible with pandas >= 0.23
+* [SSPT-16] - get_signals doesn't return defaults if they are provided
+* [SSPT-17] - Include backports.lzma for python2
+* [SSPT-18] - Add function to list available signals for a given machine.
+* [SSPT-19] - May break out of retry loop on prematurely
+* [SSPT-20] - Can't use tag filter and field filters at the same time
+* [SSPT-23] - Tag filter with field raises error in pyeuv if there is no data
+* [SSPT-24] - Exception handling code results in crash later on
+* [SSPT-26] - Crash in case one request an empty signal
+* [SSPT-48] - CDL Algo: overlapping triggers
+* [SSPT-49] - Get_signals crashed on high demand query
+* [SSPT-62] - test_get_multiple_signals fails.
+* [SSPT-68] - Not compatible with pandas >= 0.24
+
+
+**Other improvements**
+
+* Updated documentation
+* [SSPT-11] - Type error when using dat_parser (Python 3)
+* [SSPT-27] - Collector code: Complete Docstring and make it consistent
+* [SSPT-28] - Collector code: flexible SLIE/DT algorithm flexible
+* [SSPT-45] - sliedt.get_data crashes on get_data
+* [SSPT-46] - Streamline release script
+* [SSPT-58] - Unpack in dat_parser uses LL (Long Long) instead of (II) (uint-uint)
+* [SSPT-59] - Update SSL context for get_machine_list()
+* [SSPT-60] - Information classification with install warning
+* [SSPT-63] - Refactor and cleanup chunk_signals()
+
+
+Pyeuv 0.7
+=========
+*Improvements with respect to Pyeuv 0.5.*
+
+**New Features**
+
+* [IC12-15] - Support multiple tag filters
+* [IC12-18] - Add function to list available signals.
+  You can now the get_signal_list method of the userlan client to retreive
+  a list of available signals. See the docs for more info.
+* [Missing no.] Added collector code
+* [IC12-29] - Collector code: Implement illuminator degradation correction
+* [IC12-32] - Added documention (See Pyeuv manual.html)
+
+**Bugfixes**
+
+* [IC12-11] - Type error when using dat_parser
+* [IC12-12] - last_value_before() doesn't work
+* [IC12-14] - Not compatible with pandas >= 0.23
+* [IC12-16] - get_signals doesn't return defaults if they are provided
+* [IC12-19] - May brak out of retry loop prematurely
+* [IC12-20] - Can't use tag filter and field filters at the same time
+* [IC12-23] - Tag filter with field raises error in pyeuv if there is no data
+* [IC12-24] - Exception handling code results in crash later on
+* [IC12-26] - Crash in case one request an empty signal
+
+
+**Other improvements**
+
+* [IC12-13] - Added instructions for tag/field support to UserLANClient
+* [IC12-17] - Include backports.lzma for python2
+* [IC12-27] - Collector code: Complete docstring and make it consistent
+* [IC12-28] - Collector code: flexible SLIE/DT algorithm flexible
+

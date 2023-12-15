@@ -1,0 +1,20 @@
+resource_group_name          = "genesys-ws-prd01-rg"
+key_vault_name               = "genesys-ws-prd01-kv"
+log_analytics_workspace_name = "genesys-ws-prd01-la"
+app_service_plan_euwe_name   = "genesys-ws-prd01-euwe-asp"
+app_service_plan_euno_name   = "genesys-ws-prd01-euno-asp"
+app_service_euwe_name        = "genesys-ws-prd01-euwe-web-app"
+app_service_euno_name        = "genesys-ws-prd01-euno-web-app"
+storage_account_fa_euwe_name = "genesysprd01faeuwesa"
+storage_account_fa_euno_name = "genesysprd01faeunosa"
+cosmosdb_name                = "genesys-ws-prd01-cosmosdb"
+function_app_euwe_name       = "genesys-ws-prd01-euwe-function-app"
+function_app_euno_name       = "genesys-ws-prd01-euno-function-app"
+short_name                   = "Prd"
+url                          = "https://contactcenter-webscheduler.asml.com"
+support_name                 = "Genesys PRD01 Support"
+support_email                = "azurecloudmonitor@asml.com"
+application_insights = {
+  name              = "genesys-ws-prd01-ai"
+  sample_percentage = 100
+}

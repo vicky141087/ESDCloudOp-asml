@@ -1,0 +1,550 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.RT_Processing.rt23 &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.RT_Processing.rt23</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.RT_Processing.rt23</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Nov 25 14:32 2019</span>
+
+<span class="sd">@author: Rob Wieggers (RWKL)</span>
+<span class="sd">@ownership: FC-076</span>
+
+<span class="sd">Based on code from CDL EUVDB</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Do_It</span> <span class="kn">import</span> <span class="n">do_it_library</span> <span class="k">as</span> <span class="n">do_it</span>
+<span class="kn">from</span> <span class="nn">pyeuv.RT_Processing.simple_rt</span> <span class="kn">import</span> <span class="n">SimpleRT</span>
+
+
+<div class="viewcode-block" id="RT23"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt23.RT23">[docs]</a><span class="k">class</span> <span class="nc">RT23</span><span class="p">(</span><span class="n">SimpleRT</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;RT23&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RT23</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RT23.process_signals"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt23.RT23.process_signals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">mv_flag</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate derived data for rt23</span>
+
+<span class="sd">        :param df: input dataframe containing raw RT23 data</span>
+<span class="sd">        :param mv_flag: true is MV source, false if GWE</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        :return: dataframe df, including additional columns of derived data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: auto get machine flag from machines_json, add function to shared.shared</span>
+
+        <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status_idx</span> <span class="o">=</span> <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMimageStatus&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">time_idx</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMrt2timestampSeconds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMrt2timestampSeconds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">time_idx2</span> <span class="o">=</span> <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMrt2timestampFractionalSecs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">rt2_ok</span> <span class="o">=</span> <span class="o">~</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMrt2timestampSeconds&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s1">&#39;TFMrt2timestampSeconds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">2419200</span><span class="p">)</span>  <span class="c1"># Filter where TFMrt2timestampSeconds = 15. 2419200 seconds in a month.</span>
+            <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+                <span class="n">status_idxDFC1</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMimageStatusDFC1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># New for MV</span>
+                <span class="n">status_idxDFC2</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMimageStatusDFC2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># New for MV</span>
+                <span class="n">ok_idx</span> <span class="o">=</span> <span class="n">status_idx</span> <span class="o">&amp;</span> <span class="n">time_idx</span> <span class="o">&amp;</span> <span class="n">time_idx2</span> <span class="o">&amp;</span> <span class="n">rt2_ok</span> <span class="o">&amp;</span> <span class="n">status_idxDFC1</span> <span class="o">&amp;</span> <span class="n">status_idxDFC2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ok_idx</span> <span class="o">=</span> <span class="n">status_idx</span> <span class="o">&amp;</span> <span class="n">time_idx</span> <span class="o">&amp;</span> <span class="n">time_idx2</span> <span class="o">&amp;</span> <span class="n">rt2_ok</span>
+            <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ok_idx</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Data Passed Initial Validity Filtering&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">ok_idx</span><span class="p">]</span>
+
+            <span class="c1"># Constants</span>
+            <span class="n">subid</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMsubroutineId&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># Subroutine Values</span>
+
+            <span class="c1"># Output Signal List</span>
+            <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+                <span class="n">sigs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">56</span><span class="p">)]</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionX&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionZ&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMrotationY&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMminorAxis&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMmajorAxis&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdebrisArea&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageMean&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStandardDeviation&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_ProcessingTime&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdelaySinceDropletDetect&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdelaySincePp&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMplasmaIntensity&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMellipseDeviation&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStatus&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMreferencePointX&#39;</span>  <span class="c1"># MV</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMreferencePointY&#39;</span>  <span class="c1"># MV</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMreferencePointZ&#39;</span>  <span class="c1"># MV</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMrotationX&#39;</span>  <span class="c1"># MV</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionY&#39;</span>  <span class="c1"># MV</span>
+
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdebrisAreaDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMellipseDeviationDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMImageBlockIdDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageMeanDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStandardDeviationDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStatusDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMmajorAxisDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">26</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMminorAxisDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">27</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMplasmaIntensityDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">28</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionHorDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">29</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionVerDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMreferenceHorDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">31</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMreferenceVerDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMrotationOpticalAxisDFC1&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC1</span>
+
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">33</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdebrisAreaDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">34</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMellipseDeviationDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">35</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMImageBlockIdDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">36</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageMeanDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">37</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStandardDeviationDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">38</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStatusDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">39</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMmajorAxisDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMminorAxisDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">41</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMplasmaIntensityDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">42</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionHorDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">43</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionVerDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">44</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMreferenceHorDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">45</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMreferenceVerDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">46</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMrotationOpticalAxisDFC2&#39;</span>  <span class="c1"># MV and TFMimageStatusDFC2</span>
+
+                <span class="c1"># Convenience Signals with Single Subroutines</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">47</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMdropletMpIntersectionX&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 2 MP only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">48</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMdropletMpIntersectionY&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 2 MP only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">49</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMdropletMpIntersectionZ&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 2 MP only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">50</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMdropletPpIntersectionX&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 1 MP only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">51</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMdropletPpIntersectionY&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 1 MP only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">52</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMdropletPpIntersectionZ&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 1 MP only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">53</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMplasmaCentroidX&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 11 MFL plasma only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">54</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMplasmaCentroidY&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 11 MFL plasma only)</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">55</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_TFMplasmaCentroidZ&#39;</span>  <span class="c1"># MV and imageStatusDFC (subroutine 11 MFL plasma only)</span>
+
+                <span class="c1"># Define Convenience Signals</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMdropletMpIntersectionX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionX&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMdropletMpIntersectionY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionY&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMdropletMpIntersectionZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionZ&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMdropletPpIntersectionX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionX&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMdropletPpIntersectionY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionY&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMdropletPpIntersectionZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionZ&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMplasmaCentroidX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionX&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMplasmaCentroidY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionY&#39;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TFMplasmaCentroidZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMpositionZ&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sigs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">14</span><span class="p">)]</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionX&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMpositionZ&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMrotationY&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMminorAxis&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMmajorAxis&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdebrisArea&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageMean&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStandardDeviation&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_ProcessingTime&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdelaySinceDropletDetect&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMdelaySincePp&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMplasmaIntensity&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMellipseDeviation&#39;</span>
+                <span class="n">sigs</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;TFMimageStatus&#39;</span>
+
+            <span class="c1"># Get Bits and invert for positive filtering</span>
+            <span class="n">tstatus</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMimageStatus&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+                <span class="c1"># Redefine bits for TFMimageStatusDFC1</span>
+                <span class="n">tstatus_dfc1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMimageStatusDFC1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="c1"># Redefine bits for TFMimageStatusDFC2</span>
+                <span class="n">tstatus_dfc2</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMimageStatusDFC2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="n">tstatus_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">tstatus_dfc1</span><span class="p">,</span> <span class="n">tstatus_dfc2</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tstatus_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">tstatus</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">tstatus_signals</span> <span class="ow">in</span> <span class="n">tstatus_array</span><span class="p">:</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b00_Acquisition_err&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># IMAGE_ACQUISITION_FAILURE</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b01_Processing_err&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># IMAGE_PROCESSING_ERROR</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b02_Drop_out_of_spec&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># DROPLET_NOT_IN_SPEC</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b03_Pancake_out_of_spec&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># PANCAKE_NOT_IN_SPEC</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b04_Debris_persists&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># DEBRIS_PERSISTS_AFTER_MP_HIT</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b05_BGimage_old&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># BACKGROUND_IMAGE_OUT_OF_DATE</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b06_Gain_high&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># GAIN_TOO_HIGH_ON_OBJECT</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b07_No_drop_or_pancake&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># NO_DROPLET_OR_PANCAKE_DETECTED</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b08_Offdrop&#39;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># OFF_DROPLET_EVENT</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b09_Satellites&#39;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">9</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># SATELLITES_DETECTED</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b10_BGimage_not_uniform&#39;</span><span class="p">,</span>
+                            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">10</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># IMAGE_BACKGROUND_NOT_UNIFORM</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b11_BGimage_dark&#39;</span><span class="p">,</span>
+                            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">11</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># IMAGE_BACKGROUND_TOO_DARK</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b12_BGimage_bright&#39;</span><span class="p">,</span>
+                            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># IMAGE_BACKGROUND_TOO_BRIGHT</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b13_Plasma_flash_bright&#39;</span><span class="p">,</span>
+                            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">13</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># PLASMA_FLASH_TOO_BRIGHT</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b14_Cam_out_of_focus&#39;</span><span class="p">,</span>
+                            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">14</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># CAMERA_OUT_OF_FOCUS</span>
+                <span class="n">bits</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b15_Elipse_fit_poor&#39;</span><span class="p">,</span>
+                            <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># ELLIPSE_FIT_QUALITY_POOR</span>
+                <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+                    <span class="n">bits</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;b16_DFC_image_sync_lost&#39;</span><span class="p">,</span>
+                                <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span>
+                                    <span class="p">((</span><span class="n">tstatus_signals</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))}</span>  <span class="c1"># DFC_CAPTURE_IMAGE_SYNC_LOST added for MV</span>
+
+            <span class="c1"># Define Subroutine Rules</span>
+            <span class="n">subrout</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;PP&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span>
+                                       <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span>
+                                       <span class="mi">32</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">52</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;MP&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span>
+                                       <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span>
+                                       <span class="mi">32</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">49</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Debris&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Plasma&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">13</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Satellites&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Uniformity&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;External&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span>
+                                       <span class="mi">45</span><span class="p">]}</span>  <span class="c1"># See comment above above removal of range(len(sigs))</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Startup&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;ROI Monitor&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span>
+                                       <span class="mi">31</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span>
+                                       <span class="mi">34</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">46</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;ROI Recovery&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>
+                               <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+                               <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span>
+                                        <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span>
+                                        <span class="mi">32</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">46</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;PlasmaImage&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                               <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span>
+                                        <span class="mi">42</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span>
+                                        <span class="mi">44</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">55</span><span class="p">]}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;PP&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;MP&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Debris&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Plasma&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">13</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Satellites&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;Uniformity&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">]}</span>
+                <span class="n">subrout</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;External&#39;</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;in_spec&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                              <span class="s2">&quot;sigs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]}</span>
+
+            <span class="c1"># Create New Timestamp out of seconds and fraction</span>
+            <span class="n">tf_mrt2timestamp</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMrt2timestampSeconds&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1e-9</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TFMrt2timestampFractionalSecs&#39;</span><span class="p">])</span>
+
+            <span class="c1"># Create New Signal for Time Delta between RT2 and RT23 Timestamps</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">tf_mrt2timestamp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;1970-01-01 00:00:00.000&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_ProcessingTime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">tf_mrt2timestamp</span>
+
+            <span class="c1"># Apply RT2 timestamp to signals</span>
+            <span class="n">tf_mrt2index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">((</span><span class="n">tf_mrt2timestamp</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ns&#39;</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">tf_mrt2index</span>  <span class="c1"># Apply RT2 Timestamp</span>
+
+            <span class="k">if</span> <span class="n">mv_flag</span><span class="p">:</span>
+                <span class="c1"># Create fields for each TFMimagestatus  bit</span>
+                <span class="n">bit_names</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">):</span>
+                    <span class="n">bit_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">bits</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+                <span class="c1"># Separate signals by subroutine and apply rules</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span>
+                    <span class="n">sub_idx</span> <span class="o">=</span> <span class="n">subid</span> <span class="o">==</span> <span class="n">x</span>  <span class="c1"># Index of Subroutine</span>
+                    <span class="n">valid_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">subid</span><span class="p">])</span>  <span class="c1"># Valid index for main signals</span>
+                    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;valid&#39;</span><span class="p">]:</span>
+                        <span class="n">valid_idx</span> <span class="o">=</span> <span class="n">valid_idx</span> <span class="o">&amp;</span> <span class="n">bits</span><span class="p">[</span><span class="n">oi</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+                    <span class="n">qual_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">subid</span><span class="p">])</span>  <span class="c1"># Get index of Good Quality signals</span>
+                    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;quality&#39;</span><span class="p">]:</span>
+                        <span class="n">qual_idx</span> <span class="o">=</span> <span class="n">qual_idx</span> <span class="o">&amp;</span> <span class="n">bits</span><span class="p">[</span><span class="n">oi</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+                    <span class="n">inspec_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">subid</span><span class="p">])</span>  <span class="c1"># Get index of In Spec signals</span>
+                    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;in_spec&#39;</span><span class="p">]:</span>
+                        <span class="n">inspec_idx</span> <span class="o">=</span> <span class="n">inspec_idx</span> <span class="o">&amp;</span> <span class="n">bits</span><span class="p">[</span><span class="n">oi</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+
+                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_idx</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">qual_idx</span><span class="p">,</span> <span class="s1">&#39;Good&#39;</span><span class="p">,</span> <span class="s1">&#39;Poor&#39;</span><span class="p">)</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;in_spec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inspec_idx</span>
+
+                    <span class="n">df_subrout</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">sub_idx</span><span class="p">]</span>
+                    <span class="n">valid_signals</span> <span class="o">=</span> <span class="p">[</span><span class="n">sigs</span><span class="p">[</span><span class="n">si</span><span class="p">]</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;sigs&#39;</span><span class="p">]]</span>
+                    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">sigs</span><span class="p">[</span><span class="n">si</span><span class="p">]</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;sigs&#39;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">bit_names</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="s1">&#39;quality&#39;</span><span class="p">,</span> <span class="s1">&#39;in_spec&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;TFMsubroutineId&#39;</span><span class="p">]</span>
+                    <span class="n">df_subrout</span> <span class="o">=</span> <span class="n">df_subrout</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+                    <span class="n">valid_signals</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;TFMimageStatus&#39;</span><span class="p">)</span>
+                    <span class="n">df_subrout</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_subrout</span><span class="o">.</span><span class="n">valid</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="n">valid_signals</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span>
+
+                    <span class="n">df_subrout</span><span class="p">[</span><span class="s1">&#39;subroutine&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">out</span><span class="p">,</span> <span class="n">df_subrout</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Create fields for each TFMimagestatus  bit</span>
+                <span class="n">bit_names</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span>
+                    <span class="n">bit_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">bits</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+                <span class="c1"># Separate signals by subroutine and apply rules</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
+                    <span class="n">sub_idx</span> <span class="o">=</span> <span class="n">subid</span> <span class="o">==</span> <span class="n">x</span>  <span class="c1"># Index of Subroutine</span>
+                    <span class="n">valid_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">subid</span><span class="p">])</span>  <span class="c1"># Valid index for main signals</span>
+                    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;valid&#39;</span><span class="p">]:</span>
+                        <span class="n">valid_idx</span> <span class="o">=</span> <span class="n">valid_idx</span> <span class="o">&amp;</span> <span class="n">bits</span><span class="p">[</span><span class="n">oi</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+                    <span class="n">qual_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">subid</span><span class="p">])</span>  <span class="c1"># Get index of Good Quality signals</span>
+                    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;quality&#39;</span><span class="p">]:</span>
+                        <span class="n">qual_idx</span> <span class="o">=</span> <span class="n">qual_idx</span> <span class="o">&amp;</span> <span class="n">bits</span><span class="p">[</span><span class="n">oi</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+                    <span class="n">inspec_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">subid</span><span class="p">])</span>  <span class="c1"># Get index of In Spec signals</span>
+                    <span class="k">for</span> <span class="n">oi</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;in_spec&#39;</span><span class="p">]:</span>
+                        <span class="n">inspec_idx</span> <span class="o">=</span> <span class="n">inspec_idx</span> <span class="o">&amp;</span> <span class="n">bits</span><span class="p">[</span><span class="n">oi</span><span class="p">][</span><span class="s1">&#39;val&#39;</span><span class="p">]</span>
+
+                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_idx</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">qual_idx</span><span class="p">,</span> <span class="s1">&#39;Good&#39;</span><span class="p">,</span> <span class="s1">&#39;Poor&#39;</span><span class="p">)</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;in_spec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inspec_idx</span>
+
+                    <span class="n">df_subrout</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">sub_idx</span><span class="p">]</span>
+                    <span class="n">valid_signals</span> <span class="o">=</span> <span class="p">[</span><span class="n">sigs</span><span class="p">[</span><span class="n">si</span><span class="p">]</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;sigs&#39;</span><span class="p">]]</span>
+                    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">sigs</span><span class="p">[</span><span class="n">si</span><span class="p">]</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;sigs&#39;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">bit_names</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="s1">&#39;quality&#39;</span><span class="p">,</span> <span class="s1">&#39;in_spec&#39;</span><span class="p">]</span>
+                    <span class="n">df_subrout</span> <span class="o">=</span> <span class="n">df_subrout</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+                    <span class="n">valid_signals</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;TFMimageStatus&#39;</span><span class="p">)</span>
+                    <span class="n">df_subrout</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_subrout</span><span class="o">.</span><span class="n">valid</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="n">valid_signals</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span>
+
+                    <span class="n">df_subrout</span><span class="p">[</span><span class="s1">&#39;subroutine&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subrout</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">out</span><span class="p">,</span> <span class="n">df_subrout</span><span class="p">])</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: processing RT23 failed:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

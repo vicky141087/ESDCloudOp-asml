@@ -1,0 +1,129 @@
+
+# In order to add shared variable to the JOB it is required to update the azure key vault
+# We use shared KV which is associated with the tftst-common-secrets VSTS variable group
+# Once KV is updated new secret should be mapped as variable to the tftst-common-secrets group
+
+parameters:
+- name: terraformAction
+  type: string
+  default: 'plan'
+- name: environment
+  type: string
+  default: ''
+- name: adoAgentPool
+  type: string
+  default: 'CCoE-SharedAgents'
+- name: artifactName
+  type: string
+  default: ''
+- name: tfvarsArtifact
+  type: string
+  default: 'TerraformVariables'
+- name: tfArtifact
+  type: string
+  default: 'Terraform'
+- name: varsPath
+  type: string
+  default: 'DEV.yml'
+- name: tfstateKey
+  type: string
+  default: ''
+- name: workingDirectory
+  type: string
+  default: ''
+- name: tfCommandOptions
+  type: string
+  default: ''
+- name: custom
+  type: boolean
+  default: false
+
+jobs:
+- deployment: ${{ parameters.environment }}
+  environment: ${{ parameters.environment }}
+  variables:
+  - template: ${{ parameters.varsPath }}
+  pool: ${{ parameters.adoAgentPool }}
+  strategy: 
+    runOnce:
+      deploy:
+        steps:
+        - download: none
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Artifact: Download ${{ parameters.tfArtifact }}'
+          inputs:
+            artifact: ${{ parameters.tfArtifact }}
+            path: $(System.DefaultWorkingDirectory)/tfArtifact
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Artifact: Download ${{ parameters.tfvarsArtifact }}'
+          inputs:
+            artifact: ${{ parameters.tfvarsArtifact }}
+            path: $(System.DefaultWorkingDirectory)/tfvarsArtifact
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Artifact: Download ${{ parameters.artifactName }}'
+          inputs:
+            artifact: ${{ parameters.artifactName }}
+            patterns: '*'
+            path: $(System.DefaultWorkingDirectory)/tfArtifact
+          condition: and(succeeded(),eq('${{ parameters.terraformAction }}','apply'))
+        - task: DownloadPipelineArtifact@2
+          displayName: 'Artifact: Download Scripts'
+          inputs:
+            artifact: Scripts
+            path: $(System.DefaultWorkingDirectory)/Scripts
+
+        - task: PowerShell@2
+          displayName: 'Prepare: chmod +x'
+          inputs:
+            targetType: inline
+            script: |
+              ls $(System.DefaultWorkingDirectory)/tfArtifact
+              chmod -R +x $(System.DefaultWorkingDirectory)/tfArtifact
+
+        # Creating Storage ACCOUNT FOR tfstate file.
+        - ${{ if eq(parameters.terraformAction, 'plan') }}:
+          - template: step-terraform-state.yml
+            parameters:
+              serviceConnection: ${{ variables.ServiceConnection }}
+              subscriptionId: ${{ variables.SubscriptionId }}
+              resourceGroupName: ${{ variables.ResourceGroupName }}
+              storageAccountName: ${{ variables.StorageAccountName }}
+              location: ${{ variables.Location }}
+              storageContainerName: ${{ variables.StorageContainerName }}
+              subnetId: ${{ variables.SubnetDataId }}
+              privateDnsSubscriptionId: ${{ variables.PrivateDnsSubscriptionId }}
+              privateDnsResourceGroupName: ${{ variables.PrivateDnsResourceGroupName }}
+              principleIds: ${{ variables.PrincipleIds }}
+
+        # Installing terraform
+        - template: step-terraform-install.yml
+
+        - task: TerraformCLI@0
+          displayName: 'Terraform: Init'
+          inputs:
+            workingDirectory: '$(System.DefaultWorkingDirectory)/tfArtifact'
+            command: init
+            commandOptions: '-input=false'
+            backendType: azurerm
+            backendServiceArm: '${{ variables.ServiceConnection }}'
+            backendAzureRmSubscriptionId: ${{ variables.SubscriptionId }}
+            backendAzureRmResourceGroupName: '${{ variables.ResourceGroupName }}'
+            backendAzureRmStorageAccountName: '${{ variables.StorageAccountName }}'
+            backendAzureRmContainerName: ${{ variables.StorageContainerName }}
+            backendAzureRmKey: '${{ parameters.tfstateKey }}'
+
+        - task: TerraformCLI@0
+          displayName: 'Terraform: Execute ${{ parameters.terraformAction }}'
+          inputs:
+            workingDirectory: '$(System.DefaultWorkingDirectory)/tfArtifact'
+            command: ${{ parameters.terraformAction }}
+            commandOptions: '-input=false ${{ parameters.tfCommandOptions }} ${{ variables.additionalCommandOptions }}'
+            environmentServiceName: '${{ variables.ServiceConnection }}'
+            ${{ if eq(parameters.terraformAction, 'plan') }}:
+              publishPlanResults: '${{ parameters.environment }}'
+
+        - ${{ if eq(parameters.terraformAction, 'plan') }}:
+          - publish: $(System.DefaultWorkingDirectory)/tfArtifact/terraform.plan
+            artifact: ${{ parameters.artifactName }}
+            displayName: 'Artifact: Publish ${{ parameters.artifactName }}'
+

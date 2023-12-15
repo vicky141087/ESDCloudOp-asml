@@ -1,0 +1,646 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Shared &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="helpers" href="helpers.html" />
+    <link rel="prev" title="TinManagement" href="TinManagement.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="EUVDashboard.html">EUVDashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PMA.html">PMA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RT_Processing.html">RT_Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parsers.html">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Collector.html">Collector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Do_It.html">Do_It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TinManagement.html">TinManagement</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Shared</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.Shared.signal_processing">Signal processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.Shared.smoothing_algorithms">Smoothing algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.Shared.configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.Shared.collector_selection">Collector selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="helpers.html">helpers</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+        
+      <li>Shared</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/Shared.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="shared">
+<h1>Shared<a class="headerlink" href="#shared" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyeuv.Shared.signal_processing">
+<span id="signal-processing"></span><h2>Signal processing<a class="headerlink" href="#module-pyeuv.Shared.signal_processing" title="Permalink to this headline">¶</a></h2>
+<p>signal_processing.py
+Authors: RWKL, MGGV
+Date: 2019-04-29</p>
+<p>Contains generic signal processing functionality</p>
+<dl class="function">
+<dt id="pyeuv.Shared.signal_processing.calculate_changepoints">
+<code class="sig-prename descclassname">pyeuv.Shared.signal_processing.</code><code class="sig-name descname">calculate_changepoints</code><span class="sig-paren">(</span><em class="sig-param">x, y, Ts=0.1, Tc=5, order=6, cp_mag=0.2, limits=[-0.6, -0.3, 0]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/signal_processing.html#calculate_changepoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.signal_processing.calculate_changepoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automated change point detection by smoothing with butterworth (lowpass) filter and calculating inflection points (d2y/dx = max)
+above some threshold  (d2y/dx &gt; cp_mag). Last step is basically to compensate for noisy data or all small inflection points due
+the noise are detected as inflection points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – array with pulsecount (or any other)</p></li>
+<li><p><strong>y</strong> – array with SLIEDT or reflectivity loss (or any other) with same length as x</p></li>
+<li><p><strong>Ts</strong> – (optional) Sample period signal</p></li>
+<li><p><strong>Tc</strong> – (optional) Cutoff period smoothing filter</p></li>
+<li><p><strong>order</strong> – (optional) butterworth order (not recommended to change)</p></li>
+<li><p><strong>cp_mag</strong> – (optional) sensitivity threshold; to make sure not all inflection points due to noisyness data are selected</p></li>
+<li><p><strong>limits</strong> – (optional) to classify sections between inflection points in 4 different classes (in spec, just out of spec, out of spec &amp; jumps)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>inflection point coordinate x, inflection point coordinate y, avg slope in section, slopes error in section</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.signal_processing.calculate_linear_fit">
+<code class="sig-prename descclassname">pyeuv.Shared.signal_processing.</code><code class="sig-name descname">calculate_linear_fit</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">confidence_level=0.95</em>, <em class="sig-param">round_to_significant_digit=True</em>, <em class="sig-param">advanced_analysis=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/signal_processing.html#calculate_linear_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.signal_processing.calculate_linear_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the linear fit of two series of data. It returns the fitted line,
+confidence interval and adjusted r-squared (measure for predictibility of y by x).
+It uses the statsmodels library</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – data on x-axis</p></li>
+<li><p><strong>y</strong> – data on y-axis</p></li>
+<li><p><strong>confidence_level</strong> – confidence level for confidence interval (default 95%)</p></li>
+<li><p><strong>round_to_significant_digit</strong> – switch to round the slope to the significant digit (default True)</p></li>
+<li><p><strong>advanced_analysis</strong> – When false calculate the linear fit only and skip the advanced analysis e.g. confidence
+interval and adjusted R squared.
+NOTE: results of slope and offset are different w/ and w/o advance analysis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple containing slope, offset, confidence interval, and adjusted r-squared</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.signal_processing.calculate_relative_variance">
+<code class="sig-prename descclassname">pyeuv.Shared.signal_processing.</code><code class="sig-name descname">calculate_relative_variance</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">window=31</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/signal_processing.html#calculate_relative_variance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.signal_processing.calculate_relative_variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the relative variance, using a rolling window.
+The signal is divided by the rolling median.
+Then the standard deviation over the same window is taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – input data (series)</p></li>
+<li><p><strong>verbose</strong> – to switch internal debug info</p></li>
+<li><p><strong>window</strong> – number of datapoints used for the rolling median, typically an odd number (default=31)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>relative variance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.signal_processing.calculate_rolling_median">
+<code class="sig-prename descclassname">pyeuv.Shared.signal_processing.</code><code class="sig-name descname">calculate_rolling_median</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">key</em>, <em class="sig-param">window=31</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/signal_processing.html#calculate_rolling_median"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.signal_processing.calculate_rolling_median" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a column with the rolling median of slie_dt</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – dataframe with input data</p></li>
+<li><p><strong>key</strong> – the key if the signal within the dataframe to be used</p></li>
+<li><p><strong>window</strong> – number of datapoints used for the rolling median, typically an odd number (default=31)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe with an additional column for the rolling median of the slie/dt</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.signal_processing.make_monotonically_increasing">
+<code class="sig-prename descclassname">pyeuv.Shared.signal_processing.</code><code class="sig-name descname">make_monotonically_increasing</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/signal_processing.html#make_monotonically_increasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.signal_processing.make_monotonically_increasing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes an array monotonically increasing. In case there is a drop, the drop will be set to zero (increasing all data after the drop by the magnitude of the drop
+Example:
+[1, 2, 5, 7, 9, 2, 4, 6, 9] will become [1, 2, 5, 7, 9, 9, 11, 13, 16]
+:param data: numpy array of integers or floats
+:return: numpy array with monotonically increasing values</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.signal_processing.plot_changepoints">
+<code class="sig-prename descclassname">pyeuv.Shared.signal_processing.</code><code class="sig-name descname">plot_changepoints</code><span class="sig-paren">(</span><em class="sig-param">data_cpd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/signal_processing.html#plot_changepoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.signal_processing.plot_changepoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is to plot the processed change point detection data from the function calculate_changepoints.
+Two kinds of plots are given:
+PART 1: Shows the plots corresponding to the change point detection algoritm
+PART 2: Shows frequency plot + bodediagram for diagnostics purposes of the data processing (interpolation + smoothing)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.Shared.smoothing_algorithms">
+<span id="smoothing-algorithms"></span><h2>Smoothing algorithms<a class="headerlink" href="#module-pyeuv.Shared.smoothing_algorithms" title="Permalink to this headline">¶</a></h2>
+<p>smooting_algorithms
+Authors: RWKL
+Date:  2018-10-25</p>
+<p>A selection of common (and custom) smoothing algorithms</p>
+<dl class="function">
+<dt id="pyeuv.Shared.smoothing_algorithms.savitzky_golay">
+<code class="sig-prename descclassname">pyeuv.Shared.smoothing_algorithms.</code><code class="sig-name descname">savitzky_golay</code><span class="sig-paren">(</span><em class="sig-param">y</em>, <em class="sig-param">window_size</em>, <em class="sig-param">order</em>, <em class="sig-param">deriv=0</em>, <em class="sig-param">rate=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/smoothing_algorithms.html#savitzky_golay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.smoothing_algorithms.savitzky_golay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
+The Savitzky-Golay filter removes high frequency noise from data.
+It has the advantage of preserving the original shape and
+features of the signal better than other types of filtering
+approaches, such as moving averages techniques.</p>
+<p>:param y : the values of the time history of the signal.
+:type: array_like, shape (N,)
+:param window_size : the length of the window. Must be an odd integer number.
+:type: int
+order : the order of the polynomial used in the filtering. Must be less then <cite>window_size</cite> - 1.
+:type: int
+:deriv: the order of the derivative to compute (default = 0 means only smoothing)
+:type: int
+:return: the smoothed signal (or it’s n-th derivative).
+:type: ndarray, shape (N)</p>
+<p class="rubric">Notes</p>
+<p>The Savitzky-Golay is a type of low-pass filter, particularly
+suited for smoothing noisy data. The main idea behind this
+approach is to make for each point a least-square fit with a
+polynomial of high order over a odd-sized window centered at
+the point.</p>
+<p class="rubric">Examples</p>
+<p>t = np.linspace(-4, 4, 500)
+y = np.exp( -t**2 ) + np.random.normal(0, 0.05, t.shape)
+ysg = savitzky_golay(y, window_size=31, order=4)
+import matplotlib.pyplot as plt
+plt.plot(t, y, label=’Noisy signal’)
+plt.plot(t, np.exp(-t**2), ‘k’, lw=1.5, label=’Original signal’)
+plt.plot(t, ysg, ‘r’, label=’Filtered signal’)
+plt.legend()
+plt.show()</p>
+<p class="rubric">References</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.Shared.configuration">
+<span id="configuration"></span><h2>Configuration<a class="headerlink" href="#module-pyeuv.Shared.configuration" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Jan 21 22:07:04 2019</p>
+<p>&#64;author: rwiegger</p>
+<p>The Configuration provides a class to facilitate storage of machine and collector properties.
+It enables to build up the configuration step by step, for instance in a menu of buttons selecting the customer, machine and collector.</p>
+<dl class="class">
+<dt id="pyeuv.Shared.configuration.Configuration">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.Shared.configuration.</code><code class="sig-name descname">Configuration</code><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration facilitates storage of machine and collector properties, and enables to update these properties through functions</p>
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.get_collectors">
+<code class="sig-name descname">get_collectors</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">source_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.get_collectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.get_collectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all collectors that were in the specified source</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – connection to influx</p></li>
+<li><p><strong>source_id</strong> – the source id (S#####)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe of collector swaps</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.set_configuration">
+<code class="sig-name descname">set_configuration</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">machine</em>, <em class="sig-param">collector_name=None</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.set_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.set_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the configuration of the machine, and optionally also the collector.
+Based on the machine properties and collector name, all the machine properties, and collector properties are set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – connection to influx</p></li>
+<li><p><strong>machine</strong> – object containing all kinds of properties of the machine (from the machine_list)</p></li>
+<li><p><strong>collector_name</strong> – collector name, used to select collector properties from influx (optional, default=None)</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_collector">
+<code class="sig-name descname">using_collector</code><span class="sig-paren">(</span><em class="sig-param">collector_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_collector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_collector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the collector name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>collector_name</strong> – the collector name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_customer">
+<code class="sig-name descname">using_customer</code><span class="sig-paren">(</span><em class="sig-param">customer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_customer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_customer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the customer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>customer</strong> – the customer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_end_time">
+<code class="sig-name descname">using_end_time</code><span class="sig-paren">(</span><em class="sig-param">end_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_end_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_end_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the timestamp the collector was extracted from the source</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>end_time</strong> – the timestamp the collector was extracted from the source</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_machine">
+<code class="sig-name descname">using_machine</code><span class="sig-paren">(</span><em class="sig-param">machine_id</em>, <em class="sig-param">machine_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_machine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_machine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the machine id and name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>machine_id</strong> – the id of the machine</p></li>
+<li><p><strong>machine_name</strong> – the name of the machine</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_source">
+<code class="sig-name descname">using_source</code><span class="sig-paren">(</span><em class="sig-param">source_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the source id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>source_id</strong> – the id of the source</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_source_generation">
+<code class="sig-name descname">using_source_generation</code><span class="sig-paren">(</span><em class="sig-param">source_generation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_source_generation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_source_generation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the source generation (3300, 3350, 3400, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>source_generation</strong> – the generation of the source</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_start_time">
+<code class="sig-name descname">using_start_time</code><span class="sig-paren">(</span><em class="sig-param">start_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_start_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_start_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the timestamp the collector was put in the source</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>start_time</strong> – the timestamp the collector was installed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_timezone">
+<code class="sig-name descname">using_timezone</code><span class="sig-paren">(</span><em class="sig-param">timezone</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_timezone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_timezone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the timezone of the machine</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timezone</strong> – the timezone where the machine is located</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.Shared.configuration.Configuration.using_vessel">
+<code class="sig-name descname">using_vessel</code><span class="sig-paren">(</span><em class="sig-param">vessel_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/configuration.html#Configuration.using_vessel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.configuration.Configuration.using_vessel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the vessel id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vessel_id</strong> – the id of the vessel</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.Shared.collector_selection">
+<span id="collector-selection"></span><h2>Collector selection<a class="headerlink" href="#module-pyeuv.Shared.collector_selection" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Jan 21 22:04:28 2019</p>
+<p>Author: RWKL
+Date: 2019-01-21</p>
+<p>The collector_selection provides a method of selecting a collector by clicking on buttons for customer, machine and collector.
+Whenever a button is clicked, it generates or updates the configuration in which the colloctor and machine properties are stored.</p>
+<p><em>Example usage</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Shared.configuration</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Shared.collector_selection</span> <span class="k">as</span> <span class="nn">selector</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">UserLANClient</span><span class="p">()</span>
+<span class="n">conf</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">()</span>
+<span class="n">conf</span> <span class="o">=</span> <span class="n">selector</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="pyeuv.Shared.collector_selection.collector_selected">
+<code class="sig-prename descclassname">pyeuv.Shared.collector_selection.</code><code class="sig-name descname">collector_selected</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/collector_selection.html#collector_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.collector_selection.collector_selected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores information of the selected collector to the configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> – value and properties of the clicked button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.collector_selection.customer_selected">
+<code class="sig-prename descclassname">pyeuv.Shared.collector_selection.</code><code class="sig-name descname">customer_selected</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/collector_selection.html#customer_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.collector_selection.customer_selected" title="Permalink to this definition">¶</a></dt>
+<dd><p>initializes the machine buttons after a customer has been selected.
+It also stores information of the selected customer to the configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> – value and properties of the clicked button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.collector_selection.machine_selected">
+<code class="sig-prename descclassname">pyeuv.Shared.collector_selection.</code><code class="sig-name descname">machine_selected</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/collector_selection.html#machine_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.collector_selection.machine_selected" title="Permalink to this definition">¶</a></dt>
+<dd><p>initializes the collector buttons after a machine has been selected.
+It also stores information of the selected machine to the configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> – value and properties of the clicked button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.collector_selection.machine_selected_no_collector">
+<code class="sig-prename descclassname">pyeuv.Shared.collector_selection.</code><code class="sig-name descname">machine_selected_no_collector</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/collector_selection.html#machine_selected_no_collector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.collector_selection.machine_selected_no_collector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores information of the selected machine to the configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> – value and properties of the clicked button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.collector_selection.show">
+<code class="sig-prename descclassname">pyeuv.Shared.collector_selection.</code><code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param">_client</em>, <em class="sig-param">scanners_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/collector_selection.html#show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.collector_selection.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows the selection buttons to select a machine and collector.
+The shown customers and systems are based on the machine_list. The collectors from the collector.swap data from influx</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_client</strong> – connection to influx</p></li>
+<li><p><strong>scanner_only</strong> – option to include or exclude sources without full scanner</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the configuration of the selected machine and collector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.Shared.collector_selection.showMachineSelectionButtons">
+<code class="sig-prename descclassname">pyeuv.Shared.collector_selection.</code><code class="sig-name descname">showMachineSelectionButtons</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">exclude_non_scanner=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/Shared/collector_selection.html#showMachineSelectionButtons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.Shared.collector_selection.showMachineSelectionButtons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows the selection buttons to select a machine
+The shown customers and systems are based on the machine_list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – connection to influx</p></li>
+<li><p><strong>scanner_only</strong> – option to include or exclude sources without full scanner</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="helpers.html" class="btn btn-neutral float-right" title="helpers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="TinManagement.html" class="btn btn-neutral float-left" title="TinManagement" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

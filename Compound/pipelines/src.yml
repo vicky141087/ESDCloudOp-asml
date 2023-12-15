@@ -1,0 +1,115 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - "pipelines/variables/*"
+    - "**/src.yml"
+    - "src/*"
+
+pool: CCoE-SharedAgents
+
+variables:
+  - name: isMain
+    value: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  - name: isManual
+    value: $[eq(variables['Build.Reason'], 'Manual')]
+  - name: isDisasterRecoveryTest
+    value: $[and(eq(variables['Build.Reason'], 'ResourceTrigger'), eq(variables['resources.triggeringCategory'], 'pipeline'), eq(variables['resources.triggeringAlias'], 'disaster-prep'))]
+
+lockBehavior: sequential
+stages:
+  - stage: stage_build
+    displayName: 'Build'
+    jobs:
+    - job: job_build
+      displayName: 'Build'
+      steps:
+      # Publishing the site Artifacts
+      - publish: '$(System.DefaultWorkingDirectory)/src'
+        artifact: src
+        displayName: 'Artifact: Publish src'
+
+    #   - task: AzureStaticWebApp@0
+    #     inputs:
+    #       azure_static_web_apps_api_token: $(deployment_token)
+    # ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+    # # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+    #       app_location: "/src" # App source code path
+    #       api_location: "" # Api source code path - optional
+    #       output_location: "" # Built app content directory - optional
+    #       verbose: true
+    # ###### End of Repository/Build Configurations ######
+
+      # - task: AzureCLI@2
+      #   name: docker_run
+      #   displayName: 'Docker: Run '
+      #   inputs:
+      #     addSpnToEnvironment: true
+      #     azureSubscription: genesys-ws-dta02
+      #     scriptType: pscore
+      #     scriptLocation: inlineScript
+      #     inlineScript: |
+      #       docker run --rm `
+      #         --tty `
+      #         -e INPUT_AZURE_STATIC_WEB_APPS_API_TOKEN=$(deployment_token) `
+      #         -e DEPLOYMENT_PROVIDER=DevOps `cd ..
+      #         -e GITHUB_WORKSPACE="/working_dir" `
+      #         -e IS_PULL_REQUEST=true `
+      #         -e BRANCH="main" `
+      #         -e ENVIRONMENT_NAME="Production" `
+      #         -e PULL_REQUEST_TITLE="PR-TITLE" `
+      #         -e INPUT_APP_LOCATION="./src" `
+      #         -e INPUT_API_LOCATION="" `
+      #         -v ${pwd}:/working_dir `
+      #         mcr.microsoft.com/appsvc/staticappsclient:stable `
+      #         ./bin/staticsites/StaticSitesClient upload
+
+
+          
+
+      # - task: AzureCLI@2
+      #   displayName: 'Magica'
+      #   inputs:
+      #     azureSubscription: genesys-ws-dta02
+      #     scriptType: pscore
+      #     scriptLocation: inlineScript
+      #     workingDirectory: '$(System.DefaultWorkingDirectory)'
+      #     inlineScript: |
+      #       az storage blob upload-batch -d '$web' -s '$(System.DefaultWorkingDirectory)/src/' --account-name staticwebtest123 --auth-mode login
+
+      # # Azure file copy
+      # # Copy files to Azure Blob Storage or virtual machines
+      # - task: AzureFileCopy@3
+      #   inputs:
+      #     sourcePath: /src/*
+      #     azureSubscription: genesys-ws-dta02
+      #     destination: azureBlob
+      #     storage: staticwebtest123 
+      #     containerName: $web
+      #     #blobPrefix: # Optional
+      #     #resourceGroup: # Required when destination == AzureVMs
+      #     #resourceFilteringMethod: 'machineNames' # Optional. Options: machineNames, tags
+      #     #machineNames: # Optional
+      #     #vmsAdminUserName: # Required when destination == AzureVMs
+      #     #vmsAdminPassword: # Required when destination == AzureVMs
+      #     #targetPath: # Required when destination == AzureVMs
+      #     #additionalArgumentsForBlobCopy: # Optional
+      #     #additionalArgumentsForVMCopy: # Optional
+      #     #enableCopyPrerequisites: false # Optional
+      #     copyFilesInParallel: true 
+      #     cleanTargetBeforeCopy: true
+      #     #skipCACheck: true # Optional
+      #     #sasTokenTimeOutInMinutes: # Optional
+
+
+  # - template: templates/stage-deploy-src.yml 
+  #   parameters:
+  #     condition: and(succeeded(), or(eq(variables.isMain, 'true'),eq(variables.isManual, 'true'), eq(variables.isDisasterRecoveryTest, 'true')))
+  #     dependson: stage_build
+  #     environment: 'Compound_DEV'
+  #     adoAgentPool: 'Azure Pipelines'
+  #     stageDisplayName: 'DEV'
+  #     varsPath: '/pipelines/variables/DEV.yml' #templates are parsed during the start and cannot come from artifacts

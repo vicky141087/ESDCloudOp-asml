@@ -1,0 +1,19 @@
+variables:
+  # Deployment
+  ServiceConnection: asml-dta01-ESDCloudOp
+  ServicePrincipalObjectId: bf24fc99-1199-4e60-af02-125a10784c57
+  SubscriptionId: 54e496c7-7841-41ba-9013-ee87bee4f366
+
+  # Context  
+  ResourceGroupName: compound-dta01-rg
+  Key: dta01
+  Location: westeurope
+  PrivateDnsSubscriptionId: 19a5edd0-42d3-4b5f-88b5-45f718494ad3
+  PrivateDnsResourceGroupName: dns-mgt01-rg
+  SubnetAppId: '/subscriptions/54e496c7-7841-41ba-9013-ee87bee4f366/resourceGroups/vneteuwe-esdcloudop-dta01-rg/providers/Microsoft.Network/virtualNetworks/dta01-esdcloudop-westeurope-vnet/subnets/app01-subnet'
+  SubnetDataId: '/subscriptions/54e496c7-7841-41ba-9013-ee87bee4f366/resourceGroups/vneteuwe-esdcloudop-dta01-rg/providers/Microsoft.Network/virtualNetworks/dta01-esdcloudop-westeurope-vnet/subnets/data01-subnet'
+ 
+  # TerraForm state
+  StorageAccountName: compounddta01tfsa
+  StorageContainerName: terraform-state
+  PrincipleIds: 'bf24fc99-1199-4e60-af02-125a10784c57'

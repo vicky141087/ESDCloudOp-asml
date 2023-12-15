@@ -1,0 +1,78 @@
+About pyeuv
+===========
+| PyEUV - Python modules for working with EUV data.
+| Maintainer: Rob de Laat (SW DE DATA Data Science & Engineering) <rob.de.laat@asml.com>
+| Copyright ASML 2020
+| Version: 1.2
+
+This module provides parsers and interfaces to work with EUV Data. This version
+contains the following Features:
+
+1. Interface to InfluxDB/Grafana (EUV Dashboard)
+2. Interface to PMA NG
+3. DAT parser, DATv0, DATv1 and DATv2 are supported, (includes compressed DAT)
+4. Parsers for source KPI and scanner Parameters
+5. NXE Source Collector data analysis algorithms
+6. NXE Illuminator data analysis algorithms
+7. NXE Source Tin Management analysis algorithms
+	
+The parsers and interfaces output pandas and numpy objects that allow for easy data manipulation, 
+making this module perfect for use in your, Python tools, Jupyter Notebooks and hack scripts.
+
+Please use this module responsibly. 
+Persistent abusers will be tracked down for a friendly conversation.
+
+Before asking questions, have a look at the examples folder, the inline documentation
+of the module and the Q&A.
+
+Authors
+-------
+
+*SW DE DATA C Data Science & Eng*
+
+* Rob de Laat <rob.de.laat@asml.com>
+  Pyeuv, EUVDashboard, PMA, Parsers
+* Rob Wieggers <rob.wieggers@asml.com>
+  Collector Reflectivity, Collector Administration, Radon, RADD, Shared, TinManagement
+* Wouter van Roosmalen <wouter.van.roosmalen@asml.com>
+  RADD, LUER (Radon Automated Debris Detection)
+
+*QC DE CSI C Project Management*
+
+* Rob Wieggers <rob.wieggers@asml.com>
+  Collector Reflectivity, Collector Administration, Radon, RADD, Shared, TinManagement
+
+*SF-18 (Spectrally pure EUV Collection)*
+
+* Nic Geron <nic.geron@asml.com>
+  Collector reflectivity, Radon, Do_It
+* Natalia Lukiyanova
+* Dragan Antunovic
+
+
+*Source Performance*
+
+* Jasper Beckers <jasper.beckers@asml.com>
+  Radon visualization, illumination
+* Damien Aussems <damien.aussems@asml.com>
+  Radon FFM smoothing
+
+*Source Transmission Control*
+
+* Cedric Noordam
+
+*IT Solution Delivery Analytics US*
+
+* Iris Clerx
+
+*IT Solution Delivery Analytics P&T*
+
+* Luc Coenegracht
+
+Company secret notice
+---------------------
+
+The Pyeuv package is property of ASML and contains code and algorithms
+that are classified as COMPANY SECRET. All rules and regulations
+regarding this information classification apply to this package and any 
+derivatives

@@ -1,0 +1,64 @@
+parameters:
+    environment: ''
+    adoAgentPool: ''
+    stageDisplayName: ''
+    varsPath: ''
+    condition: succeeded()
+
+stages:
+  - stage: ${{ parameters.environment }}_src
+    displayName: Deploy ${{ parameters.stageDisplayName }} with src 
+    condition: ${{ parameters.condition }}
+    jobs:
+    - deployment: ${{ parameters.environment }}_apply
+      environment: ${{ parameters.environment }}_apply
+      variables:
+      - template: ${{ parameters.varsPath }}
+      pool: ${{ parameters.adoAgentPool }}
+      strategy: 
+        runOnce:
+          deploy:
+            steps:
+            - download: none
+            - task: DownloadPipelineArtifact@2
+              displayName: 'Artifact: Download src'
+              inputs:
+                artifact: src
+                path: $(Pipeline.Workspace)/s/src
+
+            - task: PowerShell@2
+              displayName: 'Test'
+              inputs:
+                targetType: inline
+                script: |
+                  Write-Host $(ls -la $(Pipeline.Workspace))
+                  Write-Host $(ls -la $(Pipeline.Workspace)/a)
+                  Write-Host $(ls -la $(Pipeline.Workspace)/s)
+
+            - task: AzureCLI@2
+              displayName: 'Retrieve deployment token'
+              inputs:
+                azureSubscription: '${{ variables.ServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  $staticWebApps=az staticwebapp list --resource-group ${{ variables.ResourceGroupName }} | ConvertFrom-Json
+                  $staticWebAppName=$staticWebApps | Select-Object -First 1 | ForEach-Object {$_.Name}
+                  $secrets=az staticwebapp secrets list --resource-group ${{ variables.ResourceGroupName }} --name $staticWebAppName | ConvertFrom-Json;
+                  $deployment_token=$secrets.properties.apiKey;
+                  Write-Host $deployment_token
+                  Write-Host "##vso[task.setvariable variable=deployment_token;]$deployment_token"
+            - task: AzureStaticWebApp@0
+              inputs:
+                skip_app_build: true
+                skip_api_build: true
+                is_static_export: true
+                verbose: true
+                app_location: '/src'
+                api_location: 'api'
+                output_location: '/src'
+                azure_static_web_apps_api_token: '$(deployment_token)'
+          
+
+
+

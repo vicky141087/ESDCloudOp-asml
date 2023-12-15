@@ -1,0 +1,809 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Sliedt.illuminator_degradation &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Sliedt.illuminator_degradation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Sliedt.illuminator_degradation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;InfluxURLClient.py</span>
+<span class="sd">Originally created by JBKH</span>
+<span class="sd">Modified by RWKL to be usable as library by different teams</span>
+<span class="sd">Date: 2018-07-21</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Collector.Sliedt.illumination_mode</span> <span class="kn">import</span> <span class="n">get_mode_map</span><span class="p">,</span> <span class="n">get_mirror_states</span>  <span class="c1"># contains custom illumination mode correction factors per system</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Do_It</span> <span class="kn">import</span> <span class="n">do_it_library</span> <span class="k">as</span> <span class="n">do_it</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Shared.signal_processing</span> <span class="kn">import</span> <span class="n">make_monotonically_increasing</span>
+
+<span class="c1"># Number of Pupil Facets on the PFM allocated to each Field Facet of the FFM</span>
+<span class="n">N_PFM</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># Number of Field Facets on the FFM</span>
+<span class="n">N_FFM</span> <span class="o">=</span> <span class="mi">336</span>
+
+
+<div class="viewcode-block" id="degradation_model"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.degradation_model">[docs]</a><span class="k">class</span> <span class="nc">degradation_model</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The model of exponential decay is described by the initial degradation rate</span>
+<span class="sd">    and the maximum amount of degradation.</span>
+<span class="sd">    By default it uses the a rate 0f 0.0325%/Gp and the total degradation is</span>
+<span class="sd">    limited by 15%. The initialization allows the user to modify these two </span>
+<span class="sd">    parameters of the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="mf">0.0325</span><span class="p">,</span> <span class="n">limit</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">=</span> <span class="n">limit</span></div>
+
+
+<div class="viewcode-block" id="calc_transmission"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.calc_transmission">[docs]</a><span class="k">def</span> <span class="nf">calc_transmission</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">pulse_count</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Empirical estimate of transmission of Pupil Facet as function of exposed </span>
+<span class="sd">    gigapulses. Assumes exponential decay.</span>
+
+<span class="sd">    :param model: the model parameters to be applied</span>
+<span class="sd">    :param pulse_count: Pulsecount seen by this pupil facet in Gp</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: the relative transmission of a pupil facet after an amount of Gps </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">limit</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">pulse_count</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="calc_degradation_rate"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.calc_degradation_rate">[docs]</a><span class="k">def</span> <span class="nf">calc_degradation_rate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">pulse_count</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Pupil Facet transmission derivative to gigapulse, ie. degradation rate.</span>
+
+<span class="sd">    :param model: the model parameters to be applied</span>
+<span class="sd">    :param pulse_count: Pulse count seen by this pupil facet in Gp</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: the derivative of the relative transmission of a pupil facet after an amount of Gps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="n">model</span><span class="o">.</span><span class="n">limit</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">rate</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">pulse_count</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">rate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_signal"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.get_signal">[docs]</a><span class="k">def</span> <span class="nf">get_signal</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_nr</span><span class="p">,</span> <span class="n">input_signals</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to load the influx signals and change column names to </span>
+<span class="sd">    signal aliases.</span>
+
+<span class="sd">    :param client: influx client</span>
+<span class="sd">    :param source_nr: source number</span>
+<span class="sd">    :param input_signals: influx signals to be downloaded from influx</span>
+<span class="sd">    :param from_time: start of window in time domain</span>
+<span class="sd">    :param to_time: end of window in time domain</span>
+<span class="sd">    :param selection: optional paramater to append grouping of data</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: pandas dataframe containing requested influx data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">signals</span> <span class="o">=</span> <span class="p">[(</span><span class="nb">str</span><span class="p">(</span><span class="n">source_nr</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">selection</span><span class="p">)</span> <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">input_signals</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+            <span class="n">signals</span><span class="o">=</span><span class="n">signals</span><span class="p">,</span>
+            <span class="n">from_time</span><span class="o">=</span><span class="n">from_time</span><span class="p">,</span>
+            <span class="n">to_time</span><span class="o">=</span><span class="n">to_time</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid signal name: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">signals</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_signals</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Some singals are not available. </span><span class="si">{}</span><span class="s2"> out of </span><span class="si">{}</span><span class="s2"> available&quot;</span><span class="o">.</span>
+                        <span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_signals</span><span class="p">)))</span>
+
+    <span class="c1"># Replace column names with signal aliases.</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">input_signals</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="add_mode_names"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.add_mode_names">[docs]</a><span class="k">def</span> <span class="nf">add_mode_names</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identify the known illumination modes in the dataframe. Makes use of the </span>
+<span class="sd">    mapping contained in the mode_map table defined above.</span>
+<span class="sd">    Return the mode name and the es_correction factor.</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_SLIE_FSLIE_PS_doe_id&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e6</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_id&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_inner&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e6</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_id&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_outer&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span>
+
+    <span class="c1"># Name &quot;Other&quot; is used for unknown modes</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Other&quot;</span>
+
+    <span class="c1"># Loop through all known mode indicators</span>
+    <span class="k">for</span> <span class="n">_id</span> <span class="ow">in</span> <span class="n">get_mode_map</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        
+        <span class="c1"># Check if mode does not use doe_id as indicator</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">get_mode_map</span><span class="p">()[</span><span class="n">_id</span><span class="p">][</span><span class="mi">4</span><span class="p">]:</span>
+            <span class="c1"># Use the mode identification number obtained above</span>
+            <span class="n">_filter</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">_id</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use the doe_id identification</span>
+            <span class="n">_filter</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_SLIE_FSLIE_PS_doe_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">_id</span>
+
+        <span class="c1"># Update the rows acquired above (contained in _filter) with the</span>
+        <span class="c1"># corresponding mode name</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">_filter</span><span class="p">,</span> <span class="s1">&#39;mode_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_mode_map</span><span class="p">()[</span><span class="n">_id</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">_filter</span><span class="p">,</span> <span class="s1">&#39;es_correction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_mode_map</span><span class="p">()[</span><span class="n">_id</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mode_id&#39;</span><span class="p">])</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;DW_SLIE_FSLIE_PS_doe_id&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_inner&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_outer&#39;</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="load_df"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.load_df">[docs]</a><span class="k">def</span> <span class="nf">load_df</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the signals necessary to estimate the Pupil Facet degradation.</span>
+
+<span class="sd">    :param client: influx client</span>
+<span class="sd">    :param source_id: source id</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with all required data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Define the signal list</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="s1">&#39;Scanner.DW_total_nr_pulses&#39;</span><span class="p">,</span> <span class="s1">&#39;DW_total_nr_pulses&#39;</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s1">&#39;Scanner.DW_SLIE_FSLIE_PS_doe_id&#39;</span><span class="p">,</span> <span class="s1">&#39;DW_SLIE_FSLIE_PS_doe_id&#39;</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s1">&#39;Scanner.DW_SLIE_FSLIE_PS_sigma_inner&#39;</span><span class="p">,</span> <span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_inner&#39;</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s1">&#39;Scanner.DW_SLIE_FSLIE_PS_sigma_outer&#39;</span><span class="p">,</span> <span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_outer&#39;</span><span class="p">]])</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_signal</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="s1">&#39;2000-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2099-12-30&#39;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="prepare_df"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.prepare_df">[docs]</a><span class="k">def</span> <span class="nf">prepare_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare the dataframe.</span>
+
+<span class="sd">    :param df: pandas dataframe to be prepared</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with prepared data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Preparing data... &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Convert pulsecount from mp to gp</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_total_nr_pulses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_total_nr_pulses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-3</span>
+
+    <span class="c1"># Interpolate missing pulsecounts</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_total_nr_pulses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DW_total_nr_pulses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span><span class="o">.</span><span class="n">bfill</span><span class="p">()</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+
+    <span class="c1"># Swap the time index of the dataframe with gigapulses for ease</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;DW_total_nr_pulses&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Remove all rows mising mode information</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;DW_SLIE_FSLIE_PS_doe_id&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_inner&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;DW_SLIE_FSLIE_PS_sigma_outer&#39;</span><span class="p">]:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)]</span>
+
+    <span class="c1"># Correct for drops in cumulative scanner pulsecount: set any drops in count</span>
+    <span class="c1"># to zero and recalculate the cumulative.</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">make_monotonically_increasing</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="c1"># Identify the illumination modes.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">add_mode_names</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="c1"># Uncomment to remove sequences of data rows with the same mode (reduces data size)</span>
+    <span class="c1"># df = df.loc[df[&#39;mode_name&#39;].shift(1).values != df[&#39;mode_name&#39;].values]</span>
+
+    <span class="c1"># Add column to track deltas in gigapulses</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dGP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># For each mode add a column with total cumulative pulsecount for that mode</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dGP&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># Filter out changes in total gigapulse when other modes are being used </span>
+        <span class="n">diff</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">df</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+
+    <span class="c1"># Drop the delta gigapulse column</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dGP&#39;</span><span class="p">])</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+    
+<div class="viewcode-block" id="load_PFM_states"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.load_PFM_states">[docs]</a><span class="k">def</span> <span class="nf">load_PFM_states</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the FF-to-PF mapping per illumination mode from the mirror_states.csv file.</span>
+
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">mirror_states</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">get_mirror_states</span><span class="p">())</span>
+    
+    <span class="c1"># Acquire the dimensions of the map, ie. number of Field Facets by number</span>
+    <span class="c1"># of known modes    </span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">N_modes</span> <span class="o">=</span> <span class="n">mirror_states</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># Define dict of modes, each containing a two-dimensional array of Field Facets </span>
+    <span class="c1"># and corresponding Pupil Facets mirrors. Zero indicates not in use, one </span>
+    <span class="c1"># indicates in use. This allows for convenient matrix multiplication.</span>
+    <span class="n">PFM_states</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="c1"># For each known mode:</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">mirror_states</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        
+        <span class="c1"># Initialize the mirror state map with zeros (none in use)</span>
+        <span class="n">mode_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_FFM</span><span class="p">,</span> <span class="n">N_PFM</span><span class="p">))</span>
+        
+        <span class="c1"># For each Field Facet mirror:</span>
+        <span class="k">for</span> <span class="n">FFM</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N_FFM</span><span class="p">):</span>
+            
+            <span class="c1"># Acquire the setting of the Field Facet in this illumination mode.</span>
+            <span class="c1"># It indicates which of the 5 allocated Pupil Facets it is illuminating.</span>
+            <span class="c1"># If the setting equals to 6, the beam dump is indicated.</span>
+            <span class="n">FFM_setting</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mirror_states</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">FFM</span><span class="p">,</span> <span class="n">mode</span><span class="p">])</span>
+                        
+            <span class="c1"># Set the state of the Pupil Facet mirror corresponding to the</span>
+            <span class="c1"># setting to 1 (in use).</span>
+            <span class="k">if</span> <span class="n">FFM_setting</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">mode_state</span><span class="p">[</span><span class="n">FFM</span><span class="p">,</span> <span class="n">FFM_setting</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                
+        <span class="n">PFM_states</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">mode_state</span>
+        
+    <span class="k">return</span> <span class="n">PFM_states</span></div>
+
+
+<div class="viewcode-block" id="get_mode_details"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.get_mode_details">[docs]</a><span class="k">def</span> <span class="nf">get_mode_details</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the values in the mode_map dict given the name of a mode.</span>
+
+<span class="sd">    :param mode: name of the mode</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">known_mode</span> <span class="ow">in</span> <span class="n">get_mode_map</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">get_mode_map</span><span class="p">()[</span><span class="n">known_mode</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">mode</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">get_mode_map</span><span class="p">()[</span><span class="n">known_mode</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="get_PFM_map"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.get_PFM_map">[docs]</a><span class="k">def</span> <span class="nf">get_PFM_map</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the name of the Pupil Facet map given the name of a mode.</span>
+<span class="sd">    These are not necessarily the same, hence this function.</span>
+
+<span class="sd">    :param mode: name of the mode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">mode_details</span> <span class="o">=</span> <span class="n">get_mode_details</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">mode_details</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">mode_details</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="calc_PFM_transmission"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.calc_PFM_transmission">[docs]</a><span class="k">def</span> <span class="nf">calc_PFM_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">PFM_states</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">degradation_model</span><span class="p">(),</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the transmission of the Pupil Facets (N_FFM * N_PFM) as a function </span>
+<span class="sd">    of time using the cumulative gigapulse count per mode and the map of Pupil</span>
+<span class="sd">    Facet mirrors per mode.</span>
+<span class="sd">    </span>
+<span class="sd">    This consists of two consecutive steps:</span>
+<span class="sd">    1) Obtain the cumulative gigapulse count per Pupil Facet.</span>
+<span class="sd">    2) Apply the Pupil Facet transmission model.</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param PFM_states: map of pupil faced mirrors per mode</span>
+<span class="sd">    :param model: degradation model (default: exponential decay using default parameters)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: transmission per pupil facet and degradation rate per pupil facet</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Initialize the mirror usage (ie. cumulative gigapulse count per Pupil Facet)</span>
+    <span class="c1"># to zero.</span>
+    <span class="n">PFM_usage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="n">N_FFM</span><span class="p">,</span> <span class="n">N_PFM</span><span class="p">))</span>
+
+    <span class="c1"># Step 1. For each known mode:</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        
+        <span class="c1"># Obtain the Pupil Facet mapping for this mode</span>
+        <span class="n">PFM_map</span> <span class="o">=</span> <span class="n">get_PFM_map</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        
+        <span class="c1"># If the map is found:</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">PFM_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            
+            <span class="c1"># For each timestep:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)):</span>
+                
+                <span class="c1"># Increase the Pupil Facet usages by the cumulative gigapulse count</span>
+                <span class="c1"># of the mode multiplied by the Pupil Facet states of the mode,</span>
+                <span class="c1"># indicating which ones are being used.</span>
+                <span class="n">PFM_usage</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">df</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">PFM_states</span><span class="p">[</span><span class="n">PFM_map</span><span class="p">]</span>
+
+    <span class="c1"># Step 2. From the usage per mirror obtain an estimate of the transmission</span>
+    <span class="c1"># and degradation rate.</span>
+    <span class="n">PFM_transmission</span> <span class="o">=</span> <span class="n">calc_transmission</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">PFM_usage</span><span class="p">)</span>
+    <span class="n">PFM_degradation_rate</span> <span class="o">=</span> <span class="n">calc_degradation_rate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">PFM_usage</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">PFM_transmission</span><span class="p">,</span> <span class="n">PFM_degradation_rate</span></div>
+
+
+<div class="viewcode-block" id="calc_mode_transmission"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.calc_mode_transmission">[docs]</a><span class="k">def</span> <span class="nf">calc_mode_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">PFM_states</span><span class="p">,</span> <span class="n">PFM_transmission</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    With the PFM transmission, calculate the mode transmission as a function </span>
+<span class="sd">    of time</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param PFM_states: map of pupil faced mirrors per mode</span>
+<span class="sd">    :param PFM_transmission: transmission per pupil facet</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: transmission per illumination mode as function of pulsecount of the machine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Create a new dataframe with a time index for mode transmission.</span>
+    <span class="n">mode_transmission</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">])</span>
+
+    <span class="c1"># For each known mode:</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        
+        <span class="c1"># Obtain the Pupil Facet mapping for this mode</span>
+        <span class="n">PFM_map</span> <span class="o">=</span> <span class="n">get_PFM_map</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        
+        <span class="c1"># If the map exists:</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">PFM_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            
+            <span class="c1"># create a temporary array of transmission for this mode</span>
+            <span class="n">transmission</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+
+            <span class="c1"># For each timestep:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)):</span>
+                
+                <span class="c1"># Set the transmission to the average transmission of the used</span>
+                <span class="c1"># Pupil Facet mirrors.</span>
+                <span class="n">transmission</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">PFM_transmission</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">PFM_states</span><span class="p">[</span><span class="n">PFM_map</span><span class="p">])</span> <span class="o">/</span> <span class="n">N_FFM</span>
+
+            <span class="c1"># Copy the temporary array into the dataframe</span>
+            <span class="n">mode_transmission</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">transmission</span>
+
+    <span class="k">return</span> <span class="n">mode_transmission</span></div>
+
+
+<div class="viewcode-block" id="calc_mode_degradation"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.calc_mode_degradation">[docs]</a><span class="k">def</span> <span class="nf">calc_mode_degradation</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">PFM_states</span><span class="p">,</span> <span class="n">PFM_degradation_rate</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a specific mode, calculate the current degradation rate. This is </span>
+<span class="sd">    normalized to t=0, ie. start of illuminator life.</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param mode: illumination mode</span>
+<span class="sd">    :param PFM_states: map of pupil faced mirrors per mode</span>
+<span class="sd">    :param PFM_degradation_rate: map of degradation rate per pupil faced mirror</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: degradation per mode as function of pulsecount of the machine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">PFM_map</span> <span class="o">=</span> <span class="n">get_PFM_map</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>    
+    
+    <span class="k">if</span> <span class="n">PFM_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="c1"># The mode degradation rate is the average of the current degradation</span>
+        <span class="c1"># rates of the Pupil Facets being used.</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">PFM_degradation_rate</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">PFM_states</span><span class="p">[</span><span class="n">PFM_map</span><span class="p">])</span> <span class="o">/</span> <span class="n">N_FFM</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span></div>
+
+
+<div class="viewcode-block" id="calc_illuminator_transmission"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.calc_illuminator_transmission">[docs]</a><span class="k">def</span> <span class="nf">calc_illuminator_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the transmission of an illuminator as function of time given</span>
+<span class="sd">    the loaded dataframe.</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Preprocess the data and identify illumination modes.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">prepare_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    
+    <span class="c1"># Read the map containing Field Facet to Pupil Facet states per mode</span>
+    <span class="n">PFM_states</span> <span class="o">=</span> <span class="n">load_PFM_states</span><span class="p">()</span>
+    
+    <span class="c1"># Obtain the Pupil Facet transmission and degradation as function of time</span>
+    <span class="n">PFM_transmission</span><span class="p">,</span> <span class="n">PFM_degradation_rate</span> <span class="o">=</span> <span class="n">calc_PFM_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> 
+                                                                   <span class="n">PFM_states</span><span class="p">,</span> 
+                                                                   <span class="n">model</span> <span class="o">=</span> <span class="n">degradation_model</span><span class="p">())</span>
+    
+    <span class="c1"># Obtain the transmission per known illumination mode as function of time</span>
+    <span class="n">mode_transmission</span> <span class="o">=</span> <span class="n">calc_mode_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> 
+                                               <span class="n">PFM_states</span><span class="p">,</span> 
+                                               <span class="n">PFM_transmission</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">mode_transmission</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">PFM_degradation_rate</span></div>
+
+
+<div class="viewcode-block" id="plot_mode_usage"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.plot_mode_usage">[docs]</a><span class="k">def</span> <span class="nf">plot_mode_usage</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">mode_transmission</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extra function to plot the mode usage (ie. cumulative gigapulse count per mode)</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param mode_transmission: dataframe containing transmission per mode as function of pulsecount of the system</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+    
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">mode_transmission</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">line</span><span class="o">=</span><span class="s1">&#39;--&#39;</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        
+    <span class="n">modes</span> <span class="o">=</span> <span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">mode</span> <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">mode_transmission</span><span class="p">])</span> <span class="o">^</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">line</span><span class="o">=</span><span class="s1">&#39;--&#39;</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;mode_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;k&#39;</span><span class="o">+</span><span class="n">line</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Sum&quot;</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;IM mode usage&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;IM mode pulsecount (gp)&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_mode_transmission"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.plot_mode_transmission">[docs]</a><span class="k">def</span> <span class="nf">plot_mode_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">mode_transmission</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extra function to plot the mode transmission, ie. transmission of the known </span>
+<span class="sd">    illumination modes normalized to 100% at beginning of illuminator life.</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param mode_transmission: dataframe containing transmission per mode as function of pulsecount of the system</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">mode_transmission</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">line</span><span class="o">=</span><span class="s1">&#39;--&#39;</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">mode_transmission</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;IM mode degradation&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Transmission (%)&quot;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_degradation_rates"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.print_degradation_rates">[docs]</a><span class="k">def</span> <span class="nf">print_degradation_rates</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">mode_transmission</span><span class="p">,</span> <span class="n">PFM_degradation_rate</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extra function to print the current degradation rates of each known mode,</span>
+<span class="sd">    normalized to 100% at beginning of illuminator life.</span>
+
+<span class="sd">    :param df: dataframe containing illumination mode data</span>
+<span class="sd">    :param mode_transmission: dataframe containing transmission per mode as function of pulsecount of the system</span>
+<span class="sd">    :param PFM_degradation_rate: dataframe containing degradation rate per mode as function of pulsecount of the system</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">mode_transmission</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%.3f</span><span class="s2"> </span><span class="si">%%</span><span class="s2">/gp&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">calc_mode_degradation</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">load_PFM_states</span><span class="p">(),</span> <span class="n">PFM_degradation_rate</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="get_pf_transmission_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.get_pf_transmission_data">[docs]</a><span class="k">def</span> <span class="nf">get_pf_transmission_data</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the pupil facet transmission data</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: the source_id for which the pupil facet degradation has to be estimated</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe containing input data to calculate transmission per illumination mode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># load the required data</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">load_df</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="calculate_pf_transmission"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.calculate_pf_transmission">[docs]</a><span class="k">def</span> <span class="nf">calculate_pf_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    calculate the pupil facet transmission.</span>
+<span class="sd">    The illuminator degradation library is used for this calculation.</span>
+<span class="sd">    It is based on the model assuming exponential decay proposed by JHAG</span>
+
+<span class="sd">    :param df: dataframe containing input data to calculate transmission per illumination mode</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe containing transmission per illumination mode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># the transmission per illumination mode over time</span>
+    <span class="n">mode_transmission</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">PFM_degradation_rate</span> <span class="o">=</span> <span class="n">calc_illuminator_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mode_transmission</span></div>
+
+
+<div class="viewcode-block" id="get_pf_transmission"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.illuminator_degradation.get_pf_transmission">[docs]</a><span class="k">def</span> <span class="nf">get_pf_transmission</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the pupil facet transmission.</span>
+<span class="sd">    The illuminator degradation library is used for this calculation.</span>
+<span class="sd">    It is based on the model assuming exponential decay proposed by JHAG</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: the source_id for which the pupil facet degradation has to be estimated</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe containing transmission per illumination mode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># load the required data</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_pf_transmission_data</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># the transmission per illumination mode over time</span>
+    <span class="n">mode_transmission</span> <span class="o">=</span> <span class="n">calculate_pf_transmission</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mode_transmission</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>PMA &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RT_Processing" href="RT_Processing.html" />
+    <link rel="prev" title="EUVDashboard" href="EUVDashboard.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="EUVDashboard.html">EUVDashboard</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PMA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RT_Processing.html">RT_Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parsers.html">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Collector.html">Collector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Do_It.html">Do_It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TinManagement.html">TinManagement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Shared.html">Shared</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers.html">helpers</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+        
+      <li>PMA</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/PMA.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pyeuv.PMA.clients">
+<span id="pma"></span><h1>PMA<a class="headerlink" href="#module-pyeuv.PMA.clients" title="Permalink to this headline">¶</a></h1>
+<p><strong>PMA NG Readers</strong></p>
+<p>SQL queries are based on the PMA Secure API Developer guide
+which can be obtained from <a class="reference external" href="mailto:dl-pma-developer-support&#37;&#52;&#48;asml&#46;com">dl-pma-developer-support<span>&#64;</span>asml<span>&#46;</span>com</a>.</p>
+<p>Author: RLBL
+Date: 2019-07-29</p>
+<dl class="class">
+<dt id="pyeuv.PMA.clients.PMAClient">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.PMA.clients.</code><code class="sig-name descname">PMAClient</code><span class="sig-paren">(</span><em class="sig-param">username</em>, <em class="sig-param">password</em>, <em class="sig-param">api_key</em>, <em class="sig-param">host='pma.asml.com'</em>, <em class="sig-param">port=35432</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads data from PMA and parses it into dataframes. Requires api-key and user with PMA-NG authorization.</p>
+<dl class="method">
+<dt id="pyeuv.PMA.clients.PMAClient.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the Postgress connection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.PMA.clients.PMAClient.get_cpd_results">
+<code class="sig-name descname">get_cpd_results</code><span class="sig-paren">(</span><em class="sig-param">cpd_name</em>, <em class="sig-param">machines</em>, <em class="sig-param">tstart</em>, <em class="sig-param">tstop</em>, <em class="sig-param">pivot_results=True</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">n_retries=3</em>, <em class="sig-param">retry_sleep=30</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient.get_cpd_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient.get_cpd_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get CPD (Control Performance Diagnostics) test results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cpd_name</strong> (<em>str</em>) – Name of the CPD, e.g. LUES or WDDC</p></li>
+<li><p><strong>machines</strong> (<em>list&lt;dict&gt;</em><em>  (</em><em>Pyeuv machine dict</em><em>)</em>) – Machines to obtain the results for</p></li>
+<li><p><strong>tstart</strong> (<em>pandas.Timestamp</em><em>(</em><em>)</em>) – Start time of the test must be greater than this</p></li>
+<li><p><strong>tstop</strong> (<em>pandas.Timestamp</em><em>(</em><em>)</em>) – Start time of the test must be smaller than this</p></li>
+<li><p><strong>pivot_results</strong> (<em>bool</em>) – Pivot results, see pivot_cpd_table</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Bitch and moan a lot</p></li>
+<li><p><strong>n_retries</strong> (<em>int</em>) – Number of times to retry a query</p></li>
+<li><p><strong>retry_sleep</strong> (<em>int</em>) – Time to sleep in [s] between retries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with the test results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.PMA.clients.PMAClient.get_machine_constants">
+<code class="sig-name descname">get_machine_constants</code><span class="sig-paren">(</span><em class="sig-param">mc_name</em>, <em class="sig-param">machines</em>, <em class="sig-param">tstart</em>, <em class="sig-param">tstop</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">n_retries=3</em>, <em class="sig-param">retry_sleep=30</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient.get_machine_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient.get_machine_constants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe with the requested machine constant data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mc_name</strong> (<em>str</em>) – Name of the machine constant, e.g. MCULTF_FFMPeriph_MIRROR_STATE_MIRROR_STATE_TAG</p></li>
+<li><p><strong>machines</strong> (<em>list&lt;dict&gt;</em><em> (</em><em>Pyeuv machine dict</em><em>)</em>) – List of machines to include</p></li>
+<li><p><strong>tstart</strong> (<em>pd.Timestamp</em>) – Include machine constant changes after this timestamp</p></li>
+<li><p><strong>tstop</strong> (<em>pd.Timestamp</em>) – Include machine constant changes before this timestamp</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print the signal that’s being retrieved</p></li>
+<li><p><strong>n_retries</strong> (<em>int</em>) – Number of times to retry a query</p></li>
+<li><p><strong>retry_sleep</strong> (<em>int</em>) – Time to sleep in [s] between retries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with the MC’s</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.PMA.clients.PMAClient.get_machine_equipment_info">
+<code class="sig-name descname">get_machine_equipment_info</code><span class="sig-paren">(</span><em class="sig-param">machines=None</em>, <em class="sig-param">type_filter='NXE:3'</em>, <em class="sig-param">n_retries=3</em>, <em class="sig-param">retry_sleep=30</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient.get_machine_equipment_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient.get_machine_equipment_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe with contents from the PMA MACHINE_EQUIPMENT_HIST
+table for the given machines. By default only NXE3xyz machines are returned
+but the filter behaviour can be changed with the type_filter parameter. The
+returned df will contain the entire known history of the equipment. Every
+entry has a validity date (UK_MACHINE_VALID_FROM) to indicate when the entry
+is valid. Entries are valid until the validity date of the next entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>machines</strong> (<em>list&lt;dict&gt;</em><em> (</em><em>pyeuv machine dict</em><em>) or </em><em>NoneType</em><em> (</em><em>default</em><em>)</em>) – List of machines to get the data for. Can also be set
+to None to include all machines.</p></li>
+<li><p><strong>type_filter</strong> (<em>str</em>) – Return only results that match the given equipment
+type. Some examples are:
+- ‘NXE:3’: returns NXE3xyz scanners
+- ‘EUVSOURCE’: Returns EUV Sources</p></li>
+<li><p><strong>n_retries</strong> (<em>int</em>) – Number of times to retry a query</p></li>
+<li><p><strong>retry_sleep</strong> (<em>int</em>) – Time to sleep in [s] between retries.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print the signal that’s being retrieved</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with the equipment information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.PMA.clients.PMAClient.get_parameters">
+<code class="sig-name descname">get_parameters</code><span class="sig-paren">(</span><em class="sig-param">parameters</em>, <em class="sig-param">machine</em>, <em class="sig-param">tstart</em>, <em class="sig-param">tstop</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">n_retries=3</em>, <em class="sig-param">retry_sleep=30</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient.get_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads scanner parameters a.k.a. Scanner KPI from CDL trough the PMA NG interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>list&lt;str&gt;</em>) – List of PMA parameters to download. Use list_parameters to find out
+which parameter names are available</p></li>
+<li><p><strong>machine</strong> (<em>dict</em>) – Machine information to download data for. Requires pyeuv machine dict.</p></li>
+<li><p><strong>tstart</strong> (<em>pandas.Timestamp</em>) – Start time of the window</p></li>
+<li><p><strong>tstop</strong> (<em>pandas.Timestamp</em>) – Stop time of the window</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print messages</p></li>
+<li><p><strong>n_retries</strong> (<em>int</em>) – Number of times to retry a query</p></li>
+<li><p><strong>retry_sleep</strong> (<em>int</em>) – Time to sleep in [s] between retries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dict containing a result dataframes per given parameter.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict{parameter_name: pd.DataFrame}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.PMA.clients.PMAClient.get_pvp_config">
+<code class="sig-name descname">get_pvp_config</code><span class="sig-paren">(</span><em class="sig-param">machines</em>, <em class="sig-param">options</em>, <em class="sig-param">tstart</em>, <em class="sig-param">tstop</em>, <em class="sig-param">n_retries=3</em>, <em class="sig-param">retry_sleep=30</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient.get_pvp_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient.get_pvp_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain scanner product variability items (PVP items). These high level settings
+provide the TWINSCAN software with information about the machine it’s running
+on and which options have been enabled on it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>machines</strong> (<em>list&lt;dict&gt;</em><em> (</em><em>pyeuv machine dict</em><em>) or </em><em>NoneType</em><em> (</em><em>default</em><em>)</em>) – List of machines to get the data for. Can also be set
+to None to include all machines.</p></li>
+<li><p><strong>options</strong> (<em>list&lt;str&gt;</em>) – List of PVP option names to include</p></li>
+<li><p><strong>tstart</strong> (<em>pd.Timestamp</em>) – Return pvp config records newer than this</p></li>
+<li><p><strong>tstop</strong> (<em>pd.Timestamp</em>) – return pvp config records older than this</p></li>
+<li><p><strong>n_retries</strong> (<em>int</em>) – Number of times to retry a query</p></li>
+<li><p><strong>retry_sleep</strong> (<em>int</em>) – Time to sleep in [s] between retries.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print the signal that’s being retrieved</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with the equipment information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.PMA.clients.PMAClient.list_parameters">
+<code class="sig-name descname">list_parameters</code><span class="sig-paren">(</span><em class="sig-param">full=False</em>, <em class="sig-param">n_retries=3</em>, <em class="sig-param">retry_sleep=30</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/PMA/clients.html#PMAClient.list_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.PMA.clients.PMAClient.list_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of available parameters. If full=True will also return the unit and
+description of the signal in a nested list of size Nx3. Currently (2019-07-15) the list
+of units is incomplete, and descriptions are missing completely so this option is
+disabled by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>full</strong> (<em>bool</em>) – Include unit and description (default: False)</p></li>
+<li><p><strong>n_retries</strong> (<em>int</em>) – Number of times to retry a query</p></li>
+<li><p><strong>retry_sleep</strong> (<em>int</em>) – Time to sleep in [s] between retries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with the test results</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list&lt;str&gt; (default) or list&lt;list&lt;str&gt;&gt;&gt; (full=True)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="RT_Processing.html" class="btn btn-neutral float-right" title="RT_Processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="EUVDashboard.html" class="btn btn-neutral float-left" title="EUVDashboard" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

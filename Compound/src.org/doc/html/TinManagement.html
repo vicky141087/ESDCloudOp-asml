@@ -1,0 +1,520 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>TinManagement &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Shared" href="Shared.html" />
+    <link rel="prev" title="Do_It" href="Do_It.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="EUVDashboard.html">EUVDashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PMA.html">PMA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RT_Processing.html">RT_Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parsers.html">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Collector.html">Collector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Do_It.html">Do_It</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TinManagement</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.TinManagement.vanes">Tin Vanes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.TinManagement.bucket">Tin Bucket</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Shared.html">Shared</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers.html">helpers</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+        
+      <li>TinManagement</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/TinManagement.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tinmanagement">
+<h1>TinManagement<a class="headerlink" href="#tinmanagement" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyeuv.TinManagement.vanes">
+<span id="tin-vanes"></span><h2>Tin Vanes<a class="headerlink" href="#module-pyeuv.TinManagement.vanes" title="Permalink to this headline">¶</a></h2>
+<p>vanes.py
+Authors: RWKL
+Date: 2018-10-16</p>
+<p>Derive KPIs related to thermal cycling</p>
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.calc_vanes_top_bot_min_mean_max">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">calc_vanes_top_bot_min_mean_max</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">bot_str='Bottom_Temperature_Vane'</em>, <em class="sig-param">top_str='Top_Temperature_Vane'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#calc_vanes_top_bot_min_mean_max"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.calc_vanes_top_bot_min_mean_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Caculate the min mean and max for the bottom and top vanes</p>
+<p>:param : param df: return the original columns + calculated columns
+:param : type df: pandas DataFrame
+:param : param bot_str: unique identifier for bottom vanes
+:param : type bot_str: string
+:param : param top_str: unique identifier for top vanes
+:param : type top_str: string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.calculate_duration">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">calculate_duration</code><span class="sig-paren">(</span><em class="sig-param">phases</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#calculate_duration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.calculate_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds duration of the phases in time (hours) and pulses (Gp)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>phases</strong> – The hot or warm phases</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>phases including columns for duration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.calculate_extreme_temperatures">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">calculate_extreme_temperatures</code><span class="sig-paren">(</span><em class="sig-param">phases</em>, <em class="sig-param">data_bot_top</em>, <em class="sig-param">data_vanes_seperate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#calculate_extreme_temperatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.calculate_extreme_temperatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds minimum and maximum vane temperature during the cycle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phases</strong> – The hot or warm phases</p></li>
+<li><p><strong>data_bot_top</strong> – mean vanes temperature data</p></li>
+<li><p><strong>data_vanes_seperate</strong> – seperate vanes temperature data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>phases including columns for extreme temperatures</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.extract_thermal_cycles">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">extract_thermal_cycles</code><span class="sig-paren">(</span><em class="sig-param">data_bot_top</em>, <em class="sig-param">data_vanes_seperate=None</em>, <em class="sig-param">threshold_temperature=232.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#extract_thermal_cycles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.extract_thermal_cycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine hot and warm phases and extract metrics.
+Per hot/warm phase, determine start, end and duration in both the time and gp domain
+Adds metadata per phase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_bot_top</strong> – The dataframe with mean vanes temperature data</p></li>
+<li><p><strong>data_vanes_seperate</strong> – The dataframe with seperate vanes temperature data</p></li>
+<li><p><strong>threshold_temperature</strong> – optional parameter to indicate the threshold of hot versus warm phases</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with dataframes of kpi’s for both the hot and warm phases</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.extract_vane_spitting_area">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">extract_vane_spitting_area</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">cooling_config='TVB+MK2'</em>, <em class="sig-param">threshold_temperature=232.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#extract_vane_spitting_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.extract_vane_spitting_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine total percent vane area above spitting temperature (threshold)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The dataframe with vanes temperature data</p></li>
+<li><p><strong>cooling_config</strong> – the cooling config of the system, options TVB, TVB+, TVB+MK2, MV</p></li>
+<li><p><strong>threshold_temperature</strong> – identical to melting temperature in ideal world,
+possible offset due to sensor locations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with series of total vane area above spitting temperature</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_aggregated_vanes_temperature_signal_names">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_aggregated_vanes_temperature_signal_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_aggregated_vanes_temperature_signal_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_aggregated_vanes_temperature_signal_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary includes all the mean temperature signals of the vanes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal names for vanes thermal data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_data_thermal_cycling">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_data_thermal_cycling</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">source_id</em>, <em class="sig-param">from_time</em>, <em class="sig-param">to_time</em>, <em class="sig-param">mv_flag=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_data_thermal_cycling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_data_thermal_cycling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retreives all the data required for thermal cycling analysis from influx.
+Merges the dataframes from different sources</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mv_flag</strong> – get data for a MV system or not</p></li>
+<li><p><strong>client</strong> – connection to influx</p></li>
+<li><p><strong>source_id</strong> – the source_id for which the signals have to be retrieved</p></li>
+<li><p><strong>from_time</strong> – start time of the window of data to be retrieved</p></li>
+<li><p><strong>to_time</strong> – start time of the window of data to be retrieved</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe containing vanes temperatures and pulse_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_data_vane_spitting">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_data_vane_spitting</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">source_id</em>, <em class="sig-param">from_time</em>, <em class="sig-param">to_time</em>, <em class="sig-param">mv_flag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_data_vane_spitting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_data_vane_spitting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retreives all the data required for vane spitting analysis from influx.
+Merges the dataframes from different sources</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – connection to influx</p></li>
+<li><p><strong>source_id</strong> (<em>string</em>) – the source_id for which the signals have to be retrieved</p></li>
+<li><p><strong>from_time</strong> (<em>pd.Timestamp</em>) – start time of the window of data to be retrieved</p></li>
+<li><p><strong>to_time</strong> (<em>boolean</em>) – start time of the window of data to be retrieved</p></li>
+<li><p><strong>mv_flag</strong> – mv machine or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe containing vanes temperatures and pulse_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_pulse_count_signal_names">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_pulse_count_signal_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_pulse_count_signal_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_pulse_count_signal_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary contains the collector pulse count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal name for collector pulse count.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_specifications">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_specifications</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_specifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_specifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to return the specifications for thermal cycles</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_KPI">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_vanes_temperature_signal_names_KPI</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_vanes_temperature_signal_names_KPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_KPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary includes all the mean temperature signals of the vanes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal names for vanes thermal data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_KPI_FV">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_vanes_temperature_signal_names_KPI_FV</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_vanes_temperature_signal_names_KPI_FV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_KPI_FV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary includes all the mean temperature signals of the vanes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal names for vanes thermal data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_TinVanesStatus">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_vanes_temperature_signal_names_TinVanesStatus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_vanes_temperature_signal_names_TinVanesStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_TinVanesStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary includes all the mean temperature signals of the vanes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal names for vanes thermal data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_VDC_VANES_SENSORS">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">get_vanes_temperature_signal_names_VDC_VANES_SENSORS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#get_vanes_temperature_signal_names_VDC_VANES_SENSORS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.get_vanes_temperature_signal_names_VDC_VANES_SENSORS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary includes all the mean temperature signals of the vanes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal names for vanes thermal data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.vanes.qualify_phases">
+<code class="sig-prename descclassname">pyeuv.TinManagement.vanes.</code><code class="sig-name descname">qualify_phases</code><span class="sig-paren">(</span><em class="sig-param">phases</em>, <em class="sig-param">config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/vanes.html#qualify_phases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.vanes.qualify_phases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds qualification of the phases</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phases</strong> – The hot or warm phases</p></li>
+<li><p><strong>config</strong> – vessel configuration of the system</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>phases including columns for qualification</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.TinManagement.bucket">
+<span id="tin-bucket"></span><h2>Tin Bucket<a class="headerlink" href="#module-pyeuv.TinManagement.bucket" title="Permalink to this headline">¶</a></h2>
+<p>bucket.py
+Authors: RWKL
+Date: 2018-10-17</p>
+<p>Derive KPIs related to the tin bucket and clogging of it</p>
+<dl class="function">
+<dt id="pyeuv.TinManagement.bucket.get_data_drip_pin_clogging">
+<code class="sig-prename descclassname">pyeuv.TinManagement.bucket.</code><code class="sig-name descname">get_data_drip_pin_clogging</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">source_id</em>, <em class="sig-param">from_time</em>, <em class="sig-param">to_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/bucket.html#get_data_drip_pin_clogging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.bucket.get_data_drip_pin_clogging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retreives all the data required for drip pin clogging analysis from influx.
+Merges the dataframes from different sources</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> – connection to influx</p></li>
+<li><p><strong>source_id</strong> – the source_id for which the signals have to be retrieved</p></li>
+<li><p><strong>from_time</strong> – start time of the window of data to be retrieved</p></li>
+<li><p><strong>to_time</strong> – start time of the window of data to be retrieved</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe containing bucket fill level, rate and pulse count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.bucket.get_drip_pin_clogging_signal_names">
+<code class="sig-prename descclassname">pyeuv.TinManagement.bucket.</code><code class="sig-name descname">get_drip_pin_clogging_signal_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/bucket.html#get_drip_pin_clogging_signal_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.bucket.get_drip_pin_clogging_signal_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary includes all the mean temperature signals of the vanes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal names for drip pin clogging.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyeuv.TinManagement.bucket.get_pulse_count_signal_names">
+<code class="sig-prename descclassname">pyeuv.TinManagement.bucket.</code><code class="sig-name descname">get_pulse_count_signal_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/TinManagement/bucket.html#get_pulse_count_signal_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.TinManagement.bucket.get_pulse_count_signal_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with influx signal names as values and human readable
+names as keys. The dictionary contains the collector pulse count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with signal name for collector pulse count.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Shared.html" class="btn btn-neutral float-right" title="Shared" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Do_It.html" class="btn btn-neutral float-left" title="Do_It" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

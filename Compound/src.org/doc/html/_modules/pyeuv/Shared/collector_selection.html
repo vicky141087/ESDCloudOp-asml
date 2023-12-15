@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Shared.collector_selection &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Shared.collector_selection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Shared.collector_selection</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Jan 21 22:04:28 2019</span>
+
+<span class="sd">Author: RWKL</span>
+<span class="sd">Date: 2019-01-21</span>
+
+<span class="sd">The collector_selection provides a method of selecting a collector by clicking on buttons for customer, machine and collector.</span>
+<span class="sd">Whenever a button is clicked, it generates or updates the configuration in which the colloctor and machine properties are stored.</span>
+
+<span class="sd">*Example usage*</span>
+
+<span class="sd">::</span>
+
+<span class="sd">    from pyeuv.EUVDashboard.clients import UserLANClient</span>
+<span class="sd">    from pyeuv.Shared.configuration import Configuration</span>
+<span class="sd">    import pyeuv.Shared.collector_selection as selector</span>
+<span class="sd">    </span>
+<span class="sd">    client = UserLANClient()</span>
+<span class="sd">    conf = Configuration()</span>
+<span class="sd">    conf = selector.show(client)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.configuration</span> <span class="kn">import</span> <span class="n">Configuration</span> <span class="k">as</span> <span class="n">config</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="kn">import</span> <span class="n">widgets</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Shared.shared</span> <span class="k">as</span> <span class="nn">shared</span>
+
+<div class="viewcode-block" id="show"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.collector_selection.show">[docs]</a><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">_client</span><span class="p">,</span> <span class="n">scanners_only</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shows the selection buttons to select a machine and collector.</span>
+<span class="sd">    The shown customers and systems are based on the machine_list. The collectors from the collector.swap data from influx</span>
+
+<span class="sd">    :param _client: connection to influx</span>
+<span class="sd">    :param scanner_only: option to include or exclude sources without full scanner</span>
+<span class="sd">    :returns: the configuration of the selected machine and collector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">global</span> <span class="n">machine_buttons</span><span class="p">,</span> <span class="n">collector_buttons</span><span class="p">,</span> <span class="n">machine_list</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">client</span>
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">config</span><span class="p">()</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">_client</span>
+    <span class="n">machine_list</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_machines</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">exclude_non_scanner</span><span class="o">=</span><span class="n">scanners_only</span><span class="p">)</span>
+    <span class="n">customer_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">machine_list</span><span class="p">[</span><span class="s1">&#39;customer&#39;</span><span class="p">])</span>
+    
+    <span class="n">customer_buttons</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ToggleButtons</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">customer_list</span><span class="p">,</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Customer:&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">machine_buttons</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ToggleButtons</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Select Customer&#39;</span><span class="p">],</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Machine:&#39;</span><span class="p">,</span>
+        <span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">collector_buttons</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ToggleButtons</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Select Machine&#39;</span><span class="p">],</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Collector:&#39;</span><span class="p">,</span>
+        <span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1">#execute_all_button = widgets.Button(description=&quot;Select collector&quot;)</span>
+    <span class="n">customer_buttons</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">customer_selected</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="c1">#, conf)</span>
+    <span class="n">machine_buttons</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">machine_selected</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="c1">#, conf)</span>
+    <span class="n">collector_buttons</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">collector_selected</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="c1">#, conf)</span>
+    <span class="c1">#execute_all_button.on_click(storeConfig)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">customer_buttons</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">machine_buttons</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">collector_buttons</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">conf</span></div>
+<span class="c1">#    display(execute_all_button)</span>
+    
+    
+<div class="viewcode-block" id="showMachineSelectionButtons"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.collector_selection.showMachineSelectionButtons">[docs]</a><span class="k">def</span> <span class="nf">showMachineSelectionButtons</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">exclude_non_scanner</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shows the selection buttons to select a machine</span>
+<span class="sd">    The shown customers and systems are based on the machine_list.</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param scanner_only: option to include or exclude sources without full scanner</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">global</span> <span class="n">machine_buttons</span><span class="p">,</span> <span class="n">machine_list</span>
+    <span class="n">machine_list</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_machines</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">exclude_non_scanner</span><span class="p">)</span>
+    <span class="n">customer_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">machine_list</span><span class="p">[</span><span class="s1">&#39;customer&#39;</span><span class="p">])</span>
+    
+    <span class="n">customer_buttons</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ToggleButtons</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">customer_list</span><span class="p">,</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Customer:&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">machine_buttons</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ToggleButtons</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Select Customer&#39;</span><span class="p">],</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Machine:&#39;</span><span class="p">,</span>
+        <span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="c1">#execute_all_button = widgets.Button(description=&quot;Select collector&quot;)</span>
+    <span class="n">customer_buttons</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">customer_selected</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="c1">#, conf)</span>
+    <span class="n">machine_buttons</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">machine_selected_no_collector</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="c1">#, conf)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">customer_buttons</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">machine_buttons</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="customer_selected"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.collector_selection.customer_selected">[docs]</a><span class="k">def</span> <span class="nf">customer_selected</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    initializes the machine buttons after a customer has been selected. </span>
+<span class="sd">    It also stores information of the selected customer to the configuration </span>
+<span class="sd">    </span>
+<span class="sd">    :param v: value and properties of the clicked button</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">conf</span><span class="o">.</span><span class="n">using_customer</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">])</span>
+    <span class="n">sublist</span> <span class="o">=</span> <span class="n">machine_list</span><span class="p">[</span><span class="n">machine_list</span><span class="p">[</span><span class="s1">&#39;customer&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">]]</span>
+    <span class="n">machine_buttons</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;displayname&#39;</span><span class="p">]:{</span>
+            <span class="s1">&#39;machine&#39;</span><span class="p">:</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;machine_name&#39;</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s1">&#39;displayname&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;source&#39;</span><span class="p">:</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;source_nr&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;source_gen&#39;</span><span class="p">:</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;hardware&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;vessel&#39;</span><span class="p">:</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;vessel&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;tz&#39;</span><span class="p">:</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;timezone&#39;</span><span class="p">]</span>
+        <span class="p">}</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">sublist</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span>
+    <span class="n">machine_buttons</span><span class="o">.</span><span class="n">tooltips</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;displayname&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">sublist</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
+    <span class="n">machine_buttons</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">machine_buttons</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">machine_buttons</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="n">machine_buttons</span><span class="o">.</span><span class="n">tooltips</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="machine_selected"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.collector_selection.machine_selected">[docs]</a><span class="k">def</span> <span class="nf">machine_selected</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    initializes the collector buttons after a machine has been selected. </span>
+<span class="sd">    It also stores information of the selected machine to the configuration </span>
+<span class="sd">    </span>
+<span class="sd">    :param v: value and properties of the clicked button</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">source_id</span> <span class="o">=</span> <span class="s1">&#39;s</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;source&#39;</span><span class="p">])</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">using_machine</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;machine&#39;</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;machine_name&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_source</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">using_source_generation</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;source_gen&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_vessel</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;vessel&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_timezone</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;tz&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_collector</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">collectors</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_collectors</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">)</span>
+        
+        <span class="n">collector_buttons</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;swap&#39;</span><span class="p">]:{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;swap&#39;</span><span class="p">],</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]}</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">collectors</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span>
+        <span class="n">collector_buttons</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">collector_buttons</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>    
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;exception&#39;</span><span class="p">)</span>
+        <span class="n">collector_buttons</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;No collectors found&#39;</span><span class="p">]</span>
+        <span class="n">collector_buttons</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">using_collector</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>    </div>
+
+
+<div class="viewcode-block" id="machine_selected_no_collector"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.collector_selection.machine_selected_no_collector">[docs]</a><span class="k">def</span> <span class="nf">machine_selected_no_collector</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores information of the selected machine to the configuration </span>
+<span class="sd">    </span>
+<span class="sd">    :param v: value and properties of the clicked button</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">using_machine</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;machine&#39;</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;machine_name&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_source</span><span class="p">(</span><span class="s1">&#39;s&#39;</span> <span class="o">+</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;source&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_source_generation</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;source_gen&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_vessel</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;vessel&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_timezone</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;tz&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">using_collector</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="collector_selected"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.collector_selection.collector_selected">[docs]</a><span class="k">def</span> <span class="nf">collector_selected</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores information of the selected collector to the configuration </span>
+<span class="sd">    </span>
+<span class="sd">    :param v: value and properties of the clicked button</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conf</span><span class="o">.</span><span class="n">using_collector</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])</span><span class="o">.</span>\
+            <span class="n">using_start_time</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">.</span>\
+            <span class="n">using_end_time</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

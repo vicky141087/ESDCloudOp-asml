@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Parsers.dat_parser &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Parsers.dat_parser</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Parsers.dat_parser</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
+
+<span class="kn">from</span> <span class="nn">._parser_datv1</span> <span class="kn">import</span> <span class="n">parser_datv1</span>
+<span class="kn">from</span> <span class="nn">._parser_datv2</span> <span class="kn">import</span> <span class="n">parser_datv2</span><span class="p">,</span> <span class="n">datv2</span>
+<span class="kn">from</span> <span class="nn">..helpers</span> <span class="kn">import</span> <span class="n">LoadFile</span><span class="p">,</span> <span class="n">num2ts</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_dat</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">,</span> <span class="n">datv1_metadatafile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">LoadFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;LCHD&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Not a datv1 or datv2 file.&quot;</span><span class="p">)</span>
+
+        <span class="n">version</span><span class="p">,</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;L&#39;</span><span class="p">,</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_datv1</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">metadatafile</span><span class="o">=</span><span class="n">datv1_metadatafile</span><span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+            <span class="c1"># Always include timestamp</span>
+            <span class="k">if</span> <span class="s1">&#39;TIMESTAMP&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">signal_list</span><span class="p">:</span>
+                <span class="n">signal_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;TIMESTAMP&#39;</span><span class="p">)</span>
+
+            <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">signal_list</span><span class="p">))</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;TIMESTAMP&#39;</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">num2ts</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># Skip column count</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">datv2</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">data</span><span class="p">])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Dat v</span><span class="si">{0}</span><span class="s2"> is not supported!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">df</span>
+
+
+<div class="viewcode-block" id="parse_dat"><a class="viewcode-back" href="../../../Parsers.html#pyeuv.Parsers.dat_parser.parse_dat">[docs]</a><span class="k">def</span> <span class="nf">parse_dat</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">,</span> <span class="n">datv1_metadatfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes input dat files into pandas dataframes.</span>
+
+<span class="sd">    :param filenames: List of files (full path) to process</span>
+<span class="sd">    :param signal_list: List of signals to extract For example: BDeuvEnergyAvgOn from RT5</span>
+<span class="sd">    :param datv1_metadatafile: Path to metadatafile, for DATv1. Will try to autodetect if set to None (default)</span>
+<span class="sd">    :param verbose: If true, prints filenames being parsed</span>
+
+<span class="sd">    :return: pandas.DataFrame: Dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filenames</span><span class="p">]</span>
+
+    <span class="n">df_result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading &quot;</span> <span class="o">+</span> <span class="n">fn</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">_parse_dat</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">,</span> <span class="n">datv1_metadatafile</span><span class="o">=</span><span class="n">datv1_metadatfile</span><span class="p">)</span>
+        <span class="n">df_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_result</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_result</span></div>
+
+<div class="viewcode-block" id="parse_dat_parallel"><a class="viewcode-back" href="../../../Parsers.html#pyeuv.Parsers.dat_parser.parse_dat_parallel">[docs]</a><span class="k">def</span> <span class="nf">parse_dat_parallel</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">,</span> <span class="n">datv1_metadatafile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update a cached signal with new data Process input dat files into pandas</span>
+<span class="sd">    dataframes. Processes multiple files in parallel</span>
+
+<span class="sd">    :param filenames: List of files (full path) to process</span>
+<span class="sd">    :param signal_list: List of signals to extract For example: BDeuvEnergyAvgOn from RT5</span>
+<span class="sd">    :param datv1_metadatafile: Path to metadatafile, for DATv1. Will autodetect if set to None (default)</span>
+<span class="sd">    :param verbose: (bool) If true, prints filenames being parsed</span>
+<span class="sd">    :param pool_size: (int) Number of processes</span>
+
+<span class="sd">    :return: pandas.DataFrame: Dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filenames</span><span class="p">]</span>
+    
+    <span class="n">pfunc</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">_parse_dat</span><span class="p">,</span> <span class="n">signal_list</span><span class="o">=</span><span class="n">signal_list</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">datv1_metadatafile</span><span class="o">=</span><span class="n">datv1_metadatafile</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">pool_size</span><span class="p">)</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">pfunc</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Linking chunks&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="ls_dat"><a class="viewcode-back" href="../../../Parsers.html#pyeuv.Parsers.dat_parser.ls_dat">[docs]</a><span class="k">def</span> <span class="nf">ls_dat</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">datv1_metadatafile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Lists signals available in the given dat file.</span>
+
+<span class="sd">    :param fn: Full path to the dat file</span>
+<span class="sd">    :type fn: str</span>
+<span class="sd">    :param datv1_metadatafile: Required only when parsing datv1 data.</span>
+<span class="sd">    :type datv1_metadatafile: str</span>
+<span class="sd">    :param verbose: Print messages from the parser module</span>
+<span class="sd">    :type verbose: bool</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">LoadFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;LCHD&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Not a datv1 or datv2 file.&quot;</span><span class="p">)</span>
+
+        <span class="n">version</span><span class="p">,</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;L&#39;</span><span class="p">,</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_datv1</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">metadatafile</span><span class="o">=</span><span class="n">datv1_metadatafile</span><span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">contains</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># Skip column count</span>
+
+            <span class="n">p</span> <span class="o">=</span> <span class="n">parser_datv2</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">contains</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Dat v</span><span class="si">{0}</span><span class="s2"> is not supported!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="parse_dat_directory_gui"><a class="viewcode-back" href="../../../Parsers.html#pyeuv.Parsers.dat_parser.parse_dat_directory_gui">[docs]</a><span class="k">def</span> <span class="nf">parse_dat_directory_gui</span><span class="p">(</span><span class="n">rt_type</span><span class="p">,</span> <span class="n">signal_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse RT files of the given in the directory selected by the user. Upon</span>
+<span class="sd">    calling this function a tk file selection diaglog is opened. </span>
+<span class="sd">    Unless a signal_list is provided it will parse all available signals in</span>
+<span class="sd">    the RT file. Can only process one type of RT data at the same time.</span>
+
+<span class="sd">    :param rt_type: Type of RT to parse. (RT05, RT05 etc...)</span>
+<span class="sd">    :type rt_type: str</span>
+<span class="sd">    :param signal_list: Signals in the RT file to parse.</span>
+<span class="sd">    :type signal_list: list&lt;str&gt;, optional</span>
+<span class="sd">    :returns: parsed data, or None if the directory is empty</span>
+<span class="sd">    :rtype: pandas.DataFrame or None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use tkinter to get a file dialog</span>
+    <span class="n">tk_root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+    <span class="n">tk_root</span><span class="o">.</span><span class="n">withdraw</span><span class="p">()</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">filedialog</span><span class="o">.</span><span class="n">askdirectory</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">tk_root</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Select folder with RT data&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parse_dat_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">rt_type</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="parse_dat_directory"><a class="viewcode-back" href="../../../Parsers.html#pyeuv.Parsers.dat_parser.parse_dat_directory">[docs]</a><span class="k">def</span> <span class="nf">parse_dat_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">rt_type</span><span class="p">,</span> <span class="n">signal_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse RT files of the given type in this directory. Unless a signal_list</span>
+<span class="sd">    is provided it will parse all available signals in the RT file. Can only</span>
+<span class="sd">    process one type of RT data at the same time.</span>
+
+<span class="sd">    :param directory: Directory containing the RT files</span>
+<span class="sd">    :type directory: str</span>
+<span class="sd">    :param rt_type: Type of RT to parse. (RT05, RT05 etc...)</span>
+<span class="sd">    :type rt_type: str</span>
+<span class="sd">    :param signal_list: Signals in the RT file to parse.</span>
+<span class="sd">    :type signal_list: list&lt;str&gt;, optional</span>
+<span class="sd">    :returns: parsed data, or None if the directory is empty</span>
+<span class="sd">    :rtype: pandas.DataFrame or None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">allowed_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;.xz&#39;</span><span class="p">,</span> <span class="s1">&#39;.gz&#39;</span><span class="p">]</span>
+
+    <span class="n">file_pattern</span> <span class="o">=</span> <span class="s1">&#39;*</span><span class="si">{0}</span><span class="s1">*&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rt_type</span><span class="p">)</span>
+    <span class="n">filez</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">file_pattern</span><span class="p">))</span>
+    <span class="n">filez</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filez</span> <span class="k">if</span> <span class="n">rt_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+             <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">allowed_extensions</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filez</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Get the signal list from the first file</span>
+    <span class="k">if</span> <span class="n">signal_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">signal_list</span> <span class="o">=</span> <span class="n">ls_dat</span><span class="p">(</span><span class="n">filez</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Create empty object in which to store the result of parsed data</span>
+    <span class="n">df_result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filez</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">parse_dat</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">)</span>
+        <span class="n">df_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_result</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_result</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">parse_dat_directory_gui</span><span class="p">(</span><span class="s1">&#39;RT02&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

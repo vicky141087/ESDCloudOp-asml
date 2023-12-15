@@ -1,0 +1,1253 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Radon.radon_io &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Radon.radon_io</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Radon.radon_io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">radon_io.py</span>
+<span class="sd">Authors: RWKL</span>
+<span class="sd">Date: 2019-05-12</span>
+
+<span class="sd">Part of this code is extracted from the unblurred radon tool, originally developed by JBKH</span>
+<span class="sd">This code handles reading in different radon related files, such as &#39;.raw&#39;, &#39;with_dots.dat&#39;, and &#39;with_keys.dat&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">ntpath</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Collector.Radon.radon_image_processing</span> <span class="kn">import</span> <span class="n">smooth_luer_using_nearby_ffms</span><span class="p">,</span> <span class="n">blur_image</span>
+
+<div class="viewcode-block" id="read_ffm_module_info_from_json"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.read_ffm_module_info_from_json">[docs]</a><span class="k">def</span> <span class="nf">read_ffm_module_info_from_json</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read ffm module ids from json file and return it as a dict.</span>
+<span class="sd">    :param json_file: full path to json file</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: dictionary with ffm ranges for each module</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ffm_module_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="k">return</span> <span class="n">ffm_module_dict</span></div>
+
+<div class="viewcode-block" id="get_luer_dict_object"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_luer_dict_object">[docs]</a><span class="k">def</span> <span class="nf">get_luer_dict_object</span><span class="p">(</span><span class="n">luer_data</span><span class="p">,</span> <span class="n">raw_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw_file_object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a dictionary containing the luer_data and other supporting metadata</span>
+
+<span class="sd">    :param luer_data: dataframe containing the luer data</span>
+<span class="sd">    :param raw_filename: full path to the luer raw file</span>
+<span class="sd">    :param raw_file_object: handle to the raw file</span>
+<span class="sd">    :param verbose: switches debug mode (default: False)</span>
+<span class="sd">    :return: dictionary with luer data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">raw_file_object</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">raw_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+        <span class="n">pulse_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">get_timestamp_from_luer_raw</span><span class="p">(</span><span class="n">raw_filename</span><span class="p">,</span> <span class="n">raw_file_object</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="n">pulse_count</span> <span class="o">=</span> <span class="n">get_pulse_count_from_luer_raw</span><span class="p">(</span><span class="n">raw_filename</span><span class="p">,</span> <span class="n">raw_file_object</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        
+    <span class="n">luer_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestamp</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pulse_count</span>
+    
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_data</span>
+
+    <span class="k">return</span> <span class="n">luer_dict</span></div>
+
+
+<div class="viewcode-block" id="load_dots"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.load_dots">[docs]</a><span class="k">def</span> <span class="nf">load_dots</span><span class="p">(</span><span class="n">luer_file</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_zeros</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dark_facets_to_zero</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correct_ffm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">ffm_window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">blurred</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a luer with_dots file.</span>
+<span class="sd">    It takes care of the x and y coordinate transformation.</span>
+
+<span class="sd">    :param luer_file: full path of the luer file to be loaded</span>
+<span class="sd">    :param use_keys: switch to read old format (x, y, i), versus new format ()</span>
+<span class="sd">    :param remove_zeros: for luer output without keys, the data is snapped to a uniform grid. Where there is no data,</span>
+<span class="sd">        the grid contains zeros. By default, we remove them. However, when using it to make a bitmap, the zeros should</span>
+<span class="sd">        not be thrown away. (default: True)</span>
+<span class="sd">    :param dark_facets_to_zero: switch to set dark facets from nan to 0, only when using keys (default: True)</span>
+<span class="sd">    :param correct_ffm: correct for varying intensity of the field-facet mirrors</span>
+<span class="sd">    :param ffm_window: smoothing window for intensity smoothing field-facet mirrors</span>
+<span class="sd">    :param blurred: blur radon image</span>
+<span class="sd">    :param verbose: switches debug mode (default: False)</span>
+<span class="sd">    :returns: dataframe with columns x, y and intensity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">luer_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">luer_file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skipinitialspace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">luer_data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="mi">4</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">luer_data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;intensity&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">dark_facets_to_zero</span><span class="p">:</span>
+                <span class="n">luer_data</span><span class="o">.</span><span class="n">intensity</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not load data for unblurred luer .dat file </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">luer_file</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">luer_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">luer_file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;intensity&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">remove_zeros</span><span class="p">:</span>
+                <span class="n">luer_data</span> <span class="o">=</span> <span class="n">luer_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_data</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not load data for unblurred luer .dat file </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">luer_file</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+
+    <span class="c1"># Flip Far Field to collector coordinates</span>
+    <span class="n">luer_data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">luer_data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+    <span class="n">info_facets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">luer_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+    <span class="n">luer_data</span><span class="p">[</span><span class="s1">&#39;facet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info_facets</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">luer_data</span><span class="p">[</span><span class="s1">&#39;dot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info_facets</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">correct_ffm</span><span class="p">:</span>
+
+        <span class="c1"># import ffm module config</span>
+        <span class="n">path_to_ffm_module_info</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_roi_directory</span><span class="p">(),</span> <span class="s1">&#39;ffm_module_info.json&#39;</span><span class="p">)</span>
+        <span class="n">ffm_modules</span> <span class="o">=</span> <span class="n">read_ffm_module_info_from_json</span><span class="p">(</span><span class="n">path_to_ffm_module_info</span><span class="p">)</span>
+
+        <span class="c1"># smooth luer over ffm modules</span>
+        <span class="n">luer_data</span> <span class="o">=</span> <span class="n">smooth_luer_using_nearby_ffms</span><span class="p">(</span><span class="n">luer_data</span><span class="p">,</span> <span class="n">ffm_modules</span><span class="p">,</span> <span class="n">ffm_window</span><span class="o">=</span><span class="n">ffm_window</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">blurred</span><span class="p">:</span>
+        <span class="c1"># blur RADON image</span>
+        <span class="n">luer_data</span> <span class="o">=</span> <span class="n">blur_image</span><span class="p">(</span><span class="n">luer_data</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">luer_data</span></div>
+
+<div class="viewcode-block" id="connect_scaling_factors_to_influx_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.connect_scaling_factors_to_influx_data">[docs]</a><span class="k">def</span> <span class="nf">connect_scaling_factors_to_influx_data</span><span class="p">(</span><span class="n">scaling_factors</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">icrm</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add additional collector pulse count and scanner pulse count to the LUERs from InfluxDB.</span>
+
+<span class="sd">    :param scaling_factors: dataframe with scaling factors [0 - threshold_upper/100]</span>
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param conf: object with machine/collector info</span>
+<span class="sd">    :param start_time: luer start time</span>
+<span class="sd">    :param icrm: use icrm data instead of SLIE/DT</span>
+<span class="sd">    :return: dataframe with scaling factors [0 - threshold_upper/100] + scanner/collector pulse count data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_slie_pulsecount</span> <span class="o">=</span> <span class="n">load_reflectivity_data</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">icrm</span> <span class="o">=</span> <span class="n">icrm</span><span class="p">)</span>
+
+    <span class="n">scaling_factors</span> <span class="o">=</span> <span class="n">scaling_factors</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_slie_pulsecount</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;slie_dt&#39;</span><span class="p">,</span><span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">,</span><span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">]</span>
+    <span class="n">scaling_factors</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaling_factors</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+
+    <span class="c1"># forward fill at the start of the collector</span>
+    <span class="n">scaling_factors</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaling_factors</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+
+    <span class="c1"># backward fill at the start of the collector</span>
+    <span class="n">scaling_factors</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaling_factors</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">bfill</span><span class="p">()</span>
+
+    <span class="n">scaling_factors</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">scaling_factors</span></div>
+
+<div class="viewcode-block" id="load_reflectivity_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.load_reflectivity_data">[docs]</a><span class="k">def</span> <span class="nf">load_reflectivity_data</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">icrm</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load all SLIE/DT data, including pulse count data from InfluxDB</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param conf: object with machine/collector info</span>
+<span class="sd">    :param luer: luer information including intensity, reflectivity</span>
+<span class="sd">    :param icrm: use icrm data instead of SLIE/DT</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pyeuv.Shared.shared</span> <span class="k">as</span> <span class="nn">shared</span>
+    <span class="n">current_collector</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_current_collector</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">source_id</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
+    <span class="n">slie_pulsecount_signal_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;slie_dt&#39;</span><span class="p">:</span> <span class="s1">&#39;Collector._SLIE_DT_Norm&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">:</span> <span class="s1">&#39;Collector._PulseCount&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">:</span> <span class="s1">&#39;Scanner.DW_total_nr_pulses&#39;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">icrm</span><span class="p">:</span>
+        <span class="n">slie_pulsecount_signal_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;slie_dt&#39;</span><span class="p">:</span> <span class="s1">&#39;Scanner.OCRM_CollectorLifetimeRelativeReflectivity&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">:</span> <span class="s1">&#39;Collector._PulseCount&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">:</span> <span class="s1">&#39;Scanner.DW_total_nr_pulses&#39;</span><span class="p">}</span>
+
+    <span class="c1"># download data</span>
+    <span class="n">df_slie_pulsecount</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">slie_pulsecount_signal_dict</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">source_id</span><span class="p">,</span>
+                                                <span class="n">from_time</span><span class="o">=</span><span class="n">current_collector</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+                                                <span class="n">to_time</span><span class="o">=</span><span class="n">current_collector</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+    <span class="c1"># transform to Gp</span>
+    <span class="n">df_slie_pulsecount</span><span class="o">.</span><span class="n">scanner_pulse_count</span> <span class="o">*=</span> <span class="mf">1e-3</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">icrm</span><span class="p">:</span> <span class="n">df_slie_pulsecount</span><span class="o">.</span><span class="n">collector_pulse_count</span> <span class="o">*=</span> <span class="mf">1e-9</span>
+
+    <span class="k">return</span> <span class="n">df_slie_pulsecount</span></div>
+
+<div class="viewcode-block" id="load_luer_list"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.load_luer_list">[docs]</a><span class="k">def</span> <span class="nf">load_luer_list</span><span class="p">(</span><span class="n">radon_directory</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dark_facets_to_zero</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">luers_to_ignore</span><span class="o">=</span><span class="p">[],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads all processed luers within the provided directory.</span>
+
+<span class="sd">    :param radon_directory: The radon directory</span>
+<span class="sd">    :param use_keys: switch to load with_keys files, otherwise loads dots (default: True)</span>
+<span class="sd">    :param dark_facets_to_zero: switch to set dark facets from nan to 0 (default: False)</span>
+<span class="sd">    :param luers_to_ignore: list of luer keys to ignore (default: [])</span>
+<span class="sd">    :param verbose: switches debug mode (default: False)</span>
+<span class="sd">    :return: dictionary with all luer images. The timestamp, if available in the .dat filename, as key.</span>
+<span class="sd">        otherwise luer index as key.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">radon_directory</span><span class="p">)</span>
+    <span class="n">luer_files_raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">is_valid_raw_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+        <span class="n">luer_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">is_valid_with_keys_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">luer_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">is_valid_with_dots_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+
+    <span class="n">luer_list</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">luer_files_raw</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">file_raw</span> <span class="ow">in</span> <span class="n">luer_files_raw</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_from_raw_luer_filename</span><span class="p">(</span><span class="n">file_raw</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">luers_to_ignore</span><span class="p">:</span>
+            <span class="c1"># skip this luer</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+                <span class="n">file_dots</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">luer_files</span> <span class="k">if</span> <span class="n">get_index_from_with_keys_luer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_dots</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">luer_files</span> <span class="k">if</span> <span class="n">get_index_from_with_dots_luer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+                <span class="n">file_dots</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">luer_files</span> <span class="k">if</span> <span class="n">get_timestamp_from_processed_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_dots</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">luer_files</span> <span class="k">if</span> <span class="n">get_timestamp_from_processed_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_dots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">luer_data</span> <span class="o">=</span> <span class="n">load_dots</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">radon_directory</span><span class="p">,</span> <span class="n">file_dots</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">use_keys</span><span class="o">=</span><span class="n">use_keys</span><span class="p">,</span>
+                              <span class="n">dark_facets_to_zero</span><span class="o">=</span><span class="n">dark_facets_to_zero</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">luer_dict</span> <span class="o">=</span> <span class="n">get_luer_dict_object</span><span class="p">(</span><span class="n">luer_data</span><span class="p">,</span> <span class="n">raw_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">radon_directory</span><span class="p">,</span> <span class="n">file_raw</span><span class="p">),</span>
+                                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="n">luer_list</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_dict</span>
+
+    <span class="k">return</span> <span class="n">luer_list</span></div>
+
+
+<div class="viewcode-block" id="save_dots"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.save_dots">[docs]</a><span class="k">def</span> <span class="nf">save_dots</span><span class="p">(</span><span class="n">luer_data</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves a luer with_dots file.</span>
+<span class="sd">    It takes care of the x and y coordinate transformation.</span>
+
+<span class="sd">    :param luer_data: </span>
+<span class="sd">    :param filename: full path of the luer file to be saved</span>
+<span class="sd">    :param use_keys: switch to read old format (index, x, y, i), versus new format (key, x, y, i)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :raises: Exception if writing to disk fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+    
+    <span class="c1"># Flip Far Field to collector coordinates</span>
+    <span class="n">luer_data</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">luer_data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+    
+    <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">luer_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">line_terminator</span><span class="o">=</span><span class="s1">&#39;,</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not save data to </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">luer_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not save data to </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_luer_with_dots_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_luer_with_dots_filename">[docs]</a><span class="k">def</span> <span class="nf">get_luer_with_dots_filename</span><span class="p">(</span><span class="n">path_raw</span><span class="p">,</span> <span class="n">include_machine_name</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">with_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the luer with keys filename.</span>
+<span class="sd">    In the cache (EUV-DB backend) it should include the machine_number, since the cache is a flat dump:</span>
+<span class="sd">    - LUER_m1234_201906300020.0123.raw --&gt; LUER.m1234.201906300020.0123_SN_FAR_FIELD_WITH_DOTS_WITH_KEYS.dat</span>
+<span class="sd">    On the CPR it should not  include the machine_number:</span>
+<span class="sd">    - LUER_m1234_201906300020.0123.raw --&gt; LUER.201906300020.0123_SN_FAR_FIELD_WITH_DOTS_WITH_KEYS.dat</span>
+
+<span class="sd">    Use the raw filename to extract the information.</span>
+<span class="sd">    In case the raw file does not have it (for instance for the 33X0s),</span>
+<span class="sd">    extract the timestamp from the content of the file.</span>
+
+<span class="sd">    :param path_raw: the full path to the raw luer file</span>
+<span class="sd">    :param include_machine_name: Option to include the machine number in the luer output filename (default: False)</span>
+<span class="sd">    :param with_keys: switch post-fix to include &#39;WITH_KEYS&#39; (default: True)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :raises: Exception if filename_raw has incorrect format (in filename and content) or does not exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Converting </span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s1"> to with_keys filename&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_raw</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">with_keys</span><span class="p">:</span>
+        <span class="n">post_fix</span> <span class="o">=</span> <span class="s1">&#39;_SN_FAR_FIELD_WITH_DOTS_WITH_KEYS.dat&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">post_fix</span> <span class="o">=</span> <span class="s1">&#39;_SN_FAR_FIELD_WITH_DOTS.dat&#39;</span>
+    
+    <span class="c1"># get filename without path</span>
+    <span class="n">filename_raw</span> <span class="o">=</span> <span class="n">ntpath</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path_raw</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_raw_luer_filename</span><span class="p">(</span><span class="n">filename_raw</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;filename </span><span class="si">{}</span><span class="s1"> is not a valid LUER.*.raw filename&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename_raw</span><span class="p">))</span>
+    
+    <span class="n">chunks</span> <span class="o">=</span> <span class="n">filename_raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="c1"># no machine name and timestamp, only &#39;LUER&#39;</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">get_timestamp_from_luer_raw</span><span class="p">(</span><span class="n">path_raw</span><span class="p">,</span> <span class="n">from_header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_machine_name</span><span class="p">:</span>
+            <span class="n">machine_nr</span> <span class="o">=</span> <span class="n">get_machine_id_from_luer_raw</span><span class="p">(</span><span class="n">path_raw</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">machine_nr</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">%H%M&#39;</span><span class="p">),</span>
+                                              <span class="n">chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">post_fix</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">%H%M&#39;</span><span class="p">),</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">post_fix</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># machine name and timestamp available</span>
+        <span class="n">pre_chunks</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_machine_name</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pre_chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pre_chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pre_chunks</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">post_fix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pre_chunks</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pre_chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pre_chunks</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">post_fix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filename</span></div>
+    
+
+<div class="viewcode-block" id="validate_format_of_luer_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.validate_format_of_luer_filename">[docs]</a><span class="k">def</span> <span class="nf">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validates the format of the luer filename and throws an exception in case it fails.</span>
+<span class="sd">    It tests for correct prefix, suffix and 3 chunks when splitting on &#39;.&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    :param filename: filename to be validated</span>
+<span class="sd">    :param prefix: expected start of the filename</span>
+<span class="sd">    :param suffix: expected end of the filename</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># remove path (if full path is provided), such that we only use the filename</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">ntpath</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> does not end with </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">suffix</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> does not start with </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">))</span>
+        
+    <span class="n">chunks</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not conform </span><span class="si">{}</span><span class="s1">.[*]_[0-9]</span><span class="si">{}</span><span class="s1"> format&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">))</span></div>
+        
+
+<div class="viewcode-block" id="convert_string_to_int"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.convert_string_to_int">[docs]</a><span class="k">def</span> <span class="nf">convert_string_to_int</span><span class="p">(</span><span class="n">index_string</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a string to an integer, and throws an error in case it fails</span>
+<span class="sd">    </span>
+<span class="sd">    :param index_string: String to be converted</span>
+<span class="sd">    :param length: length of the string, by default 4.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: integer value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">index_string</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> should be numeric&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index_string</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_string</span><span class="p">)</span> <span class="o">!=</span> <span class="n">length</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> should contain </span><span class="si">{}</span><span class="s1"> characters. Found </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index_string</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_string</span><span class="p">)))</span>
+        
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">index_string</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_index_from_raw_luer"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_index_from_raw_luer">[docs]</a><span class="k">def</span> <span class="nf">get_index_from_raw_luer</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract LUER index from a raw LUER file name. Raises an exception when unsuccessful</span>
+
+<span class="sd">    :param filename: character string of the filename of the raw luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: luer index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;.raw&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER&#39;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extract luer index from&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">index_string</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">convert_string_to_int</span><span class="p">(</span><span class="n">index_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">index</span></div>
+
+
+<div class="viewcode-block" id="get_timestamp_from_raw_luer_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_timestamp_from_raw_luer_filename">[docs]</a><span class="k">def</span> <span class="nf">get_timestamp_from_raw_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract timestamp from a raw LUER file name. Raises an exception when unsuccessful</span>
+<span class="sd">    The timestamp is only available in the 3400s and beyond</span>
+
+<span class="sd">    :param filename: character string of the filename of the raw luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: timestamp string (&#39;YYYYMMDDHHMMSS&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;.raw&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER&#39;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extract timestamp from filename&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">timestamp</span></div>
+
+
+<div class="viewcode-block" id="get_key_from_raw_luer_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_key_from_raw_luer_filename">[docs]</a><span class="k">def</span> <span class="nf">get_key_from_raw_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract key from a raw LUER file name. Raises an exception when unsuccessful</span>
+<span class="sd">    The key is the timestamp in the filename, when available (3400), otherwise, it is the index</span>
+
+<span class="sd">    :param filename: character string of the filename of the raw luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: unique key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># 3400 and beyond</span>
+            <span class="c1"># key = get_timestamp_from_raw_luer_filename(filename, verbose=verbose)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">get_index_from_raw_luer</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 33X0</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">get_index_from_raw_luer</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">key</span></div>
+
+
+<div class="viewcode-block" id="get_index_from_with_dots_luer"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_index_from_with_dots_luer">[docs]</a><span class="k">def</span> <span class="nf">get_index_from_with_dots_luer</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract LUER index from a processed LUER file name. Raises an exception when unsuccessful</span>
+<span class="sd">    </span>
+<span class="sd">    :param filename: character string of the filename of the with_dots luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: luer index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;WITH_DOTS.dat&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER&#39;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extract luer index from&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        
+        <span class="n">index_string</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="n">index</span> <span class="o">=</span> <span class="n">convert_string_to_int</span><span class="p">(</span><span class="n">index_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">index</span></div>
+
+
+<div class="viewcode-block" id="get_index_from_with_keys_luer"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_index_from_with_keys_luer">[docs]</a><span class="k">def</span> <span class="nf">get_index_from_with_keys_luer</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract LUER index from a processed LUER with_keys file name. Raises an exception when unsuccessful</span>
+
+<span class="sd">    :param filename: character string of the filename of the with_dots luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: luer index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;WITH_DOTS_WITH_KEYS.dat&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER&#39;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extract luer index from&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        
+        <span class="n">index_string</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="n">index</span> <span class="o">=</span> <span class="n">convert_string_to_int</span><span class="p">(</span><span class="n">index_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">index</span></div>
+
+
+<div class="viewcode-block" id="get_timestamp_from_processed_luer_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_timestamp_from_processed_luer_filename">[docs]</a><span class="k">def</span> <span class="nf">get_timestamp_from_processed_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract timestamp from a processec LUER file name. Raises an exception when unsuccessful</span>
+<span class="sd">    The timestamp is only available in the 3400s and beyond</span>
+
+<span class="sd">    :param filename: character string of the filename of the raw luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: timestamp string (&#39;YYYYMMDDHHMMSS&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;.dat&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER.&#39;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extract timestamp from filename&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">timestamp</span></div>
+
+
+<div class="viewcode-block" id="is_valid_with_dots_luer_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.is_valid_with_dots_luer_filename">[docs]</a><span class="k">def</span> <span class="nf">is_valid_with_dots_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate format of with dots LUER file name.</span>
+
+<span class="sd">    :param filename: character string of the filename of the with_dots luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;WITH_DOTS.dat&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER&#39;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">convert_string_to_int</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">return_value</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Invalid filename:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">return_value</span></div>
+
+
+<div class="viewcode-block" id="is_valid_with_keys_luer_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.is_valid_with_keys_luer_filename">[docs]</a><span class="k">def</span> <span class="nf">is_valid_with_keys_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate format of with keys LUER file name.</span>
+
+<span class="sd">    :param filename: character string of the filename of the with_keys luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;WITH_DOTS_WITH_KEYS.dat&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER&#39;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">convert_string_to_int</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">return_value</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Invalid filename:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">return_value</span></div>
+
+
+<div class="viewcode-block" id="is_valid_raw_luer_filename"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.is_valid_raw_luer_filename">[docs]</a><span class="k">def</span> <span class="nf">is_valid_raw_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate format of raw LUER file name.</span>
+
+<span class="sd">    :param filename: character string of the filename of theraw luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;.raw&#39;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;LUER&#39;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_format_of_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">convert_string_to_int</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">return_value</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Invalid filename:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">return</span> <span class="n">return_value</span></div>
+
+
+<div class="viewcode-block" id="is_valid_raw_luer_file"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.is_valid_raw_luer_file">[docs]</a><span class="k">def</span> <span class="nf">is_valid_raw_luer_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate both the filename and some of the content of a raw luer file.</span>
+<span class="sd">    It checks for:</span>
+<span class="sd">    - valid filename format</span>
+<span class="sd">    - valid content --&gt; checksum field should be available and not an empty string</span>
+<span class="sd">    - valid content --&gt; should contain tag &#39;time_data&#39;</span>
+
+<span class="sd">    :param filename: character string of the path in which the raw luer is stored</span>
+<span class="sd">    :param filename: character string of the filename of theraw luer.</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">os</span> 
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_raw_luer_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">):</span>
+        <span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_with_tag_from_luer_raw</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">&#39;checksum = &#39;</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;checksum&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">),</span> <span class="n">line</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+                <span class="c1"># &#39;checksum=&#39; is &lt;25, checksum string itself is ~30. So 25 is a save value in the middle</span>
+                <span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_with_tag_from_luer_raw</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">&#39;time_data&#39;</span><span class="p">)</span>
+                    <span class="n">return_value</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c1"># no time_data tag in the file</span>
+                    <span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Validating raw luer file&#39;</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">return_value</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">return</span> <span class="n">return_value</span></div>
+
+
+<div class="viewcode-block" id="get_pulse_count_from_luer_raw"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_pulse_count_from_luer_raw">[docs]</a><span class="k">def</span> <span class="nf">get_pulse_count_from_luer_raw</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the pulse_count from a raw luer file. Raises an exception when unsuccessful</span>
+
+<span class="sd">    :param filename: character string of the filename of the raw luer</span>
+<span class="sd">    :param file_handler: file object of the raw luer</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: pulse count</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">file_handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Either a file handler or the full path of the raw luer should be provided&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="s1">&#39;EUV_pulse_count&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="s1">&#39;EUV_pulse_count&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span> 
+        <span class="n">pulsecount</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pulsecount</span></div>
+
+
+<div class="viewcode-block" id="get_timestamp_from_luer_raw"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_timestamp_from_luer_raw">[docs]</a><span class="k">def</span> <span class="nf">get_timestamp_from_luer_raw</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the timestamp from a raw luer file. Raises an exception when unsuccessful</span>
+<span class="sd">    By default it takes the timestamp from the body, at the measurement. </span>
+<span class="sd">    This timestamp includes timezone information and is at the start of the LUER measurement</span>
+<span class="sd">    </span>
+<span class="sd">    If from_header is True, the timezone from the header is taken.</span>
+<span class="sd">    This timestamp is in local time, and at the end of the measurement. This is the timezone used in the LUER filename</span>
+<span class="sd">    </span>
+<span class="sd">    :param filename: character string of the filename of the raw luer</span>
+<span class="sd">    :param file_handler: file object of the raw luer</span>
+<span class="sd">    :param from_header: extract the timestamp from the header (default: False)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: pandas timestamp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">from_header</span><span class="p">:</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;timestamp&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;time_data&#39;</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">file_handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Either a file handler or the full path of the raw luer should be provided&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;filename: </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span> 
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c1"># line is formatted as </span>
+        <span class="c1"># &#39;timestamp = &quot;2019-06-28 00:08:00.759033&quot;,&#39; or</span>
+        <span class="c1"># &#39;time_data = &quot;Thu, 09 May 2019 09:12:27 796975us +0800&quot;,&#39;</span>
+        <span class="c1"># get all after &#39;=&#39;, and clean up quotes and , --&gt; &#39;Thu 09 May 2019 09:12:27 796975us +0800&#39;</span>
+        <span class="n">time_string</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; = &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">time_string</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">from_header</span><span class="p">:</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">time_string</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># split by space, and merge index 1, 2, 3, 4 of the list. Add the timezone bit</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">time_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="o">+</span> <span class="n">time_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            
+            <span class="c1"># convert to UTC</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;filename: </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_machine_id_from_luer_raw"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_machine_id_from_luer_raw">[docs]</a><span class="k">def</span> <span class="nf">get_machine_id_from_luer_raw</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the machine id from a raw luer file. </span>
+<span class="sd">    </span>
+<span class="sd">    :param filename: character string of the filename of the raw luer</span>
+<span class="sd">    :param file_handler: file object of the raw luer</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: string machine number</span>
+<span class="sd">    :raises: exception when filename cannot be opened or extraction of machine_id fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;machine_id&#39;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">file_handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Either a file handler or the full path of the raw luer should be provided&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;filename: </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span> 
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c1">#line is formatted as &#39;machine_id = &quot;1234&quot;,&#39;</span>
+        <span class="c1"># get all after &#39;=&#39;, and clean up quotes and line ending --&gt; &#39;1234&#39;</span>
+        <span class="n">machine_number</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; = &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">machine_number</span><span class="p">)</span>
+        
+        <span class="c1"># split by space, and merge index 1, 2, 3, 4 of the list. Add the timezone bit</span>
+        <span class="n">machine_id</span> <span class="o">=</span> <span class="s1">&#39;m</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">machine_number</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">machine_id</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;filename: </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">machine_id</span></div>
+
+
+<div class="viewcode-block" id="get_line_with_tag_from_luer_raw"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_line_with_tag_from_luer_raw">[docs]</a><span class="k">def</span> <span class="nf">get_line_with_tag_from_luer_raw</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the first line containing the tag from a raw luer file. Raises an exception when unsuccessful</span>
+<span class="sd">    </span>
+<span class="sd">    :param filename: character string of the filename of the raw luer</span>
+<span class="sd">    :param tag: the string we look for in the file</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: pandas timestamp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;filename: </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">line</span></div>
+
+    
+<div class="viewcode-block" id="get_line_from_file_with_tag"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_line_from_file_with_tag">[docs]</a><span class="k">def</span> <span class="nf">get_line_from_file_with_tag</span><span class="p">(</span><span class="n">file_handler</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scans a file for a tag and returns the first occurrence of that tag</span>
+<span class="sd">    </span>
+<span class="sd">    :param file_handler: file handler</span>
+<span class="sd">    :param tag: tag to search for</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :returns: line  of first occurence of tag </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">line_to_return</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">file_handler</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_handler</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tag</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+            <span class="n">line_to_return</span> <span class="o">=</span> <span class="n">line</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">line_to_return</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Tag </span><span class="si">{}</span><span class="s1"> not found in file&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">line_to_return</span></div>
+
+
+<div class="viewcode-block" id="get_reference_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_reference_directory">[docs]</a><span class="k">def</span> <span class="nf">get_reference_directory</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This returns directory name which contains generic references.</span>
+
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: directory of reference file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">os</span> 
+    
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="n">reference_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">reference_path</span></div>
+
+
+<div class="viewcode-block" id="get_roi_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_roi_directory">[docs]</a><span class="k">def</span> <span class="nf">get_roi_directory</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This returns directory name which contains generic roi definition files.</span>
+
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: directory of generic roi definition files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">os</span> 
+    
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="n">roi_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">roi_path</span></div>
+
+
+<div class="viewcode-block" id="convert_lurado_image_to_encoded_bitmap"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.convert_lurado_image_to_encoded_bitmap">[docs]</a><span class="k">def</span> <span class="nf">convert_lurado_image_to_encoded_bitmap</span><span class="p">(</span><span class="n">lurado_image</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a lurado image with intensities or reflectivities into an encoded string representation of a png</span>
+<span class="sd">    The lurado image is a 2d numpy array (256x256) with positive x-axis to the left, and positive y-axis down</span>
+<span class="sd">    A bitmap image has its origin on the top left, so positive x-axis to the right, and positive y-axis down</span>
+
+<span class="sd">    :param lurado_image: lurado formatted 2d array</span>
+<span class="sd">    :param image_type: type of image. Options are &#39;intensity&#39;, &#39;reflectivity&#39;, &#39;no_scaling&#39;</span>
+<span class="sd">    :param reference: reference image (dataframe) with columns &#39;x&#39;, &#39;y&#39;, &#39;intensity&#39;, only required for &#39;intensity&#39;</span>
+<span class="sd">    :param threshold: threshold factor resulting in a threshold value to which the image is clipped (default: 1.2)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: encoded string containing the png image</span>
+<span class="sd">    :raises: exception when incorrect image type is passed or reference is not provided</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">PIL</span>
+    <span class="kn">import</span> <span class="nn">base64</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span> <span class="k">as</span> <span class="n">BytesIO</span>  <span class="c1"># for Python 2, renaming StringIO to BytesIO</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># the bitmap image has values between 0 and 255,</span>
+    <span class="c1"># type &#39;reflectivity&#39; should have values between 0 and 100*threshold</span>
+    <span class="c1"># type &#39;intensity&#39; should have values between 0 and max(reference.intensity)*threshold</span>
+    <span class="c1"># the &#39;no_scaling&#39; has unknown values</span>
+    <span class="c1"># the lurado_image should be scaled to the range of the bitmap</span>
+    <span class="k">if</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s1">&#39;intensity&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;For image_type=</span><span class="si">{}</span><span class="s1">, reference should be provided&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_type</span><span class="p">))</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">255.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">intensity</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s1">&#39;reflectivity&#39;</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">255.0</span> <span class="o">/</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">threshold</span>
+
+    <span class="k">elif</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s1">&#39;no_scaling&#39;</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">255.0</span> <span class="o">/</span> <span class="n">lurado_image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;image_type = </span><span class="si">{}</span><span class="s1"> not implemented. Expecting &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_type</span><span class="p">))</span>
+
+    <span class="n">image</span> <span class="o">=</span> <span class="n">lurado_image</span> <span class="o">*</span> <span class="n">factor</span>
+
+    <span class="c1"># clip values outside of the ranges ([0.0, 255.0]) to the edge of the range</span>
+    <span class="c1"># not likely to happen, since the input data should already be corrected for this.</span>
+    <span class="c1"># however, better safe than sorry</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+
+    <span class="c1"># flip x-axis</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="c1"># convert to bitmap</span>
+    <span class="n">bitmap_image</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;L&#39;</span><span class="p">)</span>  <span class="c1"># &#39;L&#39; refers to 8 bit integer</span>
+
+    <span class="c1"># convert the bitmap image to an encoded string</span>
+    <span class="n">buffered</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+    <span class="n">bitmap_image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buffered</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;PNG&quot;</span><span class="p">)</span>
+    <span class="n">encoded_bitmap</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">buffered</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+    <span class="n">encoded_bitmap</span> <span class="o">=</span> <span class="s2">&quot;data:image/png;base64,.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">encoded_bitmap</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">encoded_bitmap</span></div>
+
+
+<div class="viewcode-block" id="convert_encoded_bitmap_to_lurado_image"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.convert_encoded_bitmap_to_lurado_image">[docs]</a><span class="k">def</span> <span class="nf">convert_encoded_bitmap_to_lurado_image</span><span class="p">(</span><span class="n">encoded_bitmap</span><span class="p">,</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an encoded bitmap with intensities or reflectivities to a lurado image</span>
+<span class="sd">    The lurado image is a 2d numpy array (256x256) with positive x-axis to the left, and positive y-axis down</span>
+<span class="sd">    A bitmap image has its origin on the top left, so positive x-axis to the right, and positive y-axis down</span>
+
+<span class="sd">    :param encoded_bitmap: 8bit encoded bitmap</span>
+<span class="sd">    :param image_type: type of image. Options are &#39;intensity&#39;, &#39;reflectivity&#39;, &#39;no_scaling&#39;</span>
+<span class="sd">    :param reference: reference image (dataframe) with columns &#39;x&#39;, &#39;y&#39;, &#39;intensity&#39;, only required for &#39;intensity&#39;</span>
+<span class="sd">    :param threshold: threshold factor resulting in a threshold value to which the image is clipped (default: 1.2)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: lurado image (2d array)</span>
+<span class="sd">    :raises: exception when incorrect image type is passed or reference is not provided</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">PIL</span>
+    <span class="kn">import</span> <span class="nn">base64</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span> <span class="k">as</span> <span class="n">BytesIO</span>  <span class="c1"># for Python 2, renaming StringIO to BytesIO</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># remove the &quot;data:image/png;base64,.b&quot; part from the string and decode</span>
+    <span class="n">image_decoded</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">encoded_bitmap</span><span class="p">[</span><span class="mi">24</span><span class="p">:]))</span>
+
+    <span class="c1"># convert to image</span>
+    <span class="n">pil_image</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_decoded</span><span class="p">))</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pil_image</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># flip x-axis</span>
+    <span class="n">lurado_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="c1"># the bitmap image has values between 0 and 255,</span>
+    <span class="c1"># type &#39;reflectivity&#39; should have values between 0 and 100*threshold</span>
+    <span class="c1"># type &#39;intensity&#39; should have values between 0 and max(reference.intensity)*threshold</span>
+    <span class="c1"># the &#39;no_scaling&#39; has unknown values</span>
+    <span class="c1"># the lurado_image should be scaled to the range of the bitmap</span>
+    <span class="k">if</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s1">&#39;intensity&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;For image_type=</span><span class="si">{}</span><span class="s1">, reference should be provided&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_type</span><span class="p">))</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">intensity</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">threshold</span> <span class="o">/</span> <span class="mf">255.0</span>
+
+    <span class="k">elif</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s1">&#39;reflectivity&#39;</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">threshold</span> <span class="o">/</span> <span class="mf">255.0</span>
+
+    <span class="k">elif</span> <span class="n">image_type</span> <span class="o">==</span> <span class="s1">&#39;no_scaling&#39;</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;image_type = </span><span class="si">{}</span><span class="s1"> not implemented. Expecting &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_type</span><span class="p">))</span>
+
+    <span class="n">lurado_image</span> <span class="o">=</span> <span class="n">lurado_image</span> <span class="o">*</span> <span class="n">factor</span>
+
+    <span class="k">return</span> <span class="n">lurado_image</span></div>
+
+
+<div class="viewcode-block" id="get_pma_luer_directory"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_io.get_pma_luer_directory">[docs]</a><span class="k">def</span> <span class="nf">get_pma_luer_directory</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">machine_nr</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the full path of the LUER files on PMA, given the PMA root directory, and the machine number</span>
+
+<span class="sd">    :param root: The PMA root directory (the mapped network drive (e.g. &#39;v:\&#39;) or mounted disk (e.g. &#39;/pma&#39;)</span>
+<span class="sd">    :param machine_nr: the 4 character machine number (so without the &#39;m&#39; in front)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: The full path of the LUER files at PMA for this machine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">pma_luer_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">machine_nr</span><span class="p">,</span> <span class="s1">&#39;service_data&#39;</span><span class="p">,</span> <span class="s1">&#39;LU&#39;</span><span class="p">,</span> <span class="s1">&#39;LUER&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pma_luer_directory</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;W:\Collector_Performance_Reports\3400\TSMC#12_GS71_V45_62293\#6_SDMSC151\2.in-use\RADON\LUER.0579_SN_FAR_FIELD_WITH_DOTS_WITH_KEYS.dat&#39;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">load_dots</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">correct_ffm</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

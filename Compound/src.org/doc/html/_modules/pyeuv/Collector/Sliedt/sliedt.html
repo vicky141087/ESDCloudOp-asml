@@ -1,0 +1,1023 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Sliedt.sliedt &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Sliedt.sliedt</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Sliedt.sliedt</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">sliedt.py</span>
+<span class="sd">Authors: RWKL</span>
+<span class="sd">Date:  2018-09-21</span>
+
+<span class="sd">Ownership: SF-18 (FC-079, FC-086)</span>
+
+<span class="sd">Code is based on SLIE/DT from Grafana</span>
+<span class="sd">SLIE/DT calculation including filters and corrections that can optionally be turned on and off</span>
+
+<span class="sd">Change history:</span>
+<span class="sd">Date       | Author | Feature</span>
+<span class="sd">-----------+--------+------------------------------------------------------------------------------------------------</span>
+<span class="sd">2020-09-07 | DANT   | bugfix/SSPT-599-fix-bug-in-filter_dose_target_at_slie-function</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Shared.smoothing_algorithms</span> <span class="k">as</span> <span class="nn">smoothers</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Shared.signal_processing</span> <span class="k">as</span> <span class="nn">signal_processing</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Shared.signal_processing</span> <span class="kn">import</span> <span class="n">make_monotonically_increasing</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+
+<span class="kn">from</span> <span class="nn">pyeuv.Collector.Sliedt.illuminator_degradation</span> <span class="kn">import</span> <span class="n">calculate_pf_transmission</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Collector.Sliedt.sliedt_io</span> <span class="kn">import</span> <span class="n">get_illumination_mode_corrections</span>
+
+
+<div class="viewcode-block" id="get_collector_pulse_count"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.get_collector_pulse_count">[docs]</a><span class="k">def</span> <span class="nf">get_collector_pulse_count</span><span class="p">(</span><span class="n">pulse_count_cumm</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to determine the collector pulse count, based on the collector pulsecount</span>
+<span class="sd">    It assumes the cummulative pulse count from the start of the collector</span>
+
+<span class="sd">    :param pulse_count_cumm: dataframe containing the cummulative pulse count in Mp from the start of a collector onwards</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe containing the cummulative pulse count and collector pulse count in Gp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Filter out wrong pulse counts</span>
+    <span class="n">pulse_count_cumm</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pulse_count_cumm</span><span class="p">)</span>
+    <span class="n">pulse_count</span> <span class="o">=</span> <span class="n">pulse_count_cumm</span><span class="p">[</span><span class="n">pulse_count_cumm</span><span class="p">[</span><span class="s1">&#39;pulse_count_cumm&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pulse_count</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="c1"># From scanner mega pulses to collector giga pulses</span>
+        <span class="n">pulse_count</span><span class="p">[</span><span class="s1">&#39;pulse_count_cumm&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1e-3</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">pulse_count</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;pulse_count_cumm&#39;</span><span class="p">]</span>
+        <span class="n">pulse_count</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pulse_count</span><span class="p">[</span><span class="s1">&#39;pulse_count_cumm&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span>
+        <span class="n">pulse_count</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_monotonically_increasing</span><span class="p">(</span><span class="n">pulse_count</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># No cumulative pulse count found</span>
+        <span class="n">pulse_count</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">pulse_count</span></div>
+
+
+<div class="viewcode-block" id="add_pulse_count_to_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.add_pulse_count_to_data">[docs]</a><span class="k">def</span> <span class="nf">add_pulse_count_to_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pulse_count</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Short function merging pulse count data into another dataframe.</span>
+<span class="sd">    The pulse count data is linearly interpolated in time domain to the</span>
+
+<span class="sd">    :param data: the dataframe we are working with</span>
+<span class="sd">    :param pulse_count: dataframe containing pulse_count data</span>
+<span class="sd">        (multiple columns allowed (collector and cummulative pulse_count))</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: Dataframe containing the original data and the pulse count columns merged into it</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pulse_count</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">pulse_count</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># both pulse_count and pulse_count_cumm</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;in add_pulse_count_to_data:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="get_normalization_factor"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.get_normalization_factor">[docs]</a><span class="k">def</span> <span class="nf">get_normalization_factor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines the normalization factor requered to normalize SLIE/DT to 100%</span>
+<span class="sd">    The normalization is based on the 99th (optional parameter) percentile within a window</span>
+<span class="sd">    in the Gp domain at the start of the data</span>
+
+<span class="sd">    :param data: dataframe containing slie_dt and pulse_count</span>
+<span class="sd">    :param window: window in Gp at start of the data used to determine the normalization factor (default: 5.0)</span>
+<span class="sd">    :param quantile: the quantile to be used on the data to determine the maximum.</span>
+<span class="sd">                     This quantile is used to normalize on the bulk, instead of a single outlier</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: the normalization factor for SLIE/DT</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="c1"># nothing to be done</span>
+        <span class="n">normalization_factor</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">reference</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">pulse_count</span> <span class="o">&lt;</span> <span class="n">data</span><span class="o">.</span><span class="n">pulse_count</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">window</span><span class="p">,</span> <span class="s1">&#39;slie_dt&#39;</span><span class="p">]</span>
+            <span class="n">value_to_normalize</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span>
+            <span class="n">normalization_factor</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">value_to_normalize</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> data points used for normalization. level = </span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">reference</span><span class="p">),</span> <span class="n">value_to_normalize</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;in get_normalization_factor:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">normalization_factor</span></div>
+
+
+<div class="viewcode-block" id="apply_normalization"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_normalization">[docs]</a><span class="k">def</span> <span class="nf">apply_normalization</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalizes slie_dt and adds it as a new column to the original dataframe</span>
+
+<span class="sd">    :param data: dataframe containing slie_dt</span>
+<span class="sd">    :param key: column name in the data to be used in this function</span>
+<span class="sd">    :param factor: normalization factor</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: the dataframe including an additional column with the normalized SLIE/DT</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_norm&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="n">factor</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;in apply_normalization:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="apply_ecal_ratio_correction"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_ecal_ratio_correction">[docs]</a><span class="k">def</span> <span class="nf">apply_ecal_ratio_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">slie_key</span><span class="p">,</span> <span class="n">ecal</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The slie data is corrected for the ecal measurement.</span>
+<span class="sd">    Ecal refresh is only actuated when the deviation is &gt;1%. The deviation is</span>
+<span class="sd">    represented in ecal_sensor_factor_ratio. After the ecal refresh, the ratio</span>
+<span class="sd">    is back to a value close to 1, after which it will start to deviate, until the next</span>
+<span class="sd">    ecal refresh will take place.</span>
+
+<span class="sd">    The first ecal sensor factor ratio data point after the refresh is untrustworthy,</span>
+<span class="sd">    and should in theory be 1. This is corrected in the data, before being applied to slie</span>
+
+<span class="sd">    :param data: slie dataframe</span>
+<span class="sd">    :param slie_key: the column name within dataframe refering to the slie data</span>
+<span class="sd">    :param ecal: ecal dataframe, containing columns for ecal_sensor_factor and ecal_sensor_factor_ratio</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with column dw_slie</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># At ecal refreshes, ecal_sensor_factor_ratio contains incorrect values</span>
+    <span class="c1"># find ecal refreshes</span>
+    <span class="n">ecal</span><span class="p">[</span><span class="s1">&#39;ecal_refresh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ecal</span><span class="p">[</span><span class="s1">&#39;ecal_sensor_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="c1"># correct ecal_sensor_factor_ratio to 1</span>
+    <span class="n">ecal</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ecal</span><span class="p">[</span><span class="s1">&#39;ecal_refresh&#39;</span><span class="p">],</span> <span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="c1"># merge data</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ecal</span><span class="p">[</span><span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]):</span>
+        <span class="c1"># avoid losing data when ecal is missing at the start of the dataframe</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+
+    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">slie_key</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">tmp0</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="c1"># filter for invalid values of ecal_sensor_factor_ratio</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.98</span><span class="p">)</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">1.02</span><span class="p">)]</span>
+    <span class="n">tmp1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Losing </span><span class="si">{}</span><span class="s1"> data points (</span><span class="si">{}</span><span class="s1">%) after ecal ratio correction&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">tmp0</span> <span class="o">-</span> <span class="n">tmp1</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">tmp0</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">tmp0</span> <span class="o">-</span> <span class="n">tmp1</span><span class="p">)</span> <span class="o">/</span> <span class="n">tmp0</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">))</span>
+
+    <span class="c1"># apply correction</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">slie_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">slie_key</span><span class="p">]</span> <span class="o">/</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ecal_sensor_factor_ratio&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="apply_artifact_correction"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_artifact_correction">[docs]</a><span class="k">def</span> <span class="nf">apply_artifact_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">artifact_corrections</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    the slie data is corrected for artificial jumps, such as</span>
+<span class="sd">    - insertion of a membrane (or replacement)</span>
+<span class="sd">    - g-mirror swap</span>
+<span class="sd">    - other upgrades / changes in the optical path</span>
+
+<span class="sd">    To correct for the artifact, the slie has to be multiplied by a factor</span>
+<span class="sd">    slie_artifact_corrections contains a time series of corrections, which are the valid</span>
+<span class="sd">    factors from the timestamp of the entry until the next entry or end of collector</span>
+
+<span class="sd">    Another possibility is to correct the SLIE/DT ratio by multiplying it with a factor</span>
+<span class="sd">    sliedt_artefact. It also contains a time series of corrections.</span>
+
+<span class="sd">    TODO: replace this by a signal that contains the correction factor and description</span>
+<span class="sd">    Example:</span>
+<span class="sd">    Replacing a membrane of type 3 to type 4 should be 2 entries:</span>
+<span class="sd">    - removal: factor = 1/0.88 (assuming a spec of 12% loss by the membrane type 3)</span>
+<span class="sd">    - insertion: factor = 0.9 (assuming a spec of 10% loss by the membrane type 4)</span>
+<span class="sd">    The effective correction at time t should be the product of all corrections before t</span>
+<span class="sd">    The description could be used to annotate graphs.</span>
+
+<span class="sd">    :param data: dataframe containing slie as first (and only) column</span>
+<span class="sd">    :param key: column name in the data to be used in this function</span>
+<span class="sd">    :param artifact_corrections: dataframe containing start times for correction factors to be applied</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: returns the dataframe with the corrected value for slie</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">key_correction</span> <span class="o">=</span> <span class="n">artifact_corrections</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">artifact_corrections</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key_correction</span><span class="p">]):</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key_correction</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="n">key_correction</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key_correction</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="n">result</span><span class="p">[</span><span class="n">key_correction</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="calculate_rolling_median"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.calculate_rolling_median">[docs]</a><span class="k">def</span> <span class="nf">calculate_rolling_median</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds a column with the rolling median of slie_dt</span>
+
+<span class="sd">    :param data: dataframe containing slie_dt</span>
+<span class="sd">    :param window: number of datapoints used for the rolling median, typically an odd number (default=31)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with an additional column for the rolling median of the slie/dt</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt_median&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="apply_rolling_median_filter"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_rolling_median_filter">[docs]</a><span class="k">def</span> <span class="nf">apply_rolling_median_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies a rolling median filter to the slie_dt,</span>
+<span class="sd">    The filter is applies on all the data points of slie_dt deviates for which</span>
+<span class="sd">    the data point deviates more than ratio from the rolling median.</span>
+<span class="sd">    First a copy of the slie_dt_norm values are stored as slie_dt_no_filter</span>
+<span class="sd">    Then, the filter is applied by setting the filtered values to NaN.</span>
+
+<span class="sd">    :param data: dataframe containing the normalized slie/dt and rolling median</span>
+<span class="sd">    :param ratio: maximum relative deviation considered ok. Data set to np.NaN for larger deviation (default=0.05)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with an additional column for the slie_dt before filtering</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt_no_filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt&#39;</span><span class="p">]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[((</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt_median&#39;</span><span class="p">])</span> <span class="o">/</span>
+             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt_median&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">ratio</span><span class="p">,</span> <span class="s1">&#39;slie_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="calculate_sg_filter"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.calculate_sg_filter">[docs]</a><span class="k">def</span> <span class="nf">calculate_sg_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies the Savitsky Golay filter on slie_dt_norm and stores it as slie_dt_norm_sg</span>
+
+<span class="sd">    :param data: dataframe containing the normalized slie/dt</span>
+<span class="sd">    :param window: number of datapoints used for the Savitsky Golay filter,</span>
+<span class="sd">        typically an odd number (default=31)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with the additional column slie_dt_sg_norm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># the sg filter needs data without NaN.</span>
+    <span class="c1"># make a temporary variable for the slie_dt_norm data without nan</span>
+    <span class="n">data_no_nan</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;slie_dt_norm&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data_no_nan</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_no_nan</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">window</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt_norm_sg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data_no_nan</span><span class="p">[</span><span class="s1">&#39;slie_dt_norm_sg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">smoothers</span><span class="o">.</span><span class="n">savitzky_golay</span><span class="p">(</span><span class="n">data_no_nan</span><span class="o">.</span><span class="n">slie_dt_norm</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="c1"># merge the sg filtered data in</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_no_nan</span><span class="o">.</span><span class="n">slie_dt_norm_sg</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="filter_dose_target_at_slie"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.filter_dose_target_at_slie">[docs]</a><span class="k">def</span> <span class="nf">filter_dose_target_at_slie</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">use_dt_of_slie_measurement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function filters the dose target (RT05) signal at the time of when SLIE was measured but with a max time offset</span>
+<span class="sd">    of 1 second into the future (to prevent a not relevant point is selected)</span>
+
+<span class="sd">    :param dt: dataframe containing dose target data</span>
+<span class="sd">    :param data: dataframe containing dw_slie data</span>
+<span class="sd">    :param use_dt_of_slie_measurement: method to select the DT used for the SLIE measurement (default: True),</span>
+<span class="sd">    :param verbose: to switch internal debugging info</span>
+<span class="sd">    :return: dataframe containing dose target at slie measurement time</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Get only the dw_slie data</span>
+    <span class="n">data_slie</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dw_slie&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Merge the dose_target and dw_slie data</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_slie</span><span class="p">[</span><span class="s1">&#39;dw_slie&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_dt_of_slie_measurement</span><span class="p">:</span>
+        <span class="c1"># create helper column with time delta between dw_slie and dose_target</span>
+        <span class="n">dt</span><span class="p">[</span><span class="s1">&#39;time_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="n">keep_tz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="c1"># find 1st dose_target value after the dw_slie with a max time delta (default = 1 sec)</span>
+        <span class="c1"># step 1: check if time_delta is smaller than 1 second</span>
+        <span class="c1"># step 2: if true check if dw_slie is not null (there should be a value present)</span>
+        <span class="c1"># step 3: if true shift the dose_target value 1 row up so that it&#39;s at the same row as the dw_slie.</span>
+        <span class="c1">#         Now also check if the dose_target is not null (there should be a value present)</span>
+        <span class="c1"># step 4: if all previous conditions are fullfilled store the new &#39;dose_target&#39; at the timestamp of dw_slie</span>
+        <span class="n">max_time_delay</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)[(</span><span class="n">dt</span><span class="p">[</span><span class="s1">&#39;time_delta&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">max_time_delay</span><span class="p">)</span> <span class="o">&amp;</span>
+                          <span class="p">(</span><span class="n">dt</span><span class="p">[</span><span class="s1">&#39;dw_slie&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span> <span class="o">&amp;</span>
+                          <span class="p">(</span><span class="n">dt</span><span class="p">[</span><span class="s1">&#39;dose_target&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">notnull</span><span class="p">())]</span>
+
+        <span class="c1"># rename &#39;dose_target&#39; as the new &#39;dose_target_at_slie&#39; signal</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;dose_target&#39;</span><span class="p">:</span> <span class="s1">&#39;dose_target_at_slie&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># remove the helper columns</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time_delta&#39;</span><span class="p">,</span> <span class="s1">&#39;dw_slie&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">dt</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="get_slie_dt"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.get_slie_dt">[docs]</a><span class="k">def</span> <span class="nf">get_slie_dt</span><span class="p">(</span><span class="n">slie</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that calculates slie/dt by merging dataframes of slie and dose target.</span>
+<span class="sd">    The forward filling of the dose target is limited to 1 row</span>
+<span class="sd">    to avoid incorrect dose target values used in case of missing data</span>
+
+<span class="sd">    :param slie: dataframe containing slie data</span>
+<span class="sd">    :param dt: dataframe containing dose target data</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe containing slie and slie/dt data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">slie</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dose_target_at_slie&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dose_target_at_slie&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;slie_dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dw_slie&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dose_target_at_slie&#39;</span><span class="p">]</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No SLIE/DT after combining SLIE and DT data&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;dose_target_at_slie&#39;</span><span class="p">:</span> <span class="s1">&#39;dose_target&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="apply_filter"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_filter">[docs]</a><span class="k">def</span> <span class="nf">apply_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fltr</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filters data based on the provided filter.</span>
+<span class="sd">    The filter is merged into data, and forward filled since the timestamps of</span>
+<span class="sd">    the data and filter do not coincide.</span>
+
+<span class="sd">    :param data: dataframe containing one column with the filter to be applied</span>
+<span class="sd">    :param fltr: timebased filter to be applied</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe after filtering out using the provided filter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fltr</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="c1"># nothing to filter</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fltr_key</span> <span class="o">=</span> <span class="n">fltr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fltr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">fltr_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">fltr_key</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="n">fltr_key</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="apply_threshold_filter"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_threshold_filter">[docs]</a><span class="k">def</span> <span class="nf">apply_threshold_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">lower_threshold</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">,</span> <span class="n">upper_threshold</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to apply a simple threshold filter</span>
+
+<span class="sd">    :param data: dataframe to be filtered</span>
+<span class="sd">    :param key: key in data to be used to apply the filter</span>
+<span class="sd">    :param lower_threshold: lower threshold (default=-inf)</span>
+<span class="sd">    :param upper_threshold: upper threshold (default=inf)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: Dataframe after filtering</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">lower_threshold</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">upper_threshold</span><span class="p">)]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="apply_uniformity_refresh_filter"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_uniformity_refresh_filter">[docs]</a><span class="k">def</span> <span class="nf">apply_uniformity_refresh_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uniformity Refresh filtering</span>
+<span class="sd">    SLIE measurements are performed in pairs.</span>
+<span class="sd">    The first is with the LULU calibrated finger positions, so more honest SLIE measurement</span>
+<span class="sd">    The second is with the fingers positions such that uniformity is improved, blocking some light</span>
+<span class="sd">    The first of the 2 successive measurements is used</span>
+
+<span class="sd">    :param data: dataframe containing a time series of slie data</span>
+<span class="sd">    :return: slie measurements with LULU calibrated finger positions</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :rtype: pandas dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># diff takes the delta with the previous row.</span>
+    <span class="c1"># so shift one row up to get the timedelta with to the next datapoint.</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;time_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Take the first of two successive datapoints. Assume:</span>
+    <span class="c1"># 2 successive measurements are within 10 seconds,</span>
+    <span class="c1"># and a wafer always takes more then 10 seconds.</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;time_delta&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time_delta&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="apply_illumination_mode_correction"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_illumination_mode_correction">[docs]</a><span class="k">def</span> <span class="nf">apply_illumination_mode_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">illumination_modes</span><span class="p">,</span> <span class="n">correction_factors</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply corrections for efficiency of different illumination modes.</span>
+<span class="sd">    This correction is only performed when the illumination mode is provided and known.</span>
+<span class="sd">    Otherwise, the slie data will be ignored</span>
+
+<span class="sd">    :param data: dataframe containing slie</span>
+<span class="sd">    :param key: column name of slie data</span>
+<span class="sd">    :param illumination_modes: dataframe containing illumination mode information</span>
+<span class="sd">    :param correction_factors: dictionary containing correction factors for standard illumination modes</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe containing corrected slie dataand the illumination mode for known illumination modes only</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;ill_mode_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;doe_id&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> \
+                                           <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;sigma_inner&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> \
+                                           <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;sigma_outer&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="c1"># pop* modes used by illumination team on in-house systems</span>
+    <span class="n">fltr</span> <span class="o">=</span> <span class="p">(</span><span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;doe_id&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">20000</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;doe_id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">20010</span><span class="p">)</span>
+    <span class="n">illumination_modes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fltr</span><span class="p">,</span> <span class="s1">&#39;ill_mode_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">illumination_modes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fltr</span><span class="p">,</span> <span class="s1">&#39;doe_id&#39;</span><span class="p">]</span>
+
+    <span class="c1"># add the illumination mode name</span>
+    <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;ill_mode_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;ill_mode_id&#39;</span><span class="p">]</span><span class="o">.</span>\
+        <span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">correction_factors</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">correction_factors</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
+    <span class="c1"># add the correction for the illumination mode</span>
+    <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;ill_mode_transmission&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">illumination_modes</span><span class="p">[</span><span class="s1">&#39;ill_mode_id&#39;</span><span class="p">]</span><span class="o">.</span>\
+        <span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">correction_factors</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">correction_factors</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
+
+    <span class="c1"># merge with data</span>
+    <span class="n">ill_signals</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ill_mode_name&#39;</span><span class="p">,</span> <span class="s1">&#39;ill_mode_transmission&#39;</span><span class="p">]</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">illumination_modes</span><span class="p">[</span><span class="n">ill_signals</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="n">ill_signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">ill_signals</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No SLIE info after custom mode filtering&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">/</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ill_mode_transmission&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="apply_pf_degradation_correction"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.apply_pf_degradation_correction">[docs]</a><span class="k">def</span> <span class="nf">apply_pf_degradation_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">slie_key</span><span class="p">,</span> <span class="n">pf_transmission</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Corrects slie for pupil facet degradation</span>
+
+<span class="sd">    :param data: dataframe containing slie</span>
+<span class="sd">    :param slie_key: column name of the slie data</span>
+<span class="sd">    :param pf_transmission: dataframe containing transmission (1 - loss) per illumination mode over time</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with slie corrected for illumination mode degradation and column</span>
+<span class="sd">             containing the relative transmission per illumination mode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># merge pf_transmission</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pf_transmission</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">pf_transmission</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># correct dw_slie</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;pf_transmission_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+    <span class="k">for</span> <span class="n">illmode</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ill_mode_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">curmode</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;ill_mode_name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">illmode</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">curmode</span><span class="p">,</span> <span class="n">slie_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">curmode</span><span class="p">,</span> <span class="n">slie_key</span><span class="p">]</span> <span class="o">/</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">curmode</span><span class="p">,</span> <span class="n">illmode</span><span class="p">]</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">curmode</span><span class="p">,</span> <span class="s1">&#39;pf_transmission_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">curmode</span><span class="p">,</span> <span class="n">illmode</span><span class="p">]</span>
+
+    <span class="c1"># remove pf_transmission columns</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">pf_transmission</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="build_valid_measurement_filter"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.build_valid_measurement_filter">[docs]</a><span class="k">def</span> <span class="nf">build_valid_measurement_filter</span><span class="p">(</span><span class="n">filter_signals</span><span class="p">,</span> <span class="n">sv_gate</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to build filter. It combines several filter signals and uses the default values in case</span>
+<span class="sd">    filter data is unavailable</span>
+
+<span class="sd">    :param filter_signals: signals from the filter signal group</span>
+<span class="sd">    :type: dataframe</span>
+<span class="sd">    :param sv_gate: scanner gate signal (1 means open)</span>
+<span class="sd">    :type: dataframe</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with True/False filter signal</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># default filter state in case data is missing</span>
+    <span class="n">default_filter_values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;sv_gate&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                  <span class="p">(</span><span class="s1">&#39;lot_signal&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                                  <span class="p">(</span><span class="s1">&#39;manual_block_collector&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+
+    <span class="n">slie_filter</span> <span class="o">=</span> <span class="n">filter_signals</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sv_gate</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+    <span class="c1"># in case data is missing at all, fill with default value</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default_filter_values</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slie_filter</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">slie_filter</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_filter_values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="c1"># in case first datapoint is nan, fill it with the default value</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">slie_filter</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">slie_filter</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">slie_filter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">slie_filter</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">signal</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">signal</span> <span class="ow">in</span> <span class="n">default_filter_values</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">slie_filter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">slie_filter</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">signal</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_filter_values</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span>
+
+    <span class="n">slie_filter</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">slie_filter</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># enabled during lot_signal, when scanner_valve is open, not during manual_block_collector</span>
+    <span class="n">slie_filter</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">slie_filter</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">slie_filter</span><span class="p">[</span><span class="s1">&#39;lot_signal&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">slie_filter</span><span class="p">[</span><span class="s1">&#39;sv_gate&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">slie_filter</span><span class="p">[</span><span class="s1">&#39;manual_block_collector&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="s1">&#39;filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">slie_filter</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="calculate_degradation_rate"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.calculate_degradation_rate">[docs]</a><span class="k">def</span> <span class="nf">calculate_degradation_rate</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">],</span> <span class="n">post_fix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                               <span class="n">previous_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">advanced_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the overall degradation rate as well as the rate and confidence interval for different pulse count</span>
+<span class="sd">    windows of a given signal. A window of x has at least a range of x pulsecounts, so the data point in that window</span>
+<span class="sd">    is at least x (max - min &gt;= x)</span>
+
+<span class="sd">    :param df: input dataframe containing a column &#39;pulse_count&#39; (in Gp) and key</span>
+<span class="sd">    :param key: key of the signal for which the rate is calculated</span>
+<span class="sd">    :param windows: list of pulse count windows (in Gp) to be calculated (default: [1.0, 3.0, 5.0, 20.0])</span>
+<span class="sd">    :param post_fix: in case one needs to add a postfix to the created degradation rate signals, for instance &#39;_nonSG&#39;,</span>
+<span class="sd">        one can use this post_fix (default: &#39;&#39;)</span>
+<span class="sd">    :param previous_only: when true calculates only the previous x Gp window (default) and skips the</span>
+<span class="sd">        centered x Gp window (less relevant for Grafana dashboards). False calculates both.</span>
+<span class="sd">    :param advanced_analysis: when true calculate linear fit including the confidence interval and adjusted R squared.</span>
+<span class="sd">        Otherwise only the linear fit slope (faster calculation)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe containing the original signals and degradation rates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">pyeuv.Shared.signal_processing</span> <span class="kn">import</span> <span class="n">calculate_linear_fit</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># create helper columns, to easily select the rows including the first row that is &gt;= x Gp from the current row</span>
+    <span class="c1"># without, this, the 5 Gp window would in fact be &lt;5 Gp, where the functional requirement is a fit of at least 5 Gp.</span>
+    <span class="n">pc</span> <span class="o">=</span> <span class="s1">&#39;pulse_count&#39;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+    <span class="n">result</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="s1">&#39;_up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="s1">&#39;_down&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">overall_degradation_rate</span> <span class="o">=</span> <span class="p">(</span><span class="mf">100.0</span> <span class="o">-</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">result</span><span class="p">[</span><span class="n">pc</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;overall_degradation_rate</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">post_fix</span><span class="p">)]</span> <span class="o">=</span> <span class="n">overall_degradation_rate</span>
+        <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="p">[</span><span class="n">window</span> <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">]:</span>
+            <span class="c1"># filter data for previous x Gp window</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">result</span><span class="p">[(</span><span class="n">result</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">row</span><span class="p">[</span><span class="n">pc</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_up&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pc</span><span class="p">)]</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">-</span> <span class="n">window</span><span class="p">))]</span>
+
+            <span class="k">if</span> <span class="n">tmp</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">tmp</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">window</span><span class="p">:</span>
+                <span class="n">linear_fit</span> <span class="o">=</span> <span class="n">calculate_linear_fit</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">pc</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">round_to_significant_digit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                  <span class="n">advanced_analysis</span><span class="o">=</span><span class="n">advanced_analysis</span><span class="p">)</span>
+                <span class="n">slope</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">confidence_interval</span><span class="p">,</span> <span class="n">adjusted_r_squared</span> <span class="o">=</span> <span class="n">linear_fit</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;degradation_rate_previous_</span><span class="si">{}</span><span class="s1">Gp</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">post_fix</span><span class="p">)]</span> <span class="o">=</span> <span class="n">slope</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;degradation_rate_previous_</span><span class="si">{}</span><span class="s1">Gp_confidence_interval</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">post_fix</span><span class="p">)]</span> <span class="o">=</span> \
+                    <span class="n">confidence_interval</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">previous_only</span><span class="p">:</span>
+                <span class="c1"># filter data for centered x Gp window</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">result</span><span class="p">[(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_down&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pc</span><span class="p">)]</span> <span class="o">&lt;=</span> <span class="n">row</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">window</span><span class="p">)</span> <span class="o">&amp;</span>
+                             <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_up&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pc</span><span class="p">)]</span> <span class="o">&gt;=</span> <span class="n">row</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">window</span><span class="p">)]</span>
+
+                <span class="k">if</span> <span class="p">((</span><span class="n">tmp</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">window</span><span class="p">)</span> <span class="o">&amp;</span>
+                        <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">-</span> <span class="n">tmp</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">window</span><span class="p">)):</span>
+                    <span class="c1"># valid if at least half the window is available in both the past and future of the current row</span>
+                    <span class="n">linear_fit</span> <span class="o">=</span> <span class="n">calculate_linear_fit</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">pc</span><span class="p">],</span> <span class="n">tmp</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">round_to_significant_digit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                      <span class="n">advanced_analysis</span><span class="o">=</span><span class="n">advanced_analysis</span><span class="p">)</span>
+                    <span class="n">slope</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">confidence_interval</span><span class="p">,</span> <span class="n">adjusted_r_squared</span> <span class="o">=</span> <span class="n">linear_fit</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;degradation_rate_centered_</span><span class="si">{}</span><span class="s1">Gp</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">post_fix</span><span class="p">)]</span> <span class="o">=</span> <span class="n">slope</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;degradation_rate_centered_</span><span class="si">{}</span><span class="s1">Gp_confidence_interval</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">post_fix</span><span class="p">)]</span> <span class="o">=</span> \
+                        <span class="n">confidence_interval</span>
+
+    <span class="c1"># remove the helper columns</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_up&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pc</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_down&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pc</span><span class="p">)],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="calculate_slie_dt"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.sliedt.calculate_slie_dt">[docs]</a><span class="k">def</span> <span class="nf">calculate_slie_dt</span><span class="p">(</span><span class="n">slie_data</span><span class="p">,</span>
+                      <span class="n">use_ecal_ratio_correction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">use_pf_degradation_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">use_dt_of_slie_measurement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">threshold_slie_lower</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">threshold_slie_upper</span><span class="o">=</span><span class="mf">23000.0</span><span class="p">,</span>
+                      <span class="n">threshold_sliedt_lower</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">threshold_sliedt_upper</span><span class="o">=</span><span class="mf">500.0</span><span class="p">,</span>
+                      <span class="n">threshold_dose_lower</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">threshold_dose_upper</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+                      <span class="n">window_normalization</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">window_sg</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span>
+                      <span class="n">window_median</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span> <span class="n">margin_median_filter</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to calculate slie_dt and supporting signals (normalized signals, illumination mode, etc),</span>
+<span class="sd">    based on a dictionary of dataframes (dataframe per signal group)</span>
+<span class="sd">    It includes:</span>
+
+<span class="sd">    - filtering: lot filter, uniformity refresh, threshold,</span>
+<span class="sd">    - corrections: illumination mode, artefacts, ecal_ratio</span>
+<span class="sd">    - determining the collector pulse count (should it be extracted? required for normalization)</span>
+<span class="sd">    - normalized slie/dt calculation</span>
+
+<span class="sd">    :param slie_data: dictionary containing dataframes of data per signal group. Expected groups and signals are:</span>
+
+<span class="sd">        **collector**</span>
+
+<span class="sd">        - Collector._NormalizationCorrection</span>
+
+<span class="sd">        **dose**</span>
+
+<span class="sd">        - RT05.BDenergyTargetAvg</span>
+
+<span class="sd">        **ecal**</span>
+
+<span class="sd">        - RT12.ECALextSensorFactor,</span>
+<span class="sd">        - RT12.ECALextSensorFactorRatio,</span>
+
+<span class="sd">        **filter**</span>
+
+<span class="sd">        - Filter._LotSignal,</span>
+<span class="sd">        - Filter._ManualBlockCollector,</span>
+
+<span class="sd">        **pf_transmission**</span>
+
+<span class="sd">        - dataframe with transmission per known illumination mode</span>
+
+<span class="sd">        **scanner**</span>
+
+<span class="sd">        - Scanner.DW_SLIE,</span>
+<span class="sd">        - Scanner.DW_total_nr_pulses,</span>
+<span class="sd">        - Scanner.DW_SLIE_FSLIE_PS_doe_id,</span>
+<span class="sd">        - Scanner.DW_SLIE_FSLIE_PS_sigma_inner,</span>
+<span class="sd">        - Scanner.DW_SLIE_FSLIE_PS_sigma_outer,</span>
+<span class="sd">        - Scanner.DW_SV_state</span>
+
+<span class="sd">    :param use_ecal_ratio_correction: switch for the correction to SLIE using ECALextSensorFactorRatio (default=True)</span>
+<span class="sd">    :param use_pf_degradation_correction: switch for the correction of pf degradation,</span>
+<span class="sd">           using a model assuming exponential decay as function of usage (default=True)</span>
+<span class="sd">    :param use_dt_of_slie_measurement: method to select the DT used for the SLIE measurement (default: False),</span>
+<span class="sd">    :param threshold_slie_lower: lower threshold for slie (default=100.0)</span>
+<span class="sd">    :param threshold_slie_upper: upper threshold for slie (default=15000.0)</span>
+<span class="sd">    :param threshold_sliedt_lower: lower threshold for sliedt (default=10.0)</span>
+<span class="sd">    :param threshold_sliedt_upper: upper threshold for sliedt (default=500.0)</span>
+<span class="sd">    :param threshold_dose_lower:  lower threshold for dose (default= 5.0)</span>
+<span class="sd">    :param threshold_dose_upper: upper threshold for slie (default=100.0)</span>
+<span class="sd">    :param window_normalization: Gp window at the start of the collector (counting from the first data point)</span>
+<span class="sd">        to be used for normalization (default=5.0)</span>
+<span class="sd">    :param window_sg: window used for the sg filter of slie/dt (default=31, advise: odd number)</span>
+<span class="sd">    :param window_median: window used for the rolling median of slie/dt (default=31, advise: odd number)</span>
+<span class="sd">    :param margin_median_filter: margin (relative ratio) used to build the rolling median filter (default=0.05)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dataframe with slie_dt and supporting signals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+    <span class="n">required_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;collector&#39;</span><span class="p">,</span> <span class="s1">&#39;dose&#39;</span><span class="p">,</span> <span class="s1">&#39;ecal&#39;</span><span class="p">,</span> <span class="s1">&#39;filter&#39;</span><span class="p">,</span> <span class="s1">&#39;scanner&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">use_pf_degradation_correction</span><span class="p">:</span>
+        <span class="n">required_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;pf_transmission&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">item</span> <span class="ow">in</span> <span class="n">slie_data</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1"> </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Dict slie_data does not contain all required keys.&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;Required keys: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">required_keys</span><span class="p">),</span>
+                                <span class="s1">&#39;Available keys: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">slie_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                                <span class="p">)</span>
+                        <span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;scanner&#39;</span><span class="p">][</span><span class="s1">&#39;dw_slie&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s1">&#39;sv_gate&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;scanner&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Scanner dataframe does not contain required &#39;sv_gate&#39; column&quot;</span><span class="p">)</span>
+    <span class="n">valid_measurement_filter</span> <span class="o">=</span> <span class="n">build_valid_measurement_filter</span><span class="p">(</span><span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">],</span> <span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;scanner&#39;</span><span class="p">][</span><span class="s1">&#39;sv_gate&#39;</span><span class="p">],</span>
+                                                              <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apply_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">valid_measurement_filter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apply_uniformity_refresh_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apply_threshold_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;dw_slie&#39;</span><span class="p">,</span> <span class="n">threshold_slie_lower</span><span class="p">,</span> <span class="n">threshold_slie_upper</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">dose_target</span> <span class="o">=</span> <span class="n">apply_threshold_filter</span><span class="p">(</span><span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;dose&#39;</span><span class="p">],</span> <span class="s1">&#39;dose_target&#39;</span><span class="p">,</span> <span class="n">threshold_dose_lower</span><span class="p">,</span> <span class="n">threshold_dose_upper</span><span class="p">,</span>
+                                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">dose_target_at_slie</span> <span class="o">=</span> <span class="n">filter_dose_target_at_slie</span><span class="p">(</span><span class="n">dose_target</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">use_dt_of_slie_measurement</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">illumination_mode_corrections</span> <span class="o">=</span> <span class="n">get_illumination_mode_corrections</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">apply_illumination_mode_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;dw_slie&#39;</span><span class="p">,</span> <span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;scanner&#39;</span><span class="p">],</span>
+                                                  <span class="n">illumination_mode_corrections</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No correction for different illumination modes applied&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;slie_artifact_correction&#39;</span> <span class="ow">in</span> <span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;collector&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="c1"># only apply it in case there are artifact corrections</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">apply_artifact_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;dw_slie&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;collector&#39;</span><span class="p">][</span><span class="s1">&#39;slie_artifact_correction&#39;</span><span class="p">]),</span>
+                                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_ecal_ratio_correction</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">apply_ecal_ratio_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;dw_slie&#39;</span><span class="p">,</span> <span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;ecal&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_pf_degradation_correction</span><span class="p">:</span>
+        <span class="n">pf_transmission</span> <span class="o">=</span> <span class="n">calculate_pf_transmission</span><span class="p">(</span><span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;pf_transmission&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">apply_pf_degradation_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;dw_slie&#39;</span><span class="p">,</span> <span class="n">pf_transmission</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">get_slie_dt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dose_target_at_slie</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;sliedt_artefact&#39;</span> <span class="ow">in</span> <span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;collector&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="c1"># only apply it in case there are sliedt artifact corrections</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">apply_artifact_correction</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;slie_dt&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;collector&#39;</span><span class="p">][</span><span class="s1">&#39;sliedt_artefact&#39;</span><span class="p">]),</span>
+                                         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apply_threshold_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;slie_dt&#39;</span><span class="p">,</span> <span class="n">threshold_sliedt_lower</span><span class="p">,</span> <span class="n">threshold_sliedt_upper</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;pulse_count_cumm&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;scanner&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Scanner dataframe does not contain required &#39;pulse_count_cumm&#39; column&quot;</span><span class="p">)</span>
+    <span class="n">pulse_count</span> <span class="o">=</span> <span class="n">get_collector_pulse_count</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">slie_data</span><span class="p">[</span><span class="s1">&#39;scanner&#39;</span><span class="p">][</span><span class="s1">&#39;pulse_count_cumm&#39;</span><span class="p">]),</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">add_pulse_count_to_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pulse_count</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">calculate_rolling_median</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window_median</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apply_rolling_median_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">margin_median_filter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">normalization_factor</span> <span class="o">=</span> <span class="n">get_normalization_factor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window_normalization</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apply_normalization</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;slie_dt&#39;</span><span class="p">,</span> <span class="n">normalization_factor</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt_norm_variance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_processing</span><span class="o">.</span><span class="n">calculate_relative_variance</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;slie_dt_norm&#39;</span><span class="p">],</span> <span class="n">window_median</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">calculate_sg_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window_sg</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># add dose_target_at_slie</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dose_target_at_slie</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">t0</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">slie_dt family calculated in </span><span class="si">{:.2f}</span><span class="s1"> seconds</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">duration</span><span class="o">.</span><span class="n">microseconds</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

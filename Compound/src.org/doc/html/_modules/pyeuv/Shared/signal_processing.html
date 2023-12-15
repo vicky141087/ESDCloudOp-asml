@@ -1,0 +1,548 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Shared.signal_processing &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Shared.signal_processing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Shared.signal_processing</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">signal_processing.py</span>
+<span class="sd">Authors: RWKL, MGGV</span>
+<span class="sd">Date: 2019-04-29</span>
+
+<span class="sd">Contains generic signal processing functionality</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">filtfilt</span><span class="p">,</span> <span class="n">freqz</span>
+<span class="kn">from</span> <span class="nn">scipy.fftpack</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftfreq</span><span class="p">,</span> <span class="n">fftshift</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+
+
+<div class="viewcode-block" id="calculate_linear_fit"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.signal_processing.calculate_linear_fit">[docs]</a><span class="k">def</span> <span class="nf">calculate_linear_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">round_to_significant_digit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">advanced_analysis</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the linear fit of two series of data. It returns the fitted line,</span>
+<span class="sd">    confidence interval and adjusted r-squared (measure for predictibility of y by x).</span>
+<span class="sd">    It uses the statsmodels library</span>
+
+<span class="sd">    :param x: data on x-axis</span>
+<span class="sd">    :param y: data on y-axis</span>
+<span class="sd">    :param confidence_level: confidence level for confidence interval (default 95%)</span>
+<span class="sd">    :param round_to_significant_digit: switch to round the slope to the significant digit (default True)</span>
+<span class="sd">    :param advanced_analysis: When false calculate the linear fit only and skip the advanced analysis e.g. confidence</span>
+<span class="sd">        interval and adjusted R squared.</span>
+<span class="sd">        NOTE: results of slope and offset are different w/ and w/o advance analysis</span>
+<span class="sd">    :return: a tuple containing slope, offset, confidence interval, and adjusted r-squared</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">advanced_analysis</span><span class="p">:</span>
+        <span class="n">fit_result</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">slope</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">confidence_interval</span> <span class="o">=</span> <span class="n">slope</span> <span class="o">-</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">conf_int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">confidence_level</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">round_to_significant_digit</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">confidence_interval</span><span class="p">):</span>
+                <span class="n">slope</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+                <span class="n">confidence_interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">significant_digit</span> <span class="o">=</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">confidence_interval</span><span class="p">))))</span>
+                <span class="n">slope</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">slope</span><span class="p">,</span> <span class="n">significant_digit</span><span class="p">)</span>
+                <span class="n">confidence_interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">confidence_interval</span><span class="p">,</span> <span class="n">significant_digit</span><span class="p">)</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">significant_digit</span><span class="p">)</span>
+        <span class="n">adjusted_r_squared</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">slope</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">slope</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">intercept</span>
+        <span class="n">confidence_interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="n">adjusted_r_squared</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="k">return</span> <span class="n">slope</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">confidence_interval</span><span class="p">,</span> <span class="n">adjusted_r_squared</span></div>
+
+
+<div class="viewcode-block" id="calculate_rolling_median"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.signal_processing.calculate_rolling_median">[docs]</a><span class="k">def</span> <span class="nf">calculate_rolling_median</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="mi">31</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds a column with the rolling median of slie_dt</span>
+<span class="sd">    </span>
+<span class="sd">    :param data: dataframe with input data</span>
+<span class="sd">    :param key: the key if the signal within the dataframe to be used</span>
+<span class="sd">    :param window: number of datapoints used for the rolling median, typically an odd number (default=31)</span>
+<span class="sd">    :return: dataframe with an additional column for the rolling median of the slie/dt</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_median&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="calculate_relative_variance"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.signal_processing.calculate_relative_variance">[docs]</a><span class="k">def</span> <span class="nf">calculate_relative_variance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="mi">31</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the relative variance, using a rolling window.</span>
+<span class="sd">    The signal is divided by the rolling median. </span>
+<span class="sd">    Then the standard deviation over the same window is taken.</span>
+<span class="sd">    </span>
+<span class="sd">    :param data: input data (series)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :param window: number of datapoints used for the rolling median, typically an odd number (default=31)</span>
+<span class="sd">    :return: relative variance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">rolling_median</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span> <span class="o">=</span> <span class="n">window</span><span class="p">,</span> <span class="n">min_periods</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">center</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">/</span> <span class="n">rolling_median</span><span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span> <span class="o">=</span> <span class="n">window</span><span class="p">,</span> <span class="n">min_periods</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">center</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span>
+    
+    <span class="k">return</span> <span class="n">variance</span></div>
+
+
+<div class="viewcode-block" id="make_monotonically_increasing"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.signal_processing.make_monotonically_increasing">[docs]</a><span class="k">def</span> <span class="nf">make_monotonically_increasing</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Makes an array monotonically increasing. In case there is a drop, the drop will be set to zero (increasing all data after the drop by the magnitude of the drop</span>
+<span class="sd">    Example:</span>
+<span class="sd">    [1, 2, 5, 7, 9, 2, 4, 6, 9] will become [1, 2, 5, 7, 9, 9, 11, 13, 16]</span>
+<span class="sd">    :param data: numpy array of integers or floats</span>
+<span class="sd">    :return: numpy array with monotonically increasing values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">diff</span><span class="p">[</span><span class="n">diff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">data_monotonic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data_monotonic</span></div>
+
+
+<span class="c1"># %% Main change point detection function</span>
+<div class="viewcode-block" id="calculate_changepoints"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.signal_processing.calculate_changepoints">[docs]</a><span class="k">def</span> <span class="nf">calculate_changepoints</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Ts</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">Tc</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">cp_mag</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Automated change point detection by smoothing with butterworth (lowpass) filter and calculating inflection points (d2y/dx = max)</span>
+<span class="sd">    above some threshold  (d2y/dx &gt; cp_mag). Last step is basically to compensate for noisy data or all small inflection points due</span>
+<span class="sd">    the noise are detected as inflection points.</span>
+
+<span class="sd">    :param x: array with pulsecount (or any other)</span>
+<span class="sd">    :param y: array with SLIEDT or reflectivity loss (or any other) with same length as x</span>
+<span class="sd">    :param Ts: (optional) Sample period signal</span>
+<span class="sd">    :param Tc: (optional) Cutoff period smoothing filter</span>
+<span class="sd">    :param order: (optional) butterworth order (not recommended to change)</span>
+<span class="sd">    :param cp_mag: (optional) sensitivity threshold; to make sure not all inflection points due to noisyness data are selected</span>
+<span class="sd">    :param limits: (optional) to classify sections between inflection points in 4 different classes (in spec, just out of spec, out of spec &amp; jumps)</span>
+<span class="sd">    :return: inflection point coordinate x, inflection point coordinate y, avg slope in section, slopes error in section</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># %% Resample uniformly</span>
+    <span class="n">x_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">Ts</span><span class="p">)</span>  <span class="c1"># resample x with new samplerate Ts</span>
+    <span class="n">y_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x_r</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>  <span class="c1"># resample y with interpolation with new samplerate</span>
+    
+    <span class="c1"># Filter SLIE/DT</span>
+    <span class="n">w_cutoff</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Ts</span> <span class="o">/</span> <span class="n">Tc</span>  <span class="c1"># cut off frequency</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">w_cutoff</span><span class="p">)</span>  <span class="c1"># butterworth filter</span>
+    <span class="n">y_f</span> <span class="o">=</span> <span class="n">filtfilt</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">y_r</span><span class="p">)</span>  <span class="c1"># filter to get smoothed data</span>
+    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">freqz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+
+    <span class="c1"># %% Calculate change points</span>
+    <span class="c1"># Calculate derivatives; np.diff calculates difference in y divided by uniform step size</span>
+    <span class="n">dydx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_f</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ts</span>
+    <span class="n">d2ydx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dydx</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ts</span>
+    <span class="n">d3ydx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">d2ydx</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ts</span>
+
+    <span class="c1"># Identify sections using inflection points</span>
+    <span class="n">idx_d_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">dydx</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">idx_d_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx_d_zero</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">idx_d3_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">d3ydx</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">idx_d3_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx_d3_zero</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># boolean with indices of d3ydx=0</span>
+    <span class="n">idx_d2_include</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">d2ydx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cp_mag</span>  <span class="c1"># boolean with d2ydx &gt; cp_mag [%/Gp^2]</span>
+    <span class="n">idx_d3_zero_flt</span> <span class="o">=</span> <span class="n">idx_d3_zero</span> <span class="o">&amp;</span> <span class="n">idx_d2_include</span>  <span class="c1"># Both need to be true</span>
+    <span class="n">idx_d3_zero_flt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">idx_d3_zero_flt</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="kc">False</span><span class="p">])</span>
+
+    <span class="c1"># x and y coordinates of the inflection points!</span>
+    <span class="n">x_inflection</span> <span class="o">=</span> <span class="n">x_r</span><span class="p">[</span><span class="n">idx_d3_zero_flt</span><span class="p">]</span>
+    <span class="n">y_inflection</span> <span class="o">=</span> <span class="n">y_f</span><span class="p">[</span><span class="n">idx_d3_zero_flt</span><span class="p">]</span>
+    
+    <span class="c1"># Indices of inflection points</span>
+    <span class="n">idxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">idx_d3_zero_flt</span><span class="p">)</span>  
+    <span class="n">idxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">idxx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># ADded the first and last one</span>
+    <span class="n">idxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">idxx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxx</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_r</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># preallocate</span>
+    <span class="n">infmean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x_inflection</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># mean of slope between inflection points</span>
+    <span class="n">b_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x_inflection</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># y intersect of linear fit with forced slope (y=ax+b)</span>
+    
+    <span class="c1"># booleans to classify sections to the limits in the graph red, orange, green, blue!</span>
+    <span class="n">idx_trend_oot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_r</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">idx_trend_oos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_r</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">idx_trend_good</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_r</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">idx_trend_rec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_r</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    
+    <span class="c1"># For loop to calculate the average dy/dx and y intersect in all the sections defined by the inflection points (+2)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dydx</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="n">b_fit</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_f</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">-</span> <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_r</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            
+            <span class="c1"># Classify to the different limits number</span>
+            <span class="n">idx_trend_oot</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># -1 Worst, RED [%/Gp]</span>
+            <span class="n">idx_trend_oos</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+                        <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># -0.5 Bad, ORANGE [%/Gp]</span>
+            <span class="n">idx_trend_good</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+                        <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Okay, GREEN [%/Gp]</span>
+            <span class="n">idx_trend_rec</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Growth, BLUE, jump</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">idx_trend_oot</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># m &gt; 1 Worst, RED [%/Gp]</span>
+            <span class="n">idx_trend_oos</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+                        <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># 0.5 &lt;m &lt;1 Bad, ORANGE [%/Gp]</span>
+            <span class="n">idx_trend_good</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+                        <span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># 0 &lt; m &lt; 0.5 Okay, GREEN [%/Gp]</span>
+            <span class="n">idx_trend_rec</span><span class="p">[</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idxx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Growth, BLUE, jump</span>
+
+    <span class="c1"># %% Calculate uncertainties in the fitting</span>
+    <span class="k">def</span> <span class="nf">find_nearest</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># Function to find closest value value of real data x to the inflection point</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">array</span> <span class="o">-</span> <span class="n">value</span><span class="p">))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">idx</span>
+
+    <span class="c1"># Pre allocate indexes, residuals ydif, inflection point error infmean_e and middle of section infmean_x</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxx</span><span class="p">))</span>
+    <span class="n">ydif</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">infmean</span><span class="p">))</span>
+    <span class="n">infmean_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">infmean</span><span class="p">))</span>
+    <span class="n">infmean_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">infmean</span><span class="p">))</span>
+    <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">idx</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">idxx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="c1"># Find closest value of real data (x) to inflection point</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_inflection</span><span class="p">)):</span>
+        <span class="n">idx</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">find_nearest</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_inflection</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># FOr each section calculate the residuals ydif, inflection point error infmean_e and middle of section</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">ydif</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="nb">sum</span><span class="p">((</span><span class="n">infmean</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">b_fit</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+        <span class="n">infmean_e</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ydif</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">infmean_x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span> <span class="o">/</span> <span class="mi">2</span>
+
+
+    <span class="n">settings</span> <span class="o">=</span> <span class="p">[</span><span class="n">Ts</span><span class="p">,</span> <span class="n">Tc</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">cp_mag</span><span class="p">,</span> <span class="n">limits</span><span class="p">]</span>
+    <span class="n">data_cpd</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_inflection</span><span class="p">,</span> <span class="n">y_inflection</span><span class="p">,</span> <span class="n">infmean_x</span><span class="p">,</span> <span class="n">infmean</span><span class="p">,</span> <span class="n">infmean_e</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_r</span><span class="p">,</span> <span class="n">y_f</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">idx_trend_oot</span><span class="p">,</span> <span class="n">idx_trend_oos</span><span class="p">,</span> <span class="n">idx_trend_good</span><span class="p">,</span> <span class="n">idx_trend_rec</span><span class="p">,</span> <span class="n">dydx</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">data_cpd</span></div>
+
+
+<div class="viewcode-block" id="plot_changepoints"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.signal_processing.plot_changepoints">[docs]</a><span class="k">def</span> <span class="nf">plot_changepoints</span><span class="p">(</span><span class="n">data_cpd</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function is to plot the processed change point detection data from the function calculate_changepoints.</span>
+<span class="sd">    Two kinds of plots are given: </span>
+<span class="sd">    PART 1: Shows the plots corresponding to the change point detection algoritm</span>
+<span class="sd">    PART 2: Shows frequency plot + bodediagram for diagnostics purposes of the data processing (interpolation + smoothing)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># We don&#39;t want matplotlib to be a requirement for this module, so we import on demand.</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="c1"># First load the data</span>
+    <span class="n">x_inflection</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>          <span class="c1"># Coordinates of inflection points</span>
+    <span class="n">y_inflection</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>          <span class="c1"># Coordinate of inflection points</span>
+    <span class="n">infmean_x</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>             <span class="c1"># Halfway point of a section to display there the uncertainty in the slope</span>
+    <span class="n">infmean</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>               <span class="c1"># Average slope of a section</span>
+    <span class="n">infmean_e</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>             <span class="c1"># Error in the average slope; measurement for how well the data was smoothed</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>                     <span class="c1"># raw datapoints x</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>                     <span class="c1"># raw datapoints y</span>
+    <span class="n">x_r</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>                   <span class="c1"># resampled r</span>
+    <span class="n">y_f</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>                   <span class="c1"># Smoothed y</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>                     <span class="c1"># Parameter generated for response plot</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>                    <span class="c1"># Parameter generated for response plot</span>
+    <span class="n">Ts</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>                <span class="c1"># Sample period signal</span>
+    <span class="n">Tc</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>                <span class="c1"># Cutoff period smoothing filter</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>             <span class="c1"># butterworth order (not recommended to change)</span>
+    <span class="n">cp_mag</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>            <span class="c1"># sensitivity threshold; to make sure not all inflection points due to noisyness data are selected</span>
+    <span class="n">limits</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>            <span class="c1"># limits for the below mentioned classifications</span>
+    <span class="n">idx_trend_oot</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>        <span class="c1"># mask for classification (OoS drop)</span>
+    <span class="n">idx_trend_oos</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>        <span class="c1"># mask for classification (OoS just) of sections</span>
+    <span class="n">idx_trend_good</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>       <span class="c1"># mask for classification (good) of sections</span>
+    <span class="n">idx_trend_rec</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span>        <span class="c1"># mask for classification (recovery) of sections</span>
+    <span class="n">dydx</span> <span class="o">=</span> <span class="n">data_cpd</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span>                 <span class="c1"># derivative np.diff of y(x)</span>
+    <span class="n">y_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x_r</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>          <span class="c1"># interpolated y with new samplerate Ts</span>
+
+    <span class="c1">## --- PART 1 ---  Make plots y x with inflection points, dy/dx with average slope &amp; standard deviation</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;SLIE/DT Norm&#39;</span><span class="p">)</span>
+    <span class="c1"># plt.plot(p_trend, y_f_trend, &#39;-b&#39;, linewidth=0.5, markersize=0.5)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_r</span><span class="p">[</span><span class="n">idx_trend_oot</span><span class="p">],</span> <span class="n">y_f</span><span class="p">[</span><span class="n">idx_trend_oot</span><span class="p">],</span> <span class="s1">&#39;.r&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">leq$</span><span class="si">{0:.1f}</span><span class="s2"> %/Gp&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_r</span><span class="p">[</span><span class="n">idx_trend_oos</span><span class="p">],</span> <span class="n">y_f</span><span class="p">[</span><span class="n">idx_trend_oos</span><span class="p">],</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s2">&quot;(</span><span class="si">{0:.1f}</span><span class="s2">, </span><span class="si">{1:.1f}</span><span class="s2">] %/Gp&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_r</span><span class="p">[</span><span class="n">idx_trend_good</span><span class="p">],</span> <span class="n">y_f</span><span class="p">[</span><span class="n">idx_trend_good</span><span class="p">],</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#00CC00&#39;</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s2">&quot;(</span><span class="si">{0:.1f}</span><span class="s2">, </span><span class="si">{1:.1f}</span><span class="s2">] %/Gp&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_r</span><span class="p">[</span><span class="n">idx_trend_rec</span><span class="p">],</span> <span class="n">y_f</span><span class="p">[</span><span class="n">idx_trend_rec</span><span class="p">],</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#00AAFF&#39;</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&gt; </span><span class="si">{0:.1f}</span><span class="s2"> %/Gp&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_inflection</span><span class="p">,</span> <span class="n">y_inflection</span><span class="p">,</span> <span class="s1">&#39;.k&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;change point&#39;</span><span class="p">)</span>
+    <span class="c1"># check fit</span>
+    <span class="c1"># plt.plot(x,infmean[j]*x+b_fit[j])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="c1"># plt.title(&quot;SLIE/DT Long term ({0}-{1})&quot;.format(ds[&#39;name&#39;], ds[&#39;collector_sn&#39;]))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;SLIEDT vs pulsecount &quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Pulsecount [Gp]&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;SLIEDT  [%]&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Derivative d(SLIEDT)/d(Pulsecount)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Pulsecount [Gp]&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;d(ROI loss)/dP [%/Gp]&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_r</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dydx</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">infmean_x</span><span class="p">,</span> <span class="n">infmean</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">infmean_e</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x_r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;--r&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x_r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">x_r</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">x_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#00CC00&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="c1">## ---- PART  II ---- Make plots to troubleshoot/adjust show signal processing</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_r</span><span class="p">)</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">y_r</span><span class="p">)</span>
+    <span class="n">S_flt</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">y_f</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">Ts</span><span class="p">)</span>
+    <span class="n">f_plot</span> <span class="o">=</span> <span class="n">fftshift</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">S_plot</span> <span class="o">=</span> <span class="n">fftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">S</span><span class="p">))</span>
+    <span class="n">S_plot_flt</span> <span class="o">=</span> <span class="n">fftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">S_flt</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_r</span><span class="p">,</span> <span class="n">y_f</span><span class="p">,</span> <span class="s1">&#39;-b&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Pulsecount [Gp]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Radon ROI&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">f_plot</span><span class="p">,</span> <span class="n">S_plot</span><span class="p">,</span> <span class="s1">&#39;-k&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">f_plot</span><span class="p">,</span> <span class="n">S_plot_flt</span><span class="p">,</span> <span class="s1">&#39;-r&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency [1/p]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Spectrum&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Response plot</span>
+    <span class="c1">#w, h = freqz(b, a)</span>
+    <span class="n">t_bode</span> <span class="o">=</span> <span class="n">w</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Ts</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_bode</span><span class="p">,</span> <span class="mi">20</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="s1">&#39;-r&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency [&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_bode</span><span class="p">,</span> <span class="n">phase</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s1">&#39;-r&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Period&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Phase [pi rad]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

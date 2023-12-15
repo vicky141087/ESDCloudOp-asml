@@ -1,0 +1,968 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Radon.radd &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Radon.radd</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Radon.radd</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">measure</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">griddata</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="kn">import</span> <span class="n">threshold_isodata</span>
+
+<span class="kn">from</span> <span class="nn">pyeuv.Collector.Radon.radon_plotting</span> <span class="kn">import</span> <span class="n">plot_luer</span>
+<span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+
+
+<div class="viewcode-block" id="detect_split_off_roi"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.detect_split_off_roi">[docs]</a><span class="k">def</span> <span class="nf">detect_split_off_roi</span><span class="p">(</span><span class="n">roi_nr_new</span><span class="p">,</span> <span class="n">max_roi_nr_new</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    If roi is splitted in 2 both rois should get a new number</span>
+
+<span class="sd">    :param max_roi_nr_new: the current max roi nr for the new rois</span>
+<span class="sd">    :param roi_nr_new: the original roi nr new</span>
+<span class="sd">    :return: updated roi_nr_new, max_roi_nr_new</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">roi_nr_new_groupby</span> <span class="o">=</span> <span class="n">roi_nr_new</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">roi_nr_new</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">roi_nr_new_groupby</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">max_roi_nr_new</span> <span class="o">=</span> <span class="n">max_roi_nr_new</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">roi_nr_new</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_roi_nr_new</span>
+    <span class="k">return</span> <span class="n">roi_nr_new</span><span class="p">,</span> <span class="n">max_roi_nr_new</span></div>
+
+
+<div class="viewcode-block" id="deal_with_zero_crossing"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.deal_with_zero_crossing">[docs]</a><span class="k">def</span> <span class="nf">deal_with_zero_crossing</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to solve the min max calculation of hour position</span>
+<span class="sd">    For example if the roi is from 11 to 1 hour then min = 1 and max = 11</span>
+<span class="sd">    Solved by converting all values left of 0 to minus values</span>
+
+<span class="sd">    :param data: hour positions of dots within roi</span>
+<span class="sd">    :return: updated hour positions of dots within roi</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># find the correct max hour</span>
+        <span class="c1"># find the jump in the hour</span>
+        <span class="n">correct_hour_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># could be the case for a roi around the cone</span>
+        <span class="c1"># TODO: make roi detection around cone smarter, do something with it</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">correct_hour_max</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="o">-</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">correct_hour_max</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="o">-</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">correct_hour_max</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="extract_pixel_value_history_per_roi"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.extract_pixel_value_history_per_roi">[docs]</a><span class="k">def</span> <span class="nf">extract_pixel_value_history_per_roi</span><span class="p">(</span><span class="n">pixels_in_rois_dict</span><span class="p">,</span> <span class="n">images_all</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get for all dots in rois the reflectivity of all history LUERs</span>
+
+<span class="sd">    :param pixels_in_rois_dict: keys are rois, values are coordinates</span>
+<span class="sd">    :param images_all: dictionary with x,y as keys and intensity as value</span>
+<span class="sd">    :return: a dataframe with the keys and reflectivities</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">key_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">value_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># loop over all previous images</span>
+    <span class="k">for</span> <span class="n">image_id</span> <span class="ow">in</span> <span class="n">images_all</span><span class="p">:</span>
+        <span class="n">image_data</span> <span class="o">=</span> <span class="n">images_all</span><span class="p">[</span><span class="n">image_id</span><span class="p">]</span>
+        <span class="c1"># loop over all rois and keys inside the roi</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">pixels_in_rois_dict</span><span class="p">:</span>
+            <span class="n">key_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pixels_in_rois_dict</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">value_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pixels_in_rois_dict</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">.</span><span class="n">reflectivity</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="c1"># flatten the lists</span>
+    <span class="n">value_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">value_list</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+    <span class="n">key_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">key_list</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+    <span class="n">pixel_value_history_per_roi_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">pixel_value_history_per_roi_df</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key_list</span>
+    <span class="n">pixel_value_history_per_roi_df</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_list</span>
+    <span class="n">pixel_value_history_per_roi_df</span> <span class="o">=</span> <span class="n">pixel_value_history_per_roi_df</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">pixel_value_history_per_roi_df</span></div>
+
+
+<div class="viewcode-block" id="extract_info_from_ts"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.extract_info_from_ts">[docs]</a><span class="k">def</span> <span class="nf">extract_info_from_ts</span><span class="p">(</span><span class="n">keys_in_rois_dict</span><span class="p">,</span> <span class="n">images_all</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract info from ts</span>
+<span class="sd">    1. Put al pixel values inside rois into a df</span>
+<span class="sd">    2. Cluster rois into n_clusters</span>
+
+<span class="sd">    :param images_all: x, y, intensity_scaled of all previous images</span>
+<span class="sd">    :param n_clusters: number of cluster to cluster the data in</span>
+<span class="sd">    :param keys_in_rois_dict: keys are rois, values are coordinates</span>
+<span class="sd">    :return: clusters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># then clustering doesn&#39;t work</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keys_in_rois_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">pixel_value_history_per_roi_df</span> <span class="o">=</span> <span class="n">extract_pixel_value_history_per_roi</span><span class="p">(</span><span class="n">keys_in_rois_dict</span><span class="p">,</span> <span class="n">images_all</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">largest_drop</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">second_largest_drop</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">df_aggr</span> <span class="o">=</span> <span class="n">pixel_value_history_per_roi_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">)[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="n">largest_drop</span><span class="p">,</span> <span class="n">second_largest_drop</span><span class="p">])</span>
+    <span class="n">df_aggr_scaled</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df_aggr</span><span class="p">)</span>
+    <span class="n">y_pred_kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">df_aggr_scaled</span><span class="p">)</span>
+
+    <span class="c1"># TODO: this last part could be smarter</span>
+    <span class="c1"># assign drips (biggest drop) and stains (smallest drop)</span>
+    <span class="n">df_aggr</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_pred_kmeans</span>
+    <span class="n">df_aggr_groupby_mean</span> <span class="o">=</span> <span class="n">df_aggr</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;cluster&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()[</span><span class="s1">&#39;largest_drop&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">df_aggr_groupby_mean</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">df_aggr_groupby_mean</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="c1"># cluster 1 has a bigger drop than cluster 0</span>
+        <span class="n">y_pred_kmeans</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;drip&#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;stain&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">y_pred_kmeans</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">y_pred_kmeans</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;drip&#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;stain&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">y_pred_kmeans</span><span class="p">]</span>
+
+    <span class="n">cluster_per_feature</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">unique_y</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_pred_kmeans</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">feature</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">df_aggr</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">y_pred_kmeans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">unique_y</span><span class="p">:</span>
+                <span class="n">cluster_per_feature</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_pred_kmeans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="n">clusters</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">keys_in_rois_dict</span><span class="p">:</span>
+        <span class="n">roi_clusters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cluster_per_feature</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys_in_rois_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">roi_clusters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cluster_per_feature</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="n">clusters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi_clusters</span>
+    <span class="k">return</span> <span class="n">clusters</span></div>
+
+
+<div class="viewcode-block" id="calc_growth"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.calc_growth">[docs]</a><span class="k">def</span> <span class="nf">calc_growth</span><span class="p">(</span><span class="n">parent_return</span><span class="p">,</span> <span class="n">prev_rois</span><span class="p">,</span> <span class="n">keys_in_roi</span><span class="p">,</span> <span class="n">intensity_scaled</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the growth of the roi</span>
+<span class="sd">    If totally new --&gt; growth is current size</span>
+<span class="sd">    If from 1 parent --&gt; compare it to the size of the parent</span>
+<span class="sd">    TODO: bit strange if it&#39;s a split off of 1 parent</span>
+<span class="sd">    If from 2 parents --&gt; compare it to the sum of the 2 parents</span>
+
+<span class="sd">    :param intensity_scaled: intensities of all the pixels on a roi</span>
+<span class="sd">    :param parent_return: parent of the roi</span>
+<span class="sd">    :param prev_rois: rois in previous luer</span>
+<span class="sd">    :param keys_in_roi: keys in roi</span>
+<span class="sd">    :return: the calculated growth</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent_return</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">len_prev_pixels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prev_rois</span><span class="p">[</span><span class="s1">&#39;reflectivity&#39;</span><span class="p">][</span><span class="n">parent_return</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys_in_roi</span><span class="p">)</span> <span class="o">-</span> <span class="n">len_prev_pixels</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">intensity_scaled</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent_return</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">len_prev_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">prev_rois</span><span class="p">[</span><span class="s1">&#39;reflectivity&#39;</span><span class="p">][</span><span class="n">parent</span><span class="p">])</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parent_return</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys_in_roi</span><span class="p">)</span> <span class="o">-</span> <span class="n">len_prev_pixels</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">intensity_scaled</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys_in_roi</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">intensity_scaled</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span></div>
+
+
+<div class="viewcode-block" id="load_processed_radd_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.load_processed_radd_data">[docs]</a><span class="k">def</span> <span class="nf">load_processed_radd_data</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">reprocess_collector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads processed radd data: image data, rois per luer image, and ros per roi id</span>
+
+<span class="sd">    :param output_folder: Folder to store RADD output</span>
+<span class="sd">    :param reprocess_collector: switch to return data or empty dicts</span>
+<span class="sd">    :return: tuple of dictionaries of image data, rois per luer image, and ros per roi id</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">reprocess_collector</span><span class="p">:</span>
+        <span class="n">roi_props_by_luer_key</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">roi_props_by_roi_key</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">image_data_all</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_props_by_luer_key.pkl&#39;</span><span class="p">))</span> <span class="o">&amp;</span> \
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_props_by_roi_key.pkl&#39;</span><span class="p">))</span> <span class="o">&amp;</span> \
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;image_data_all.pkl&#39;</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_props_by_luer_key.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">roi_props_by_luer_key</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_props_by_roi_key.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">roi_props_by_roi_key</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;image_data_all.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">image_data_all</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">roi_props_by_luer_key</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">roi_props_by_roi_key</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">image_data_all</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">return</span> <span class="n">image_data_all</span><span class="p">,</span> <span class="n">roi_props_by_luer_key</span><span class="p">,</span> <span class="n">roi_props_by_roi_key</span></div>
+
+
+<div class="viewcode-block" id="load_radd_metrics_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.load_radd_metrics_data">[docs]</a><span class="k">def</span> <span class="nf">load_radd_metrics_data</span><span class="p">(</span><span class="n">output_folder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads RADD metrics data</span>
+
+<span class="sd">    :param output_folder: Folder to store RADD output</span>
+<span class="sd">    :return: dictionary with metrics data per roi, per image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_metrics_by_roi_key.pkl&#39;</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_metrics_by_roi_key.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">roi_metrics_by_roi_key</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">roi_metrics_by_roi_key</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">roi_metrics_by_roi_key</span></div>
+
+
+<div class="viewcode-block" id="save_luer_plots_with_rois"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.save_luer_plots_with_rois">[docs]</a><span class="k">def</span> <span class="nf">save_luer_plots_with_rois</span><span class="p">(</span><span class="n">images_to_save</span><span class="p">,</span> <span class="n">luer_images</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">roi_props_all_image_nr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves luer plots including detected ROIs</span>
+
+<span class="sd">    :param images_to_save: luer images to be saved</span>
+<span class="sd">    :param luer_images: all luer images</span>
+<span class="sd">    :param output_folder: Folder to store RADD output</span>
+<span class="sd">    :param roi_props_all_image_nr: dictionary with information of detected ROIs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images_to_save</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">roi_props_all_image_nr</span><span class="p">:</span>
+            <span class="n">plot_luer</span><span class="p">(</span><span class="n">luer_images</span><span class="p">[</span><span class="n">image</span><span class="p">],</span>
+                      <span class="n">save_image</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+                      <span class="n">image_name</span><span class="o">=</span><span class="s1">&#39;processed_image_</span><span class="si">{0:04d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image</span><span class="p">),</span>
+                      <span class="n">rois</span><span class="o">=</span><span class="n">roi_props_all_image_nr</span><span class="p">[</span><span class="n">image</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="store_roi_metrics"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.store_roi_metrics">[docs]</a><span class="k">def</span> <span class="nf">store_roi_metrics</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">rois_roi_as_key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores RADD roi metrics</span>
+
+<span class="sd">    :param output_folder: Folder to story RADD output</span>
+<span class="sd">    :param rois_roi_as_key: dictionary of rois, ordered by roi id</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_folder</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_metrics_by_roi_key.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">rois_roi_as_key</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="store_processed_radd_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.store_processed_radd_data">[docs]</a><span class="k">def</span> <span class="nf">store_processed_radd_data</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">image_data_all</span><span class="p">,</span> <span class="n">roi_props_by_luer_key</span><span class="p">,</span> <span class="n">roi_props_by_roi_key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores the RADD output</span>
+
+<span class="sd">    :param output_folder: Folder to story RADD output</span>
+<span class="sd">    :param image_data_all: dictionary with luer images</span>
+<span class="sd">    :param roi_props_by_luer_key: dictionary with ROI info, data per luer</span>
+<span class="sd">    :param roi_props_by_roi_key: dictionary with ROI info, data per roi</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_folder</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;image_data_all.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">image_data_all</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_props_by_luer_key.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">roi_props_by_luer_key</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;roi_props_by_roi_key.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">roi_props_by_roi_key</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="prepare_selected_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.prepare_selected_data">[docs]</a><span class="k">def</span> <span class="nf">prepare_selected_data</span><span class="p">(</span><span class="n">roi_props_all_roi_nr</span><span class="p">,</span> <span class="n">luer_file_properties</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    To check: Obsolete?</span>
+
+<span class="sd">    :param roi_props_all_roi_nr: dict with roi nr as key and dataframe with metrics per luer as value</span>
+<span class="sd">    :param luer_file_properties: dataframe with all info about the luers</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data for ROIs </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sel_rois</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; up to image &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sel_image</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; is being prepared...&#39;</span><span class="p">)</span>
+    <span class="n">dict_sel</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># create a df with all roi info in all luers</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">roi_props_all_roi_nr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;luer_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;roi_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;gp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_file_properties</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_file_properties</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">value</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">sel_roi</span> <span class="ow">in</span> <span class="n">sel_rois</span><span class="p">:</span>
+        <span class="n">merged_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">roi_props_all_roi_nr_filt</span> <span class="o">=</span> <span class="n">roi_props_all_roi_nr</span><span class="p">[</span><span class="n">sel_roi</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">sel_image</span><span class="p">]</span>
+        <span class="c1"># create a merged list which contains all parents of a roi</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">roi_props_all_roi_nr_filt</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged_list</span><span class="p">:</span>
+                    <span class="n">merged_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="c1"># use the rois in the merged list to find all parents</span>
+        <span class="n">new_parents</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">new_parents</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_parents</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">merged_list</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">roi_props_all_roi_nr</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">sel_image</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged_list</span><span class="p">:</span>
+                            <span class="n">merged_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                            <span class="n">new_parents</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># extract the portion of the data selected by the user</span>
+        <span class="n">df_sel</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">roi_id</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">merged_list</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">luer_id</span> <span class="o">&lt;=</span> <span class="n">sel_image</span><span class="p">)]</span>
+        <span class="c1"># write selected roi information into a dictionary</span>
+        <span class="n">dict_sel</span><span class="p">[</span><span class="n">sel_roi</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_sel</span>
+
+    <span class="c1"># very inefficient way of collecting cumulative info</span>
+    <span class="n">merged_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sel_roi</span> <span class="ow">in</span> <span class="n">sel_rois</span><span class="p">:</span>
+        <span class="n">roi_props_all_roi_nr_filt</span> <span class="o">=</span> <span class="n">roi_props_all_roi_nr</span><span class="p">[</span><span class="n">sel_roi</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">sel_image</span><span class="p">]</span>
+        <span class="c1"># create a merged list which contains all parents of a roi</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">roi_props_all_roi_nr_filt</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged_list</span><span class="p">:</span>
+                    <span class="n">merged_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="c1"># use the rois in the merged list to find all parents</span>
+        <span class="n">new_parents</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">new_parents</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_parents</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">merged_list</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">roi_props_all_roi_nr</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">sel_image</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged_list</span><span class="p">:</span>
+                            <span class="n">merged_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                            <span class="n">new_parents</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="c1"># create a df with all roi info in all luers</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">roi_props_all_roi_nr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;luer_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;roi_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;gp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_file_properties</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">value</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_file_properties</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">value</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># extract the portion of the data selected by the user</span>
+    <span class="n">df_sel</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">roi_id</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">merged_list</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">luer_id</span> <span class="o">&lt;=</span> <span class="n">sel_image</span><span class="p">)]</span>
+    <span class="n">dict_sel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_sel</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dict_sel</span></div>
+
+
+<div class="viewcode-block" id="prepare_plot_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.prepare_plot_data">[docs]</a><span class="k">def</span> <span class="nf">prepare_plot_data</span><span class="p">(</span><span class="n">dict_sel_c</span><span class="p">,</span> <span class="n">x_axis</span><span class="p">,</span> <span class="n">y_axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    To check: obsolete?</span>
+
+<span class="sd">    :param dict_sel_c:</span>
+<span class="sd">    :param x_axis:</span>
+<span class="sd">    :param y_axis:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dict_sel</span> <span class="o">=</span> <span class="n">dict_sel_c</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df_plot</span> <span class="o">=</span> <span class="n">dict_sel</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">dict_sel</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;luer_id&#39;</span><span class="p">])[[</span><span class="n">y_axis</span><span class="p">,</span> <span class="n">x_axis</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">x_axis</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">df_plot</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">y_axis</span><span class="p">:</span> <span class="n">y_axis</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dict_sel</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">])},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dict_sel</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dict_sel</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dict_sel</span><span class="p">:</span>
+        <span class="n">df_sel_sum</span> <span class="o">=</span> <span class="n">dict_sel</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;luer_id&#39;</span><span class="p">])[[</span><span class="n">y_axis</span><span class="p">,</span> <span class="n">x_axis</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">x_axis</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">df_plot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_plot</span><span class="p">,</span> <span class="n">df_sel_sum</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">x_axis</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df_plot</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">y_axis</span><span class="p">:</span> <span class="n">y_axis</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># drop the cumulative for now</span>
+    <span class="n">df_plot</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">y_axis</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="s1">&#39;-1&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_plot</span></div>
+
+
+<div class="viewcode-block" id="detect_rois"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.detect_rois">[docs]</a><span class="k">def</span> <span class="nf">detect_rois</span><span class="p">(</span><span class="n">luers_dict</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">max_threshold</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span> <span class="n">nr_images_for_threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detect ROIs in current luer reflectivity image</span>
+
+<span class="sd">    :param luers_dict: the luers to use for determining the threshold</span>
+<span class="sd">    :param key: the key of the luer to process</span>
+<span class="sd">    :param max_threshold: maximum threshold to be used to avoid detection of noise (default=70.0)</span>
+<span class="sd">    :param nr_images_for_threshold: number of images used to determine threshold (default=10)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: dictionary for this luer including the detected ROIs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Start ROI detection for </span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)))</span>
+
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">get_threshold</span><span class="p">(</span><span class="n">luers_dict</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">max_threshold</span><span class="o">=</span><span class="n">max_threshold</span><span class="p">,</span>
+                              <span class="n">nr_images_for_threshold</span><span class="o">=</span><span class="n">nr_images_for_threshold</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="c1"># and process the image</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;determine segmentation&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">))</span>
+    <span class="n">luer_dict</span> <span class="o">=</span> <span class="n">luers_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">threshold</span>
+    <span class="n">luer_dict</span> <span class="o">=</span> <span class="n">add_segmentation</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;segmentation&#39;</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No stains detected&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;interpolate to image&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">))</span>
+        <span class="n">luer_dict</span> <span class="o">=</span> <span class="n">add_interpolated_image</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;add rois&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">))</span>
+        <span class="n">luer_dict</span> <span class="o">=</span> <span class="n">add_rois</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;to original luer keys&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">))</span>
+        <span class="n">luer_dict</span> <span class="o">=</span> <span class="n">to_original_keys</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_x&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_y&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_rois&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished ROI detection&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">luer_dict</span></div>
+
+
+<div class="viewcode-block" id="get_threshold"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.get_threshold">[docs]</a><span class="k">def</span> <span class="nf">get_threshold</span><span class="p">(</span><span class="n">luers_dict</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">max_threshold</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span> <span class="n">nr_images_for_threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                  <span class="n">reflectivity_threshold</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine threshold for roi detection</span>
+
+<span class="sd">    :param luers_dict: the luers to use for determining the threshold</span>
+<span class="sd">    :param key: the key of the luer to process </span>
+<span class="sd">    :param max_threshold: maximum threshold to be used to avoid detection of noise (default=70.0)</span>
+<span class="sd">    :param nr_images_for_threshold: number of images used to determine threshold (default=10)</span>
+<span class="sd">    :param reflectivity_threshold: lower limit of reflectivity to include in threshold calculation</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: roi detection threshold</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Getting the threshold to use for roi detection&#39;</span><span class="p">)</span>
+
+    <span class="c1"># select the images to base the threshold on</span>
+    <span class="n">keys_for_threshold</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">luers_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">key</span><span class="p">]</span>
+    <span class="n">keys_for_threshold</span> <span class="o">=</span> <span class="n">keys_for_threshold</span><span class="p">[</span><span class="o">-</span><span class="n">nr_images_for_threshold</span><span class="p">:]</span>
+    <span class="n">luers_dict_for_threshold</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">luers_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys_for_threshold</span><span class="p">}</span>
+
+    <span class="n">reflectivity_all</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;luer_keys&#39;</span><span class="p">,</span> <span class="n">luers_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">luer_dict</span> <span class="ow">in</span> <span class="n">luers_dict_for_threshold</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;key: </span><span class="si">{}</span><span class="s1">, luer_dict data columns: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="n">reflectivity_data</span> <span class="o">=</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reflectivity</span> <span class="o">&gt;</span> <span class="n">reflectivity_threshold</span><span class="p">]</span>
+        <span class="n">reflectivity_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reflectivity_all</span><span class="p">,</span> <span class="n">reflectivity_data</span><span class="o">.</span><span class="n">reflectivity</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reflectivity_all</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No reflectivity data: Threshold is set to max threshold&#39;</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">max_threshold</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;extreme reflectivities:&#39;</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">reflectivity_all</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">reflectivity_all</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold_isodata</span><span class="p">(</span><span class="n">reflectivity_all</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="n">max_threshold</span>
+        <span class="k">if</span> <span class="n">threshold</span> <span class="o">&gt;</span> <span class="n">max_threshold</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Threshold is based on insufficient amount of images with debris&#39;</span><span class="p">)</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="n">max_threshold</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting threshold to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">threshold</span></div>
+
+
+<div class="viewcode-block" id="add_segmentation"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.add_segmentation">[docs]</a><span class="k">def</span> <span class="nf">add_segmentation</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds a column with boolean values to the data df indicating which data points are part of a ROI</span>
+
+<span class="sd">    :param luer_dict: dictionary containing luer data</span>
+<span class="sd">    :param threshold: threshold to be used for segmentation of luer image</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: luer dictionary containing the segmentation as well</span>
+<span class="sd">        The segmentation is a boolean column in data to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;segmentation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reflectivity</span> <span class="o">&lt;</span> <span class="n">threshold</span>
+    <span class="k">return</span> <span class="n">luer_dict</span></div>
+
+
+<div class="viewcode-block" id="add_interpolated_image"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.add_interpolated_image">[docs]</a><span class="k">def</span> <span class="nf">add_interpolated_image</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates an interpolated image (on a uniform grid) and adds it to the luer_dict</span>
+
+<span class="sd">    :param luer_dict: dictionary containing luer data</span>
+<span class="sd">    :param dimension: dimension of the image (default=256)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: luer dictionary including interpolated image data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">image</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="c1"># make uniform mesh</span>
+    <span class="n">x_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">dimension</span><span class="p">)</span>
+    <span class="n">y_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">dimension</span><span class="p">)</span>
+    <span class="n">xi</span><span class="p">,</span> <span class="n">yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_coords</span><span class="p">,</span> <span class="n">y_coords</span><span class="p">)</span>
+
+    <span class="c1"># interpolate</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">((</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+                     <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;segmentation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+
+    <span class="c1"># add data to luer_dict</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xi</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yi</span>
+
+    <span class="k">return</span> <span class="n">luer_dict</span></div>
+
+
+<div class="viewcode-block" id="add_rois"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.add_rois">[docs]</a><span class="k">def</span> <span class="nf">add_rois</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find rois in a boolean image</span>
+
+<span class="sd">    :param luer_dict: dictionary containing luer data</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: luer dictionary including interpolated image data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Make a labelled image based on the thresholding rois</span>
+    <span class="n">image_labels</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">],</span> <span class="n">background</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Apply regionprops to characterise each of the rois</span>
+    <span class="n">props</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">image_labels</span><span class="p">,</span> <span class="n">intensity_image</span><span class="o">=</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">])</span>
+
+    <span class="c1"># set all labels to -1</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]))</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_labels&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">rois</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">props</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">prop</span><span class="o">.</span><span class="n">coords</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">prop</span><span class="o">.</span><span class="n">coords</span><span class="p">]</span>
+        <span class="n">rois</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_labels&#39;</span><span class="p">][</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_rois&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rois</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> rois detected&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rois</span><span class="p">)))</span>
+        <span class="c1"># print (rois)</span>
+    <span class="k">return</span> <span class="n">luer_dict</span></div>
+
+
+<div class="viewcode-block" id="to_original_keys"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.to_original_keys">[docs]</a><span class="k">def</span> <span class="nf">to_original_keys</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts the roi coordinates back to original image coordinates</span>
+<span class="sd">    removes the interpolated pixels</span>
+
+<span class="sd">    :param luer_dict: dictionary containing luer data</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: luer dictionary including interpolated image data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">unique_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_x&#39;</span><span class="p">])</span>
+    <span class="n">unique_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_y&#39;</span><span class="p">])</span>
+
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;roi_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">nearest_ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">unique_x</span> <span class="o">-</span> <span class="n">row</span><span class="o">.</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+        <span class="n">nearest_iy</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">unique_y</span> <span class="o">-</span> <span class="n">row</span><span class="o">.</span><span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_labels&#39;</span><span class="p">][</span><span class="n">nearest_iy</span><span class="p">][</span><span class="n">nearest_ix</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;roi_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;image_labels&#39;</span><span class="p">][</span><span class="n">nearest_iy</span><span class="p">][</span><span class="n">nearest_ix</span><span class="p">]</span>
+
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">roi_labels</span> <span class="o">=</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">roi_labels</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;Int64&#39;</span><span class="p">)</span>
+
+    <span class="n">unique_roi_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">roi_labels</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">rois</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">unique_roi_labels</span><span class="p">:</span>
+        <span class="n">rois</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;elements&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">roi_labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)}</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rois</span>
+
+    <span class="k">return</span> <span class="n">luer_dict</span></div>
+
+
+<div class="viewcode-block" id="link_to_existing_rois"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.link_to_existing_rois">[docs]</a><span class="k">def</span> <span class="nf">link_to_existing_rois</span><span class="p">(</span><span class="n">luers_dict</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Links the current ROI to a ROI in a previous RADON</span>
+
+<span class="sd">    We use the following names:</span>
+
+<span class="sd">    - parents: the indices of the ROIs in the previous Luer that partially overlap with the current ROI.</span>
+<span class="sd">    - ancestors: the list of all parents, recursively from all previous luers</span>
+<span class="sd">    - main ancestor: the most important ancestor, which is the main ancestor of the largest parent of the previous luer.</span>
+<span class="sd">      This is useful to keep track over an ROI over time. This is the stable number you can refer to, and can for</span>
+<span class="sd">      instance be used for colors in drawing the ROIs.</span>
+
+<span class="sd">    4 options:</span>
+
+<span class="sd">    1. Totally new --&gt; parent_return = [], roi_nr = i</span>
+<span class="sd">    2. Continuation of a previous roi --&gt; parent_return = matched prev roi nr,</span>
+<span class="sd">       roi_nr = matched prev roi nr</span>
+<span class="sd">    3. Combination of 2 previous rois --&gt; parent_return = [prev roi 1, prev roi 2]</span>
+<span class="sd">       roi_nr = give it a new number</span>
+<span class="sd">    4. Split of previous roi: multiple rois have the same parent</span>
+<span class="sd">       roi_nr = give it a new number</span>
+
+<span class="sd">    :param luers_dict: dictionary with all luers</span>
+<span class="sd">    :param key: key of current luer</span>
+<span class="sd">    :param verbose: switches debug mode (default:False)</span>
+<span class="sd">    :return: current luer dictionary, now containing parent and ancestor information</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">luer_dict_curr</span> <span class="o">=</span> <span class="n">luers_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="c1"># select previous luer</span>
+    <span class="n">keys_prev</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">luers_dict</span> <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">key</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys_prev</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># no previous luers available, only initialize ancestor fields</span>
+        <span class="k">for</span> <span class="n">roi_curr</span><span class="p">,</span> <span class="n">roi_keys_curr</span> <span class="ow">in</span> <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">roi_curr</span><span class="p">][</span><span class="s1">&#39;ancestors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">roi_curr</span><span class="p">][</span><span class="s1">&#39;main_ancestor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi_curr</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># initialize dictionary to restructure the keys for the detected rois</span>
+        <span class="n">rename_roi_index</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">roi_splitting_detection</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="c1"># get previous images</span>
+        <span class="n">key_prev</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">keys_prev</span><span class="p">)</span>
+        <span class="n">luer_dict_prev</span> <span class="o">=</span> <span class="n">luers_dict</span><span class="p">[</span><span class="n">key_prev</span><span class="p">]</span>
+
+        <span class="c1"># get maximum roi index used so far.</span>
+        <span class="n">max_roi_index</span> <span class="o">=</span> <span class="n">get_maximum_roi_key</span><span class="p">(</span><span class="n">keys_prev</span><span class="p">,</span> <span class="n">luers_dict</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">roi_curr</span><span class="p">,</span> <span class="n">roi_keys_curr</span> <span class="ow">in</span> <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># get all parents (ROIs with some overlap)</span>
+            <span class="n">parents</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">roi_prev</span><span class="p">,</span> <span class="n">roi_keys_prev</span> <span class="ow">in</span> <span class="n">luer_dict_prev</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">overlapping_keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">roi_keys_curr</span><span class="p">[</span><span class="s1">&#39;elements&#39;</span><span class="p">],</span> <span class="n">roi_keys_prev</span><span class="p">[</span><span class="s1">&#39;elements&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># option 2 or 3</span>
+                    <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">roi_prev</span><span class="p">)</span>
+
+            <span class="c1"># fill ancestor list be the roi keys of the parents and their ancestors</span>
+            <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">roi_curr</span><span class="p">][</span><span class="s1">&#39;parents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parents</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">ancestors</span> <span class="o">=</span> <span class="n">parents</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+                <span class="n">ancestors</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">luer_dict_prev</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">parent</span><span class="p">][</span><span class="s1">&#39;ancestors&#39;</span><span class="p">])</span>
+
+            <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">roi_curr</span><span class="p">][</span><span class="s1">&#39;ancestors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ancestors</span><span class="p">)</span>
+
+            <span class="c1"># set parent and main ancestor for the different cases</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># option 2: set key to the key of the only parent found, take main ancestor from the parent</span>
+                <span class="n">rename_roi_index</span><span class="p">[</span><span class="n">roi_curr</span><span class="p">]</span> <span class="o">=</span> <span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="c1"># set main ancestor: main ancestor of parent</span>
+                <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">roi_curr</span><span class="p">][</span><span class="s1">&#39;main_ancestor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_dict_prev</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span>
+                    <span class="s1">&#39;main_ancestor&#39;</span><span class="p">]</span>
+
+                <span class="c1"># potential split: update roi_splitting_detection</span>
+                <span class="k">if</span> <span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">roi_splitting_detection</span><span class="p">:</span>
+                    <span class="n">roi_splitting_detection</span><span class="p">[</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">roi_splitting_detection</span><span class="p">[</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">roi_curr</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">roi_splitting_detection</span><span class="p">[</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">roi_curr</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># option 1 or 3</span>
+                <span class="c1"># give a new key</span>
+                <span class="n">max_roi_index</span> <span class="o">=</span> <span class="n">max_roi_index</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">rename_roi_index</span><span class="p">[</span><span class="n">roi_curr</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_roi_index</span>
+
+                <span class="c1"># set main ancestor:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># main ancestor is current index, no parent since it is a new roi</span>
+                    <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">roi_curr</span><span class="p">][</span><span class="s1">&#39;main_ancestor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi_curr</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># multiple parents. Main ancestor is main ancestor of main parent</span>
+                    <span class="c1"># main parent is the parent with largest roi</span>
+                    <span class="n">max_size</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">main_parent</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+                        <span class="n">cur_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">luer_dict_prev</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">parent</span><span class="p">][</span><span class="s1">&#39;elements&#39;</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="n">cur_size</span> <span class="o">&gt;</span> <span class="n">max_size</span><span class="p">:</span>
+                            <span class="n">max_size</span> <span class="o">=</span> <span class="n">cur_size</span>
+                            <span class="n">main_parent</span> <span class="o">=</span> <span class="n">parent</span>
+                    <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">roi_curr</span><span class="p">][</span><span class="s1">&#39;main_ancestor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_dict_prev</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">main_parent</span><span class="p">][</span>
+                        <span class="s1">&#39;main_ancestor&#39;</span><span class="p">]</span>
+
+                    <span class="c1"># potential split: update roi_splitting_detection</span>
+                    <span class="k">if</span> <span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">roi_splitting_detection</span><span class="p">:</span>
+                        <span class="n">roi_splitting_detection</span><span class="p">[</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">roi_splitting_detection</span><span class="p">[</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">roi_curr</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">roi_splitting_detection</span><span class="p">[</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">roi_curr</span><span class="p">]</span>
+
+        <span class="c1"># option 4: detect and deal with ROI splits</span>
+        <span class="c1"># a split happens in case multiple ROIs have the same parent, data is collected in roi_splitting_detection</span>
+        <span class="c1"># roi_splitting_detection has parent as key, and a list of roi keys as value.</span>
+        <span class="c1"># In case the list contains multiple keys, it is a split: All ROIs get a new index</span>
+        <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">roi_keys</span> <span class="ow">in</span> <span class="n">roi_splitting_detection</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">roi_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">roi_curr</span> <span class="ow">in</span> <span class="n">roi_keys</span><span class="p">:</span>
+                    <span class="n">max_roi_index</span> <span class="o">=</span> <span class="n">max_roi_index</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">rename_roi_index</span><span class="p">[</span><span class="n">roi_curr</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_roi_index</span>
+
+        <span class="c1"># rename the roi names</span>
+        <span class="c1"># this is done by building a new roi_dict, to avoid overwriting and losing data</span>
+        <span class="n">rois_dict_updated</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">old_key</span><span class="p">,</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="n">rename_roi_index</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">rois_dict_updated</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">][</span><span class="n">old_key</span><span class="p">]</span>
+        <span class="n">luer_dict_curr</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rois_dict_updated</span>
+
+    <span class="k">return</span> <span class="n">luer_dict_curr</span></div>
+
+
+<div class="viewcode-block" id="get_maximum_roi_key"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.get_maximum_roi_key">[docs]</a><span class="k">def</span> <span class="nf">get_maximum_roi_key</span><span class="p">(</span><span class="n">keys_prev</span><span class="p">,</span> <span class="n">luers_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines the maximum roi key used in the previous luers. Returns -1 in case no luer was detected yet.</span>
+
+<span class="sd">    :param keys_prev: list of all the luer keys of previous luers</span>
+<span class="sd">    :param luers_dict: dictionary with all available luers</span>
+<span class="sd">    :return: maximum roi key used in the previous luers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">max_roi_key</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys_prev</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;rois&#39;</span> <span class="ow">in</span> <span class="n">luers_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+            <span class="n">rois</span> <span class="o">=</span> <span class="n">luers_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rois</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">max_roi_key</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_roi_key</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">rois</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="k">return</span> <span class="n">max_roi_key</span></div>
+
+
+<div class="viewcode-block" id="update_rois_with_roi_as_key"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radd.update_rois_with_roi_as_key">[docs]</a><span class="k">def</span> <span class="nf">update_rois_with_roi_as_key</span><span class="p">(</span><span class="n">rois_roi_as_key</span><span class="p">,</span> <span class="n">luer_dict</span><span class="p">,</span> <span class="n">luer_key</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates the rois (with roi as key) dictionary with detected rois</span>
+
+<span class="sd">    :param rois_roi_as_key: dictionary with rois as key</span>
+<span class="sd">    :param luer_dict: dictionary with luer image data</span>
+<span class="sd">    :param luer_key: key of the luer image</span>
+<span class="sd">    :param verbose: switches debug mode (default: False)</span>
+<span class="sd">    :return: updated rois_roi_as_key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">luer_dict</span><span class="p">[</span><span class="s1">&#39;rois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">rois_roi_as_key</span><span class="p">:</span>
+            <span class="n">rois_roi_as_key</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">rois_roi_as_key</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">luer_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi</span>
+
+    <span class="k">return</span> <span class="n">rois_roi_as_key</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

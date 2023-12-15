@@ -1,0 +1,57 @@
+# Disable the CI trigger
+trigger: none
+
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - main
+  always: true
+
+pool: CCoE-SharedAgents
+
+stages:
+  - stage: stage_build
+    displayName: 'Build'
+    jobs:
+    - job: job_build
+      displayName: 'Build'
+      steps:
+      - publish: '$(System.DefaultWorkingDirectory)/pipelines/variables'
+        artifact: TerraformVariables
+        displayName: 'Artifact: Publish Variables'
+      - publish: '$(System.DefaultWorkingDirectory)/pipelines/templates/scripts'
+        artifact: Scripts
+        displayName: 'Artifact: Publish Script'
+
+  - stage: Run
+    displayName: 'Reset DEV environment'
+    condition: succeeded()
+    dependsOn:
+      - stage_build
+    jobs:
+    - deployment: Compound_DEV_apply
+      environment: Compound_DEV_apply
+      variables:
+        - template: ./variables/DEV.yml #templates are parsed during the start and cannot come from artifacts
+      strategy: 
+        runOnce:
+          deploy:
+            steps:
+            - task: DownloadPipelineArtifact@2
+              displayName: 'Artifact: Download Scripts'
+              inputs:
+                artifact: Scripts
+                path: $(System.DefaultWorkingDirectory)/Scripts
+            - task: AzureCLI@2
+              displayName: 'Delete all resources for DR test'
+              inputs:
+                azureSubscription: '${{ variables.ServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: scriptPath
+                scriptPath:  '$(System.DefaultWorkingDirectory)/Scripts/disaster_preparation.ps1'
+                arguments: >- 
+                  -Key ${{ variables.Key }}
+                  -PrivateDnsSubscriptionId ${{ variables.PrivateDnsSubscriptionId }}
+                  -PrivateDnsResourceGroupName ${{ variables.PrivateDnsResourceGroupName }}

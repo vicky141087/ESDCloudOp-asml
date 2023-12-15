@@ -1,0 +1,118 @@
+Development
+===========
+
+Contributing to pyeuv
+---------------------
+We use the JIRA ticketing system and the Bitbucket repository host for pyeuv
+development. Before you can contibute you need to make sure that you have
+access to both.
+
+- Jira: https://apps-jiradc-prd.asml.com/projects/SSPT
+- Bitbucket: https://apps-bbdc-prd.asml.com/projects/SSPT/repos/pyeuv/browse
+
+
+To request acess:
+
+Go to the IAM Portal at https://iam.asml.com/ and do the following:
+
+1.	Create requests
+2.	Request application access ->  For myself
+3.	D&E -> Jira – BLApps
+4.	Under Source-Scanner Performance Tools, check SSPT-Developers
+5.	Add a motivation, click next and finish the request.
+
+We follow the GitFlow branching strategy, for more information visit:
+
+https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+
+Please note that the *Develop* branch is named *python3* and the *Master* is
+named *python3_master* in our repository. Create your feature branches from
+the *python3* branch.
+
+Your development environment
+----------------------------
+You must use the pyeuv development environment while working on pyeuv. If you
+use another environment you are on your own. Please follow the following
+instructions to setup your Anaconda development environment for pyeuv.
+
+1. Make sure that you have a recent version of Anaconda3 (python3) installed.
+you can download it for free from anaconda.com. Administrator rights are not
+required for installation.
+
+2. Clone the git repository and locate conda-dev-env.yaml in the project
+directory.
+
+3. Open the Anaconda3 prompt via your start menu and browse to the directory
+containing the file mentioned above.
+
+4. Run create a new environment from the file. If you want to upgrade an
+existing pyeuv-dev environment use *update* instead of *create*.
+::
+
+    conda env create -f conda-dev-env.yml
+
+5. Activate the environment
+::
+
+    activate pyeuv-dev
+
+
+6. Don't forget to setup your IDE to use this 
+environment.
+
+7. (Optional): Run the tests to make sure everything is working. See the
+next section for instructions.
+
+
+Testing
+-------
+
+Normally the application using pyeuv is responsible for providing user
+credentials, but when testing we need to provide them ourselves. While pyeuv
+does have a basic password prompt, it doesn't work reliably during testing.
+
+1. Create a *test_credentials.conf* file in %HOME%\.pyeuv with the following 
+contents You may create the folder if it doesn't exist.
+::
+
+    [EUVDB]
+    username=<username>
+    password=<password>
+
+2. Make sure you are in the Anaconda3 prompt and have the pyeuv development env
+activated. Change to the project directory and run:
+::
+
+    pytest
+
+You know that the tests have succeeded if you see an *OK* at the end of the
+test run as shown below.
+::
+
+    Ran 51 tests in 62.220s
+
+    OK
+
+Building and releasing
+----------------------
+
+1. Update the version number in 
+pyeuv/__init__.py
+
+2. Make sure the list of packages in setup.py is still up to date.
+ie. if you have added a new subpackage make sure it's listed here
+or it will be omitted from the release.
+
+3. If you've added new packages to the development environment, make sure to
+update the conda-dev-env.yml file.
+
+4. From the Anaconda3 prompt, run setup.py as shown below to generate the
+docs, .whl and .zip file.
+
+::
+
+    python setup.py bdist_wheel
+
+5. Publish or share the zip file which contains everything the
+end user needs.
+

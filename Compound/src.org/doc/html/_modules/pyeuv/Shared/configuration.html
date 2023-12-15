@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Shared.configuration &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Shared.configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Shared.configuration</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Jan 21 22:07:04 2019</span>
+
+<span class="sd">@author: rwiegger</span>
+
+<span class="sd">The Configuration provides a class to facilitate storage of machine and collector properties.</span>
+<span class="sd">It enables to build up the configuration step by step, for instance in a menu of buttons selecting the customer, machine and collector.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration">[docs]</a><span class="k">class</span> <span class="nc">Configuration</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration facilitates storage of machine and collector properties, and enables to update these properties through functions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">source_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">machine_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">machine_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">collector_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">timezone</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">source_generation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">vessel_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">customer</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    
+    <span class="c1"># The class &quot;constructor&quot; - It&#39;s actually an initializer </span>
+    <span class="c1">#def __init__(self):</span>
+
+
+<div class="viewcode-block" id="Configuration.using_customer"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_customer">[docs]</a>    <span class="k">def</span> <span class="nf">using_customer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the customer</span>
+<span class="sd">        </span>
+<span class="sd">        :param customer: the customer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">customer</span> <span class="o">=</span> <span class="n">customer</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_collector"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_collector">[docs]</a>    <span class="k">def</span> <span class="nf">using_collector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collector_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the collector name</span>
+<span class="sd">        </span>
+<span class="sd">        :param collector_name: the collector name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">collector_name</span> <span class="o">=</span> <span class="n">collector_name</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_start_time"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_start_time">[docs]</a>    <span class="k">def</span> <span class="nf">using_start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the timestamp the collector was put in the source</span>
+<span class="sd">        </span>
+<span class="sd">        :param start_time: the timestamp the collector was installed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_end_time"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_end_time">[docs]</a>    <span class="k">def</span> <span class="nf">using_end_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the timestamp the collector was extracted from the source</span>
+<span class="sd">        </span>
+<span class="sd">        :param end_time: the timestamp the collector was extracted from the source</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_timezone"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_timezone">[docs]</a>    <span class="k">def</span> <span class="nf">using_timezone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timezone</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the timezone of the machine</span>
+<span class="sd">        </span>
+<span class="sd">        :param timezone: the timezone where the machine is located</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">timezone</span> <span class="o">=</span> <span class="n">timezone</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_source"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_source">[docs]</a>    <span class="k">def</span> <span class="nf">using_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the source id</span>
+<span class="sd">        </span>
+<span class="sd">        :param source_id: the id of the source</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_id</span> <span class="o">=</span> <span class="n">source_id</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_machine"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_machine">[docs]</a>    <span class="k">def</span> <span class="nf">using_machine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine_id</span><span class="p">,</span> <span class="n">machine_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the machine id and name</span>
+<span class="sd">        </span>
+<span class="sd">        :param machine_id: the id of the machine</span>
+<span class="sd">        :param machine_name: the name of the machine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_id</span> <span class="o">=</span> <span class="n">machine_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_name</span> <span class="o">=</span> <span class="n">machine_name</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_vessel"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_vessel">[docs]</a>    <span class="k">def</span> <span class="nf">using_vessel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vessel_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the vessel id</span>
+<span class="sd">        </span>
+<span class="sd">        :param vessel_id: the id of the vessel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">vessel_id</span> <span class="o">=</span> <span class="n">vessel_id</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.using_source_generation"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.using_source_generation">[docs]</a>    <span class="k">def</span> <span class="nf">using_source_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_generation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the source generation (3300, 3350, 3400, etc.)</span>
+<span class="sd">        </span>
+<span class="sd">        :param source_generation: the generation of the source</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_generation</span> <span class="o">=</span> <span class="n">source_generation</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Configuration.set_configuration"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.set_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">set_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">collector_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the configuration of the machine, and optionally also the collector.</span>
+<span class="sd">        Based on the machine properties and collector name, all the machine properties, and collector properties are set.</span>
+<span class="sd">        </span>
+<span class="sd">        :param client: connection to influx</span>
+<span class="sd">        :param machine: object containing all kinds of properties of the machine (from the machine_list)</span>
+<span class="sd">        :param collector_name: collector name, used to select collector properties from influx (optional, default=None)</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;machine_id not found in the machine list&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">using_source</span><span class="p">(</span><span class="s1">&#39;s</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">machine</span><span class="o">.</span><span class="n">source_nr</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">using_customer</span><span class="p">(</span><span class="n">machine</span><span class="o">.</span><span class="n">customer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">using_timezone</span><span class="p">(</span><span class="n">machine</span><span class="o">.</span><span class="n">timezone</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">using_machine</span><span class="p">(</span><span class="n">machine</span><span class="o">.</span><span class="n">machine_nr</span><span class="p">,</span> <span class="n">machine</span><span class="o">.</span><span class="n">displayname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">using_vessel</span><span class="p">(</span><span class="n">machine</span><span class="o">.</span><span class="n">vessel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">using_source_generation</span><span class="p">(</span><span class="n">machine</span><span class="o">.</span><span class="n">hardware</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">collector_name</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">using_collector</span><span class="p">(</span><span class="n">collector_name</span><span class="p">)</span>
+            <span class="n">collectors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collectors</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_id</span><span class="p">)</span>
+            <span class="n">collectors</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collectors</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">collectors</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collectors</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">collectors</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">collectors</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+            <span class="n">collector</span> <span class="o">=</span> <span class="n">collectors</span><span class="p">[</span><span class="n">collectors</span><span class="p">[</span><span class="s1">&#39;swap&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">collector_name</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">using_start_time</span><span class="p">(</span><span class="n">collector</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">using_end_time</span><span class="p">(</span><span class="n">collector</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Configuration.get_collectors"><a class="viewcode-back" href="../../../Shared.html#pyeuv.Shared.configuration.Configuration.get_collectors">[docs]</a>    <span class="k">def</span> <span class="nf">get_collectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves all collectors that were in the specified source</span>
+<span class="sd">        </span>
+<span class="sd">        :param client: connection to influx</span>
+<span class="sd">        :param source_id: the source id (S#####)</span>
+<span class="sd">        :returns: dataframe of collector swaps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">collector_swaps</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">.Collector.Swap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_id</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">collector_swaps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;swap&#39;</span><span class="p">])</span>
+        <span class="n">collector_swaps</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;swap&#39;</span><span class="p">]</span>
+        <span class="n">collector_swaps</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">collector_swaps</span>   </div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

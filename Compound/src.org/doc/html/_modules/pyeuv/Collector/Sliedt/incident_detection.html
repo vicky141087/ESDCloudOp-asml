@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Sliedt.incident_detection &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Sliedt.incident_detection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Sliedt.incident_detection</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Thu Oct 18 10:38:37 2018</span>
+
+<span class="sd">@author: rwiegger</span>
+
+<span class="sd">A library containing collector incident detection algorithms. </span>
+<span class="sd">It includes:</span>
+<span class="sd">- Collector Degradation Limiter (CDL)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+
+
+<div class="viewcode-block" id="get_cdl_signal_names"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.incident_detection.get_cdl_signal_names">[docs]</a><span class="k">def</span> <span class="nf">get_cdl_signal_names</span><span class="p">(</span><span class="n">sg_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that returns a dictionary with required signals to calculate the CDL</span>
+
+<span class="sd">    :param sg_filter: cwitch for the SG filtered slie/dt (SG filter used by default)</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dictionary containing keys used as column names in the dataframes, and influx signal names as value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sg_filter</span><span class="p">:</span>
+        <span class="n">reflectivity_signal</span> <span class="o">=</span> <span class="s1">&#39;Collector._SLIE_DT_SG_Norm&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">reflectivity_signal</span> <span class="o">=</span> <span class="s1">&#39;Collector._SLIE_DT_Norm&#39;</span>
+        
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;reflectivity&#39;</span> <span class="p">:</span> <span class="n">reflectivity_signal</span><span class="p">,</span>
+            <span class="s1">&#39;pulse_count&#39;</span> <span class="p">:</span> <span class="s1">&#39;Collector._PulseCount&#39;</span>
+            <span class="p">}</span>
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+
+<div class="viewcode-block" id="prep_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.incident_detection.prep_data">[docs]</a><span class="k">def</span> <span class="nf">prep_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare the cdl data before usage. </span>
+<span class="sd">    - Interpolate pulse count to reflectivity datapoints</span>
+<span class="sd">    - convert pulse count to Gp</span>
+<span class="sd">    - remove NaN</span>
+
+<span class="sd">    :param data: connection to influx</span>
+<span class="sd">    :type: pandas dataframe</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: series of timestamp, pulse_count and </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">data</span><span class="o">.</span><span class="n">pulse_count</span> <span class="o">*=</span> <span class="mf">1.0e-9</span>
+    
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="get_data"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.incident_detection.get_data">[docs]</a><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    obtain all the required data from influx</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: the source_id for which the signals have to be retrieved</span>
+<span class="sd">    :param from_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :param to_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return: dictionary with dataframes per signal group</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">time_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">signals</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">signals</span><span class="p">[</span><span class="s1">&#39;collector&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_cdl_signal_names</span><span class="p">(),</span> 
+               <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Error:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+    
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">time_start</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">data loaded in </span><span class="si">{:.2f}</span><span class="s1"> seconds</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">duration</span><span class="o">.</span><span class="n">seconds</span> <span class="o">+</span> <span class="n">duration</span><span class="o">.</span><span class="n">microseconds</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">signals</span>  </div>
+
+
+<div class="viewcode-block" id="get_start_of_cdl"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.incident_detection.get_start_of_cdl">[docs]</a><span class="k">def</span> <span class="nf">get_start_of_cdl</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">threshold_loss</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets start of a fast degradation event</span>
+
+<span class="sd">    :param x:</span>
+<span class="sd">    :param data:</span>
+<span class="sd">    :param threshold_loss:</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="o">.</span><span class="n">reflectivity</span> <span class="o">&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">reflectivity</span> <span class="o">+</span> <span class="n">threshold_loss</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">[</span><span class="s1">&#39;timestamp_start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x</span><span class="p">[</span><span class="s1">&#39;reflectivity_start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">reflectivity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x</span><span class="p">[</span><span class="s1">&#39;pulse_count_start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">pulse_count</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="calculate_cdl"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.incident_detection.calculate_cdl">[docs]</a><span class="k">def</span> <span class="nf">calculate_cdl</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">threshold_loss</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collector Degradation Limiter (CDL) Algo by TBAV</span>
+<span class="sd">    The CDL is the signal how many Gp ago SLIE/DT was threshold_loss higher.</span>
+<span class="sd">    </span>
+<span class="sd">    :param data: Series with pulse count (in Gp) and SLIE/DT</span>
+<span class="sd">    :type data: pandas.DataFrame</span>
+<span class="sd">    :param threshold_loss: threshold for reflectivity loss</span>
+<span class="sd">    :type threshold_loss: float</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">cdl_window</span>  <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">cdl_window</span> <span class="o">=</span> <span class="n">cdl_window</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> 
+        <span class="n">get_start_of_cdl</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">threshold_loss</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># cdl_window.dropna(inplace=True)</span>
+    <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;pulse_count_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;pulse_count&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;pulse_count_start&#39;</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">cdl_window</span></div>
+
+    
+<div class="viewcode-block" id="calculate_cdl_triggers"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Sliedt.incident_detection.calculate_cdl_triggers">[docs]</a><span class="k">def</span> <span class="nf">calculate_cdl_triggers</span><span class="p">(</span><span class="n">cdl_window</span><span class="p">,</span> <span class="n">threshold_pulse_count</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the CDL triggers, and adds useful data </span>
+<span class="sd">    (start, end, delta for timestamp (unix), gp, reflectivity)</span>
+<span class="sd">    The CDL is triggered when within &#39;threshold_pulse_count&#39; &#39;threshold_loss&#39; is lossed.</span>
+<span class="sd">    - The start of the event is the last data point the reflectivity was &#39;threshold_loss&#39; higher than the moment of the trigger.</span>
+<span class="sd">    - The event extends in the future to the minimum reflectivity within the window where the CDL continues to be triggered.</span>
+<span class="sd">    So successive datapoints for which the CDL would be triggered will not </span>
+<span class="sd">    result in multiple CDL events. These triggers get merged to 1 event.</span>
+<span class="sd">    </span>
+<span class="sd">    :param threshold_pulse_count: threshold for maximum pulse ccount range</span>
+<span class="sd">    :type threshold_pulse_count: float</span>
+<span class="sd">    :param verbose: to switch internal debug info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;trigger&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;pulse_count_delta&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">threshold_pulse_count</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;trigger&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
+    <span class="n">cdl_window</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+    <span class="n">cdl_window</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">cdl_triggers</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">trigger</span> <span class="ow">in</span> <span class="n">cdl_window</span><span class="p">[</span><span class="n">cdl_window</span><span class="p">[</span><span class="s1">&#39;trigger&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">):</span>
+        <span class="c1"># get the trigger event (the first row)</span>
+        <span class="n">trigger_event</span> <span class="o">=</span> <span class="n">trigger</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># is it a valid trigger? It should start after the previous trigger</span>
+        <span class="k">if</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">cdl_triggers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="p">(</span><span class="n">trigger_event</span><span class="o">.</span><span class="n">pulse_count_start</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> 
+             <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">pulse_count_end</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+            <span class="c1"># the new trigger should start after the previous trigger has ended</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># the trigger continues as long as</span>
+        <span class="c1"># - the trigger conditions are met</span>
+        <span class="c1"># - the reflectivity is decreasing</span>
+        
+        <span class="c1"># get end of the trigger</span>
+        <span class="n">trigger_end</span> <span class="o">=</span> <span class="n">trigger</span><span class="p">[</span><span class="n">trigger</span><span class="o">.</span><span class="n">reflectivity</span> <span class="o">==</span> <span class="n">trigger</span><span class="o">.</span><span class="n">reflectivity</span><span class="o">.</span><span class="n">min</span><span class="p">()]</span>
+
+        <span class="c1"># add data for end of trigger</span>
+        <span class="n">trigger_event</span><span class="p">[</span><span class="s1">&#39;reflectivity_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trigger_end</span><span class="o">.</span><span class="n">reflectivity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">trigger_event</span><span class="p">[</span><span class="s1">&#39;timestamp_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">trigger_end</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">trigger_event</span><span class="p">[</span><span class="s1">&#39;pulse_count_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trigger_end</span><span class="o">.</span><span class="n">pulse_count</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c1"># add trigger to dataframe of triggers</span>
+        <span class="n">cdl_triggers</span> <span class="o">=</span> <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trigger_event</span><span class="p">)</span>
+        
+    <span class="c1"># add derived data to cdl_triggers</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cdl_triggers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">cdl_triggers</span><span class="p">[</span><span class="s1">&#39;pulse_count_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">pulse_count_end</span> <span class="o">-</span> <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">pulse_count_start</span>
+        <span class="n">cdl_triggers</span><span class="p">[</span><span class="s1">&#39;timestamp_start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cdl_triggers</span><span class="o">.</span><span class="n">timestamp_start</span><span class="p">,</span> <span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cdl_triggers</span><span class="p">[</span><span class="s1">&#39;timestamp_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">timestamp_end</span> <span class="o">-</span> <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">timestamp_start</span>
+        <span class="n">cdl_triggers</span><span class="p">[</span><span class="s1">&#39;reflectivity_delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">reflectivity_end</span> <span class="o">-</span> <span class="n">cdl_triggers</span><span class="o">.</span><span class="n">reflectivity_start</span>
+    
+    <span class="k">return</span> <span class="n">cdl_triggers</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

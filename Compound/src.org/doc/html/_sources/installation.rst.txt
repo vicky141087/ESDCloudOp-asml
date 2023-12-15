@@ -1,0 +1,62 @@
+Installation
+============
+
+Anaconda
+------------
+
+This is the recommended method. If you don't have Anaconda, you can
+downloaded it from https://www.anaconda.com/downloads. Choose the 64-bit
+python3 version.
+
+1. Open the anaconda prompt from the start menu
+2. Browse to the folder containing this file
+3. For a standard install without PMA connector dependencies, run:
+   
+   :: 
+   
+     pip install pyeuv-$version-py3-none-any.whl
+  
+4. (Optional) Add PMA connector
+
+   ::
+
+     pip install pyeuv-$version-py3-none-any.whl[PMA]
+
+5. (Optional) Add plotting dependencies
+
+  ::
+
+    pip install pyeuv-$version-py3-none-any.whl[plotting]
+
+
+5. (Optional) Include notebook widget dependencies
+
+  ::
+
+    pip install pyeuv-$version-py3-none-any.whl[widgets]
+
+
+
+Troubleshooting
+---------------
+Versions older than 0.5 can't be automatically upgraded or uninstalled by pip.
+If you run into problems during the installation where pip complains that
+the package is not in distutils format, or if you now that you have an old
+version of pyeuv installed, please proceed as follows.
+
+1. Go to your Anaconda installation directory. This is usually one of the following
+   locations:
+
+  ::
+  
+   C:\Localdata\Anaconda
+   %APPDATA%\..\Local\Continuum\Anaconda
+
+2. Go to the Lib/site-packages folder
+3. Delete the following folders
+
+  * pyeuv
+  * pyeuv-<version nr>.egg-info
+  * Any other files/folders starting with pyeuv
+  
+4. Retry the installation

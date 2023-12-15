@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.RT_Processing.rt05 &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.RT_Processing.rt05</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.RT_Processing.rt05</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Nov 25 14:32 2019</span>
+
+<span class="sd">@author: Rob Wieggers (RWKL)</span>
+<span class="sd">@ownership: FC-078</span>
+
+<span class="sd">Based on code from CDL EUVDB</span>
+
+<span class="sd">*Example usage*</span>
+<span class="sd">::</span>
+
+<span class="sd">    import pandas as pd</span>
+<span class="sd">    import pyeuv.RT_Processing.rt05 as rt05</span>
+<span class="sd">    from pyeuv.EUVDashboard.clients import UserLANClient</span>
+
+<span class="sd">    client = UserLANClient()</span>
+<span class="sd">    source_id = &#39;s62265&#39;</span>
+
+<span class="sd">    RT = rt05.RT05()</span>
+<span class="sd">    rt_config = RT.get_signal_config()</span>
+<span class="sd">    input_signals = rt_config[&#39;SCHEMA_PROCESSING_SIGNALS&#39;]</span>
+<span class="sd">    output_signals = rt_config[&#39;SCHEMA_PROCESSED_SIGNALS&#39;]</span>
+
+<span class="sd">    # get data from influx</span>
+<span class="sd">    signals_dict = dict()</span>
+<span class="sd">    for signal in input_signals.keys():</span>
+<span class="sd">        signals_dict[signal] = &#39;{}.{}&#39;.format(RT.signal_group, signal)</span>
+<span class="sd">    df = client.get_signals_dict(signals_dict, source_id, pd.Timestamp(2019,12,2,10,0,0), pd.Timestamp(2019,12,2,11,0,0))</span>
+
+<span class="sd">    # process data</span>
+<span class="sd">    df_cleaned = RT.clean_signals(df, rt_config)</span>
+<span class="sd">    df_out = RT.process_signals(df_cleaned)</span>
+<span class="sd">    df_out = df_out[output_signals]</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<span class="kn">from</span> <span class="nn">pyeuv.Shared</span> <span class="kn">import</span> <span class="n">pandas_helpers</span>
+<span class="kn">from</span> <span class="nn">pyeuv.RT_Processing.simple_rt</span> <span class="kn">import</span> <span class="n">SimpleRT</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Do_It</span> <span class="kn">import</span> <span class="n">do_it_library</span> <span class="k">as</span> <span class="n">do_it</span>
+
+
+<div class="viewcode-block" id="RT05"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt05.RT05">[docs]</a><span class="k">class</span> <span class="nc">RT05</span><span class="p">(</span><span class="n">SimpleRT</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;RT05&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RT05</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RT05.process_signals"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt05.RT05.process_signals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate derived data for rt05</span>
+
+<span class="sd">        :param df: input dataframe containing raw RT05 data</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        :return: dataframe df, including additional columns of derived data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;BDbeginTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">())</span><span class="o">.</span>\
+                <span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;BDbeginTime&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.0e-9</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;BDbeginNSecs&#39;</span><span class="p">]</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_BurstDuration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration</span>
+
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_ExposureGateEUV_On&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">BDenergyAvg</span> <span class="o">&gt;</span> <span class="o">.</span><span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_ExposureGateEUV_Off&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">BDenergyAvg</span> <span class="o">&gt;</span> <span class="o">.</span><span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_EUVBurstEnergy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e-3</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">BDenergyAvg</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">BDpulseCount</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_DoseMargin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">BDenergyAvg</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">BDenergyAvgOn</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_EnergyCalibrationCheck&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">BDenergyAvgOn</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">BDenergyInternalAvgOn</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_DutyCycle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">BDpulseCount</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">BDrepRateAvgMean</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">_BurstDuration</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_OldEUVPower&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e-3</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">BDenergyAvg</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">BDpulseCount</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">_BurstDuration</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_EUVPower&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">BDenergyTargetAvg</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">_DutyCycle</span> <span class="o">/</span> <span class="mf">100.0</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_EffectiveEUVDutyCycle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">_DutyCycle</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">_DoseMargin</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">BDburstLength</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">BDburstLength</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">BDinterBurstInterval</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_EUVPowerIncludingBurstIdleTimes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">_EUVPower</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">_BurstDuration</span> <span class="o">/</span> <span class="p">(</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">BDinterBurstInterval</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">_BurstDuration</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: processing RT05 failed:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="RT05.aggregate_signals"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt05.RT05.aggregate_signals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">aggregate_signals</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate aggregated signals.</span>
+<span class="sd">        The signals are:</span>
+<span class="sd">        - &#39;EUVEnergy_SourceInternal&#39;,</span>
+<span class="sd">        - &#39;EUVPower_SourceInternal&#39;,</span>
+<span class="sd">        - &#39;CrossingInterval_3sigma&#39;</span>
+
+<span class="sd">        :param pdf: dataframe including processed/derived signals</span>
+<span class="sd">        :param timestamp: timestamp for which aggregation is calculated</span>
+<span class="sd">        :return: dataframe with aggregated data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">aggregation_signals</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;EUVEnergy_SourceInternal&#39;</span><span class="p">,</span> <span class="s1">&#39;EUVPower_SourceInternal&#39;</span><span class="p">,</span> <span class="s1">&#39;CrossingInterval_3sigma&#39;</span><span class="p">]</span>
+        <span class="n">df_aggregate</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">aggregation_signals</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">timestamp</span><span class="p">])</span>
+
+        <span class="c1"># BDenergyAvgOn</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="s2">&quot;BDenergyAvgOn&quot;</span>
+        <span class="n">aggregation_name</span> <span class="o">=</span> <span class="s2">&quot;EUVEnergy_SourceInternal&quot;</span>
+        <span class="n">df_aggregate</span><span class="p">[</span><span class="n">aggregation_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pandas_helpers</span><span class="o">.</span><span class="n">max_hist</span><span class="p">(</span>
+            <span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">][(</span><span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">)])</span>
+
+        <span class="c1"># _EUVPower</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="s2">&quot;_EUVPower&quot;</span>
+        <span class="n">aggregation_name</span> <span class="o">=</span> <span class="s2">&quot;EUVPower_SourceInternal&quot;</span>
+        <span class="n">df_aggregate</span><span class="p">[</span><span class="n">aggregation_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pandas_helpers</span><span class="o">.</span><span class="n">max_hist</span><span class="p">(</span>
+            <span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">][(</span><span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">)])</span>
+
+        <span class="c1"># BDcrossingIntervalStdOn</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="s2">&quot;BDcrossingIntervalStdOn&quot;</span>
+        <span class="n">aggregation_name</span> <span class="o">=</span> <span class="s2">&quot;CrossingInterval_3sigma&quot;</span>
+        <span class="n">df_aggregate</span><span class="p">[</span><span class="n">aggregation_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">pandas_helpers</span><span class="o">.</span><span class="n">max_hist</span><span class="p">(</span>
+            <span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">][(</span><span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">)])</span>
+
+        <span class="k">return</span> <span class="n">df_aggregate</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

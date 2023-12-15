@@ -1,0 +1,584 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>RT_Processing &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Parsers" href="Parsers.html" />
+    <link rel="prev" title="PMA" href="PMA.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="EUVDashboard.html">EUVDashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PMA.html">PMA</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">RT_Processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt05">RT05</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt06">RT06</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt22">RT22</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt23">RT23</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt25">RT25</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt32">RT32</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt35">RT35</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyeuv.RT_Processing.rt_common">Common RT functionality</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Parsers.html">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Collector.html">Collector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Do_It.html">Do_It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TinManagement.html">TinManagement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Shared.html">Shared</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers.html">helpers</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+        
+      <li>RT_Processing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/RT_Processing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="rt-processing">
+<h1>RT_Processing<a class="headerlink" href="#rt-processing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyeuv.RT_Processing.rt05">
+<span id="rt05"></span><h2>RT05<a class="headerlink" href="#module-pyeuv.RT_Processing.rt05" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Nov 25 14:32 2019</p>
+<p>&#64;author: Rob Wieggers (RWKL)
+&#64;ownership: FC-078</p>
+<p>Based on code from CDL EUVDB</p>
+<p><em>Example usage</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pyeuv.RT_Processing.rt05</span> <span class="k">as</span> <span class="nn">rt05</span>
+<span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">UserLANClient</span><span class="p">()</span>
+<span class="n">source_id</span> <span class="o">=</span> <span class="s1">&#39;s62265&#39;</span>
+
+<span class="n">RT</span> <span class="o">=</span> <span class="n">rt05</span><span class="o">.</span><span class="n">RT05</span><span class="p">()</span>
+<span class="n">rt_config</span> <span class="o">=</span> <span class="n">RT</span><span class="o">.</span><span class="n">get_signal_config</span><span class="p">()</span>
+<span class="n">input_signals</span> <span class="o">=</span> <span class="n">rt_config</span><span class="p">[</span><span class="s1">&#39;SCHEMA_PROCESSING_SIGNALS&#39;</span><span class="p">]</span>
+<span class="n">output_signals</span> <span class="o">=</span> <span class="n">rt_config</span><span class="p">[</span><span class="s1">&#39;SCHEMA_PROCESSED_SIGNALS&#39;</span><span class="p">]</span>
+
+<span class="c1"># get data from influx</span>
+<span class="n">signals_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">input_signals</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">signals_dict</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">RT</span><span class="o">.</span><span class="n">signal_group</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">signals_dict</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="c1"># process data</span>
+<span class="n">df_cleaned</span> <span class="o">=</span> <span class="n">RT</span><span class="o">.</span><span class="n">clean_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">rt_config</span><span class="p">)</span>
+<span class="n">df_out</span> <span class="o">=</span> <span class="n">RT</span><span class="o">.</span><span class="n">process_signals</span><span class="p">(</span><span class="n">df_cleaned</span><span class="p">)</span>
+<span class="n">df_out</span> <span class="o">=</span> <span class="n">df_out</span><span class="p">[</span><span class="n">output_signals</span><span class="p">]</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="pyeuv.RT_Processing.rt05.RT05">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.RT_Processing.rt05.</code><code class="sig-name descname">RT05</code><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt05.html#RT05"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt05.RT05" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.RT_Processing.rt05.RT05.aggregate_signals">
+<em class="property">static </em><code class="sig-name descname">aggregate_signals</code><span class="sig-paren">(</span><em class="sig-param">pdf</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt05.html#RT05.aggregate_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt05.RT05.aggregate_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate aggregated signals.
+The signals are:
+- ‘EUVEnergy_SourceInternal’,
+- ‘EUVPower_SourceInternal’,
+- ‘CrossingInterval_3sigma’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pdf</strong> – dataframe including processed/derived signals</p></li>
+<li><p><strong>timestamp</strong> – timestamp for which aggregation is calculated</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe with aggregated data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.RT_Processing.rt05.RT05.process_signals">
+<em class="property">static </em><code class="sig-name descname">process_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt05.html#RT05.process_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt05.RT05.process_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate derived data for rt05</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT05 data</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df, including additional columns of derived data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.RT_Processing.rt06">
+<span id="rt06"></span><h2>RT06<a class="headerlink" href="#module-pyeuv.RT_Processing.rt06" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Nov 25 14:32 2019</p>
+<p>&#64;author: Rob Wieggers (RWKL)
+&#64;ownership: FC-074</p>
+<p>Based on code from CDL EUVDB</p>
+<dl class="class">
+<dt id="pyeuv.RT_Processing.rt06.RT06">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.RT_Processing.rt06.</code><code class="sig-name descname">RT06</code><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt06.html#RT06"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt06.RT06" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.RT_Processing.rt06.RT06.process_signals">
+<em class="property">static </em><code class="sig-name descname">process_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">apply_resampling=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt06.html#RT06.process_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt06.RT06.process_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate derived data for rt06.
+By default it resamples the data to 1Hz, as used for influx. In this case it calculates the
+min, mean, max, and std for all the columns.
+By setting apply_resampling to False, as used in some data pipelines by ADA4EUV,
+no resampling is applyd (neither are the aggregation functions min, mean, max, std).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT22 data</p></li>
+<li><p><strong>apply_resampling</strong> – switches resampling to 1 Hz on or off (default=True)</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df, including additional columns of derived data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.RT_Processing.rt22">
+<span id="rt22"></span><h2>RT22<a class="headerlink" href="#module-pyeuv.RT_Processing.rt22" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Nov 25 14:32 2019</p>
+<p>&#64;author: Rob Wieggers (RWKL)
+&#64;ownership: FC-072</p>
+<p>Based on code from CDL EUVDB</p>
+<dl class="class">
+<dt id="pyeuv.RT_Processing.rt22.RT22">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.RT_Processing.rt22.</code><code class="sig-name descname">RT22</code><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt22.html#RT22"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt22.RT22" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.RT_Processing.rt22.RT22.process_signals">
+<em class="property">static </em><code class="sig-name descname">process_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">apply_resampling=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt22.html#RT22.process_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt22.RT22.process_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate KPI Rejected / Leakage Ratio’s (for TGOQ). Also see post_process_LSP
+By default it resamples the data to 1Hz, as used for influx. In this case it calculates the
+mean for all the columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT22 data</p></li>
+<li><p><strong>apply_resampling</strong> – switches resampling to 1 Hz on or off (default=True)</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df, including additional columns of derived data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.RT_Processing.rt23">
+<span id="rt23"></span><h2>RT23<a class="headerlink" href="#module-pyeuv.RT_Processing.rt23" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Nov 25 14:32 2019</p>
+<p>&#64;author: Rob Wieggers (RWKL)
+&#64;ownership: FC-076</p>
+<p>Based on code from CDL EUVDB</p>
+<dl class="class">
+<dt id="pyeuv.RT_Processing.rt23.RT23">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.RT_Processing.rt23.</code><code class="sig-name descname">RT23</code><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt23.html#RT23"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt23.RT23" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.RT_Processing.rt23.RT23.process_signals">
+<em class="property">static </em><code class="sig-name descname">process_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">mv_flag</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt23.html#RT23.process_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt23.RT23.process_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate derived data for rt23</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT23 data</p></li>
+<li><p><strong>mv_flag</strong> – true is MV source, false if GWE</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df, including additional columns of derived data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.RT_Processing.rt25">
+<span id="rt25"></span><h2>RT25<a class="headerlink" href="#module-pyeuv.RT_Processing.rt25" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Nov 25 14:32 2019</p>
+<p>&#64;author: Rob Wieggers (RWKL)
+&#64;ownership: FC-071</p>
+<p>Based on code from CDL EUVDB</p>
+<dl class="class">
+<dt id="pyeuv.RT_Processing.rt25.RT25">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.RT_Processing.rt25.</code><code class="sig-name descname">RT25</code><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt25.html#RT25"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt25.RT25" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.RT_Processing.rt25.RT25.process_signals">
+<em class="property">static </em><code class="sig-name descname">process_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt25.html#RT25.process_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt25.RT25.process_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate KPI Rejected / Leakage Ratio’s (for TGOQ). Also see post_process_LSP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT22 data</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df, including additional columns of derived data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.RT_Processing.rt32">
+<span id="rt32"></span><h2>RT32<a class="headerlink" href="#module-pyeuv.RT_Processing.rt32" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Nov 25 14:32 2019</p>
+<p>&#64;author: Rob Wieggers (RWKL)
+&#64;ownership: FC-072</p>
+<p>Based on code from CDL EUVDB</p>
+<dl class="class">
+<dt id="pyeuv.RT_Processing.rt32.RT32">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.RT_Processing.rt32.</code><code class="sig-name descname">RT32</code><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt32.html#RT32"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt32.RT32" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.RT_Processing.rt32.RT32.calculate_laser_to_droplet">
+<em class="property">static </em><code class="sig-name descname">calculate_laser_to_droplet</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">post_fix='_mean'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt32.html#RT32.calculate_laser_to_droplet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt32.RT32.calculate_laser_to_droplet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate laser to droplet. By default it uses the 1 second mean values to calculate this.
+When one needs L2D_x and L2D_y on the raw data, the optional post_fix should be set to “”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw and calculated RT32 data</p></li>
+<li><p><strong>post_fix</strong> – option to change (or remove) the postfix, which by default is ‘_mean’</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df including laser to droplet data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.RT_Processing.rt32.RT32.calculate_signals">
+<em class="property">static </em><code class="sig-name descname">calculate_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt32.html#RT32.calculate_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt32.RT32.calculate_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate derived data for rt32</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT32 data</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df, including additional calculated signals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.RT_Processing.rt32.RT32.process_signals">
+<em class="property">static </em><code class="sig-name descname">process_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">apply_resampling=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt32.html#RT32.process_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt32.RT32.process_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate derived data for rt32.
+By default it resamples the data to 1Hz, as used for influx. In this case it calculates the
+min, mean, max, and std for all the columns.
+By setting apply_resampling to False, as used in some data pipelines by ADA4EUV,
+no resampling is applyd (neither are the aggregation functions min, mean, max, std).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT32 data</p></li>
+<li><p><strong>apply_resampling</strong> – switches resampling to 1 Hz on or off (default=True)</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe new_df, including aggregated signals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyeuv.RT_Processing.rt32.RT32.resample_signals">
+<em class="property">static </em><code class="sig-name descname">resample_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt32.html#RT32.resample_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt32.RT32.resample_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resample the signals to 1 second buckets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT32 data</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe new_df, including aggregated signals</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.RT_Processing.rt35">
+<span id="rt35"></span><h2>RT35<a class="headerlink" href="#module-pyeuv.RT_Processing.rt35" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Nov 25 14:32 2019</p>
+<p>&#64;author: Rob Wieggers (RWKL)
+&#64;ownership: FC-078</p>
+<p>Based on code from CDL EUVDB</p>
+<dl class="class">
+<dt id="pyeuv.RT_Processing.rt35.RT35">
+<em class="property">class </em><code class="sig-prename descclassname">pyeuv.RT_Processing.rt35.</code><code class="sig-name descname">RT35</code><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt35.html#RT35"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt35.RT35" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pyeuv.RT_Processing.rt35.RT35.process_signals">
+<em class="property">static </em><code class="sig-name descname">process_signals</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt35.html#RT35.process_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt35.RT35.process_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate derived data for rt35</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – input dataframe containing raw RT35 data</p></li>
+<li><p><strong>verbose</strong> – switches debug mode (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataframe df, including additional columns of derived data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyeuv.RT_Processing.rt_common">
+<span id="common-rt-functionality"></span><h2>Common RT functionality<a class="headerlink" href="#module-pyeuv.RT_Processing.rt_common" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyeuv.RT_Processing.rt_common.on_drop_mask">
+<code class="sig-prename descclassname">pyeuv.RT_Processing.rt_common.</code><code class="sig-name descname">on_drop_mask</code><span class="sig-paren">(</span><em class="sig-param">rt2</em>, <em class="sig-param">gate_lag=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyeuv/RT_Processing/rt_common.html#on_drop_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyeuv.RT_Processing.rt_common.on_drop_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a mask that can be used to find the on droplet events for CO2 and EUV measurements</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rt2</strong> (<em>pandas.DataFrame</em>) – rt2 dataframe</p></li>
+<li><p><strong>gate_lag</strong> (<em>int</em>) – lagging of EUV/CO2 measurements on the gate edges</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool numpy array that can be used as filter to only select on droplet events</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Parsers.html" class="btn btn-neutral float-right" title="Parsers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="PMA.html" class="btn btn-neutral float-left" title="PMA" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

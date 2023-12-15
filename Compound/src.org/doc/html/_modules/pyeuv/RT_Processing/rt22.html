@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.RT_Processing.rt22 &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.RT_Processing.rt22</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.RT_Processing.rt22</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Nov 25 14:32 2019</span>
+
+<span class="sd">@author: Rob Wieggers (RWKL)</span>
+<span class="sd">@ownership: FC-072</span>
+
+<span class="sd">Based on code from CDL EUVDB</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Do_It</span> <span class="kn">import</span> <span class="n">do_it_library</span> <span class="k">as</span> <span class="n">do_it</span>
+<span class="kn">from</span> <span class="nn">pyeuv.RT_Processing.simple_rt</span> <span class="kn">import</span> <span class="n">SimpleRT</span>
+
+
+<div class="viewcode-block" id="RT22"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt22.RT22">[docs]</a><span class="k">class</span> <span class="nc">RT22</span><span class="p">(</span><span class="n">SimpleRT</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;RT22&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RT22</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RT22.process_signals"><a class="viewcode-back" href="../../../RT_Processing.html#pyeuv.RT_Processing.rt22.RT22.process_signals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">apply_resampling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate KPI Rejected / Leakage Ratio&#39;s (for TGOQ). Also see post_process_LSP</span>
+<span class="sd">        By default it resamples the data to 1Hz, as used for influx. In this case it calculates the</span>
+<span class="sd">        mean for all the columns.</span>
+
+<span class="sd">        :param df: input dataframe containing raw RT22 data</span>
+<span class="sd">        :param apply_resampling: switches resampling to 1 Hz on or off (default=True)</span>
+<span class="sd">        :param verbose: switches debug mode (default=False)</span>
+<span class="sd">        :return: dataframe df, including additional columns of derived data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of PP FF</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_FBD_PP_FF_CAM__OT_SI_CAM_FBD_PP_FF_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_PP_FF_CAM__OT_MAT_2X2_FLT_OUT1&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_PP_FF_CAM__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of RBD</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_RBD_CAM__OT_SI_CAM_RBD_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_RBD_CAM__OT_MAT_3X3_FLT_OUT1&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_RBD_CAM__OT_MAT_3X3_FLT_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_RBD_CAM__OT_MAT_3X3_FLT_OUT3&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of PP WFS</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_WF_PP_CAM__OT_SI_CAM_WF_PP_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_WAVEFR_CAM__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_5_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_6_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_7_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_8_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_9_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_10_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_11_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_12_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_13_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_14_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_15_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_16_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_PP_CAM__OT_SI_CAM_WF_PP_OUT_X&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_PP_CAM__OT_SI_CAM_WF_PP_OUT_Y&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of MP WFS</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_WF_MP_CAM__OT_SI_CAM_WF_MP_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_5_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_6_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_7_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_8_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_9_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_10_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_11_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_12_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_13_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_14_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_15_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_16_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_MP_CAM__OT_SI_CAM_WF_MP_OUT_X&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_MP_CAM__OT_SI_CAM_WF_MP_OUT_Y&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of MP FF</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_FBD_MP_FF_CAM__OT_SI_CAM_FBD_MP_FF_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_MP_FF_CAM__OT_MAT_2X2_FLT_OUT1&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_MP_FF_CAM__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_MP2PP_dx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_MP_FF_CAM__OT_MAT_2X2_FLT_OUT1&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_MS_FC_FBD_PP_FF_CAM__OT_MAT_2X2_FLT_OUT1&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_MP2PP_dy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_MP_FF_CAM__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_MS_FC_FBD_PP_FF_CAM__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of MP NF</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_FBD_MP_NF_CAM__OT_SI_CAM_FBD_MP_NF_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_MP_NF_CAM__OT_SI_CAM_FBD_MP_NF_OUT_X&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_MP_NF_CAM__OT_SI_CAM_FBD_MP_NF_OUT_Y&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_CAM_BUF__OT_SI_CAM_FBD_BUF_MSG_RSLT1_DIAMETER&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_CAM_BUF__OT_SI_CAM_FBD_BUF_MSG_RSLT1_D4S_LONG&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_CAM_BUF__OT_SI_CAM_FBD_BUF_MSG_RSLT1_D4S_SHORT&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_CAM_BUF__OT_SI_CAM_FBD_BUF_MSG_RSLT1_D4S_ANGLE&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_MPNF_ellipticity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_CAM_BUF__OT_SI_CAM_FBD_BUF_MSG_RSLT1_D4S_SHORT&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_SI_FC_FBD_CAM_BUF__OT_SI_CAM_FBD_BUF_MSG_RSLT1_D4S_LONG&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_MPNF_ellipticity&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of MP diameter measured on the WFS</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_WF_MP_CAM__OT_SI_CAM_WF_MP_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_BEAM_DIAMETER_MP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Filter on validity of PP diameter measured on the WFS</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_WF_PP_CAM__OT_SI_CAM_WF_PP_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_BEAM_DIAMETER_PP&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Calc signals</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_RBD_CAM__OT_SI_CAM_RBD_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_L2D_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_PP_FF_CAM__OT_MAT_2X2_FLT_OUT1&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_MS_FC_RBD_CAM__OT_MAT_3X3_FLT_OUT1&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_L2D_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_FBD_PP_FF_CAM__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_MS_FC_RBD_CAM__OT_MAT_3X3_FLT_OUT2&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_L2D_x&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_L2D_y&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="n">msk</span> <span class="o">=</span> <span class="s2">&quot;FFA_LD_SI_FC_RBD_CAM__OT_SI_CAM_RBD_VALID_OUT&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_L2D_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_MS_FC_WAVEFR_CAM__OT_MAT_2X2_FLT_OUT2&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;FFA_LD_MS_FC_RBD_CAM__OT_MAT_3X3_FLT_OUT3&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_L2D_z&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22 on mask </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msk</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fu_diameter</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">45e-3</span><span class="p">,</span> <span class="mf">1.4</span>  <span class="c1"># 45mm aperture for FU (RBD port size) and mask size factor of 1.4</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_5_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_5_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_6_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_6_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_7_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_7_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_8_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_8_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_9_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_9_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_10_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_10_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_11_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_11_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_12_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_12_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_13_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_13_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_14_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_14_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_15_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_15_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_16_MP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_16_MP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+                
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_5_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_5_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_6_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_6_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_7_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_7_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_8_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_8_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_9_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_9_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_10_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_10_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_11_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_11_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_12_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_12_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_13_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_13_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_14_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_14_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_15_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_15_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_ZERNIKE_16_PP_RELATIVE_45mm&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_16_PP&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="p">((</span><span class="n">fu_diameter</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+                
+            <span class="k">del</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_MP&quot;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_D4SLONGAXIS_PP&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">apply_resampling</span><span class="p">:</span>
+                <span class="c1"># Re-sample selected signals</span>
+                <span class="n">resampled</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;FFA_LD_SI_FC_FBD_CAM_BUF__OT_SI_CAM_FBD_BUF_MSG_&quot;</span><span class="p">)</span>
+                                <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_ZERNIKE_&quot;</span><span class="p">)</span>
+                                <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;FFA_LD_SI_FC_WF_CAM_BUF__OT_SI_CAM_WF_BUF_MSG_BEAM_DIAMETER_&quot;</span><span class="p">)</span>
+                                <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_ZERNIKE&quot;</span><span class="p">))]</span>
+                <span class="n">df_resampled</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">resampled</span><span class="p">]</span>
+                <span class="n">df_resampled</span> <span class="o">=</span> <span class="n">df_resampled</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s1">&#39;1S&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s1">&#39;_mean&#39;</span><span class="p">)</span>
+
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">resampled</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df_resampled</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Timestamp&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed processing RT22.&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

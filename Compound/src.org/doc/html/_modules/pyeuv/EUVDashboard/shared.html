@@ -1,0 +1,1065 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.EUVDashboard.shared &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.EUVDashboard.shared</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.EUVDashboard.shared</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">shared.py</span>
+<span class="sd">Authors: RLBL, PKVB</span>
+<span class="sd">Date:  2019-09-25</span>
+
+<span class="sd">Modified version of ETL/shared.py for distribution with pyeuv.</span>
+
+<span class="sd">*Avoid using this module directly, use clients.UserLANClient instead.*</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1"># matrix manipulation</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">regex</span> <span class="k">as</span> <span class="nn">re</span>  <span class="c1"># better regular expressions</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">influxdb.exceptions</span> <span class="kn">import</span> <span class="n">InfluxDBClientError</span><span class="p">,</span> <span class="n">InfluxDBServerError</span>
+
+
+<span class="c1">#################################################################################</span>
+<span class="c1"># DATABASE READING</span>
+<span class="c1">#################################################################################</span>
+
+<span class="n">CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">50000</span>
+
+
+<div class="viewcode-block" id="get_signals"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.get_signals">[docs]</a><span class="k">def</span> <span class="nf">get_signals</span><span class="p">(</span><span class="n">signals</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">chunksize</span><span class="o">=</span><span class="n">CHUNK_SIZE</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">last_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">dbclient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get signals from the database between from_time and to_time. Uses chunk_signal() to send multiple</span>
+<span class="sd">    small queries to the database that will return at most CHUNK_SIZE points. Returned points are</span>
+<span class="sd">    cocatenated in a single dataframe. Returned timestamps are in UTC.</span>
+
+<span class="sd">    :param signals: Signal or list of signals</span>
+<span class="sd">                    This parameter can contain modifiers to manupulate the signal. See chunk_signal() for details.</span>
+<span class="sd">    :type signals: list&lt;str&gt; or str</span>
+<span class="sd">    :param user: The InfluxDB user account name</span>
+<span class="sd">    :param from_time: Lower time limit</span>
+<span class="sd">    :type from_time: pandas.Timestamp</span>
+<span class="sd">    :param to_time: Upper time limit</span>
+<span class="sd">    :type to_time: pandas.Timestamp</span>
+<span class="sd">    :param chunksize: The maximum number of points requested per query</span>
+<span class="sd">    :type chunksize: int</span>
+<span class="sd">    :param defaults: Dict with defaults if the requested signals yield no data.</span>
+<span class="sd">                     {&#39;signalA&#39;: defaultA, &#39;signalB&#39;: defaultB, ...}</span>
+<span class="sd">    :type defaults: dict</span>
+<span class="sd">    :param last_value: If there&#39;s no data available for the given time</span>
+<span class="sd">                           window, return the last known value instead.</span>
+
+<span class="sd">                           If used in combination with the defaults option the</span>
+<span class="sd">                           last value will take precedence over the default.</span>
+<span class="sd">    :type last_value: bool</span>
+
+<span class="sd">    :param dbclient: Use the provided DataframeClient instead of automatically</span>
+<span class="sd">                     determining the client based on hostname.</span>
+<span class="sd">    :param verify_tags: Verify that given tag keys and values are available for the given signal.</span>
+<span class="sd">                        Will raise an error if they don&#39;t exist. Has a small performance penalty</span>
+<span class="sd">                        because it needs to send some extra queries to influx. This may become</span>
+<span class="sd">                        noticeable in rare cases where the list of signals is very long. So it can</span>
+<span class="sd">                        be disabled with this option.</span>
+<span class="sd">    :type verify_tags: bool (Default=True)</span>
+<span class="sd">    :param verbose: Print the name of the signal that&#39;s currently being</span>
+<span class="sd">      downloaded as well as the chunk sizes. Default is False</span>
+<span class="sd">    :type verbose: bool</span>
+<span class="sd">    :rtype pandas.DataFrame:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">signals</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">signals</span> <span class="o">=</span> <span class="p">[</span><span class="n">signals</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Donwloading: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="n">df_signal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunk_signal</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">chunksize</span><span class="p">,</span>
+                                  <span class="n">dbclient</span><span class="o">=</span><span class="n">dbclient</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s1">&#39;0.23.0&#39;</span><span class="p">:</span>
+                <span class="c1"># pandas version 0.19.2 on EUV-DB does not have the sort parameter</span>
+                <span class="n">df_signal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_signal</span><span class="p">,</span> <span class="n">chunk</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df_signal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_signal</span><span class="p">,</span> <span class="n">chunk</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Stack signals horizontally</span>
+        <span class="n">df_signal</span> <span class="o">=</span> <span class="n">df_signal</span><span class="p">[</span><span class="o">~</span><span class="n">df_signal</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">)]</span>
+        <span class="n">df_result</span> <span class="o">=</span> <span class="n">df_result</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_signal</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Add the last value for signals that didn&#39;t return a result. Return</span>
+    <span class="c1"># defaults if there&#39;s no last value available.</span>
+    <span class="k">if</span> <span class="n">last_value</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_result</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">default</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">df_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
+                    <span class="n">df_result</span><span class="p">,</span>
+                    <span class="n">last_value_before</span><span class="p">(</span>
+                        <span class="n">signal</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span>
+                        <span class="n">to_time</span><span class="o">=</span><span class="n">from_time</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+                        <span class="n">dbclient</span><span class="o">=</span><span class="n">dbclient</span><span class="p">)</span>
+                    <span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Return defaults where needed</span>
+        <span class="k">if</span> <span class="n">defaults</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">defaults</span> <span class="ow">and</span> <span class="n">signal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_result</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
+                        <span class="n">df_result</span><span class="p">,</span>
+                        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                            <span class="n">data</span><span class="o">=</span><span class="n">defaults</span><span class="p">[</span><span class="n">signal</span><span class="p">],</span>
+                            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
+                            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">signal</span><span class="p">])</span>
+                        <span class="p">])</span>
+
+    <span class="n">df_result</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_result</span></div>
+
+
+<div class="viewcode-block" id="get_signals_dict"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.get_signals_dict">[docs]</a><span class="k">def</span> <span class="nf">get_signals_dict</span><span class="p">(</span><span class="n">signals_dict</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">chunksize</span><span class="o">=</span><span class="n">CHUNK_SIZE</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">last_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">create_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">dbclient</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dataframe with signals from influx. The column names have been renamed </span>
+<span class="sd">    to more human readable names, as provided in the signal_dict</span>
+<span class="sd">    </span>
+<span class="sd">    :param signal_dict: dictionary for signals to be retrieved and their human readable representation (as key)</span>
+<span class="sd">    :type signals_dict: dict</span>
+<span class="sd">    :param source_id: the source_id for which the signals have to be retrieved</span>
+<span class="sd">    :type source_id: string</span>
+<span class="sd">    :param from_time: Lower time limit</span>
+<span class="sd">    :type from_time: pandas.Timestamp</span>
+<span class="sd">    :param to_time: Upper time limit</span>
+<span class="sd">    :type to_time: pandas.Timestamp</span>
+<span class="sd">    :param chunksize: The maximum number of points requested per query</span>
+<span class="sd">    :type chunksize: int</span>
+<span class="sd">    :param defaults: List of defaults if the requested signals yield no data.</span>
+<span class="sd">                     {&#39;signalA&#39;: defaultA, &#39;signalB&#39;: defaultB, ...}</span>
+<span class="sd">    :type defaults: dict</span>
+<span class="sd">    :param last_value: If there&#39;s no data available for the given time</span>
+<span class="sd">                       window, return the last known value instead.</span>
+
+<span class="sd">                       If used in combination with the defaults option the</span>
+<span class="sd">                       last value will take precedence over the default.</span>
+<span class="sd">    :type last_value: bool</span>
+<span class="sd">    :param create_columns: if for a signal, no data is available, create the column containing NaNs (default: False)</span>
+<span class="sd">    :type last_value: bool</span>
+<span class="sd">    :rtype: Dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+     
+    <span class="n">signals_dict_reversed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">source_id</span><span class="o">+</span><span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">signals_dict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_signals</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">signals_dict_reversed</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">user</span><span class="p">,</span> 
+                     <span class="n">from_time</span><span class="o">=</span><span class="n">from_time</span><span class="p">,</span>
+                     <span class="n">to_time</span><span class="o">=</span><span class="n">to_time</span><span class="p">,</span>
+                     <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
+                     <span class="n">dbclient</span><span class="o">=</span><span class="n">dbclient</span><span class="p">,</span>
+                     <span class="n">last_value</span><span class="o">=</span><span class="n">last_value</span><span class="p">,</span>
+                     <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span>
+                    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">create_columns</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">current_column_name</span><span class="p">,</span> <span class="n">new_column_name</span> <span class="ow">in</span> <span class="n">signals_dict_reversed</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">current_column_name</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">current_column_name</span><span class="p">:</span> <span class="n">new_column_name</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">new_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">signals_dict_reversed</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<span class="k">def</span> <span class="nf">_split_signal_name</span><span class="p">(</span><span class="n">signal_name</span><span class="p">,</span> <span class="n">signal_parts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split signal name, reserved for use with generate_influxdb_query.</span>
+
+<span class="sd">    :param signal_name: Fully qualified signal name</span>
+<span class="sd">        &lt;source_nr&gt;.&lt;signal_type&gt;.&lt;signal_name&gt;[field]{tag}.&lt;aggregate_time&gt;.&lt;aggregate_func&gt;</span>
+<span class="sd">    :type signal_name: str</span>
+<span class="sd">    :param signal_parts: Signal parts dictionary, see chunk_signal</span>
+<span class="sd">    :type signal_parts: dict</span>
+<span class="sd">    :returns: Splitted signal, mathstr_pre, mathstr_post</span>
+<span class="sd">    :rtype: list&lt;str&gt;, str, str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">re_math</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;operator&gt;multiply|divide|add|substract|inverse)\((?P&lt;value&gt;(?:\d+|\d+\.\d+))\)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Split of any math functions</span>
+    <span class="n">math_match</span> <span class="o">=</span> <span class="n">re_math</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">signal_name</span><span class="p">)</span>
+    <span class="n">mathstr_pre</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">mathstr_post</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">math_match</span><span class="p">:</span>
+        <span class="n">split_sig</span> <span class="o">=</span> <span class="n">signal_name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">math_match</span><span class="o">.</span><span class="n">start</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">groupdict</span> <span class="o">=</span> <span class="n">math_match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;operator&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+            <span class="n">mathstr_pre</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">+&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="c1"># Influx is not consistent here. It will not accept &#39;mean(field) - 10&#39;</span>
+        <span class="c1"># but it does accept &#39;-10 + mean(field)&#39;</span>
+        <span class="k">elif</span> <span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;operator&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;substract&#39;</span><span class="p">:</span>
+            <span class="n">mathstr_pre</span> <span class="o">=</span> <span class="s2">&quot;-</span><span class="si">{0}</span><span class="s2">+&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;operator&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;multiply&#39;</span><span class="p">:</span>
+            <span class="n">mathstr_post</span> <span class="o">=</span> <span class="s2">&quot;*</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;operator&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;divide&#39;</span><span class="p">:</span>
+            <span class="n">mathstr_post</span> <span class="o">=</span> <span class="s2">&quot;/</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;operator&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;inverse&#39;</span><span class="p">:</span>
+            <span class="n">mathstr_pre</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">groupdict</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">split_sig</span> <span class="o">=</span> <span class="n">signal_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>   <span class="c1"># interpret the signal</span>
+
+    <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;mathstr_pre&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mathstr_pre</span>
+    <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;mathstr_post&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mathstr_post</span>
+
+    <span class="k">return</span> <span class="n">split_sig</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_aggfun_parts</span><span class="p">(</span><span class="n">split_sig</span><span class="p">,</span> <span class="n">signal_parts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detect aggregation functions and measurement name, then adjust signal parts</span>
+<span class="sd">    accordingly.</span>
+
+<span class="sd">    :param split_sig: Split signal from _split_signal_name()</span>
+<span class="sd">    :type split_sig: list&lt;str&gt;</span>
+<span class="sd">    :param signal_parts:</span>
+<span class="sd">    :type signal_parts: dict</span>
+
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Aggregation functions supported by InfluxDB.</span>
+    <span class="n">agg_functions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;mode&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;distinct&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;stddev&#39;</span><span class="p">,</span> <span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="s1">&#39;percentile&#39;</span><span class="p">]</span>
+    <span class="n">agg_fun</span> <span class="o">=</span> <span class="n">split_sig</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># last part of the signal</span>
+
+    <span class="k">if</span> <span class="n">agg_fun</span> <span class="ow">in</span> <span class="n">agg_functions</span><span class="p">:</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_sig</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># last part of the signal</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;groupby&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">split_sig</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># e.g. 1h, 1d, 0.5s, etc</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;aggfun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">agg_fun</span>  <span class="c1"># e.g. mean, std, etc.</span>
+
+        <span class="c1"># Select query template (with or without aggfunction argument)</span>
+        <span class="k">if</span> <span class="n">agg_fun</span> <span class="o">==</span> <span class="s1">&#39;percentile&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;aggfun_arg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">agg_fun</span><span class="p">[</span><span class="mi">10</span><span class="p">:])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="s2">&quot;Percentile function not specified correctly. It needs to end with an integer. &quot;</span> \
+                      <span class="s2">&quot;E.g.: m3322.RT5.BDenergy1Mean.1m.percentile95. Message: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_sig</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+
+<span class="k">def</span> <span class="nf">_check_tag_availability</span><span class="p">(</span><span class="n">database</span><span class="p">,</span> <span class="n">measurement</span><span class="p">,</span> <span class="n">tag_matches</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the found tag key-value combinations exist for the signal</span>
+<span class="sd">    Raises error if a key or value is missing.</span>
+
+<span class="sd">    :param database: InfluxDB database name. Usually a source nr.</span>
+<span class="sd">    :type database: str</span>
+<span class="sd">    :param measurement: Measurement name in InfluxDB.</span>
+<span class="sd">    :type measurement: str</span>
+<span class="sd">    :param tag_matches: results from the tag_regex applied to the sigal in generate_influx_db.</span>
+<span class="sd">    :type tag_matches: list&lt;tuple&gt;</span>
+<span class="sd">    :type dbclient: InfluxDB Client used to check tag key/value availability</span>
+<span class="sd">    :param dbclient: InfluxDBClient</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">base_signal_name</span> <span class="o">=</span> <span class="n">database</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">measurement</span>
+    <span class="n">keys_avail</span> <span class="o">=</span> <span class="n">get_tag_keys</span><span class="p">(</span><span class="n">base_signal_name</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tag_matches</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys_avail</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Tag key doesn&#39;t exist: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">vals_avail</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tag_matches</span><span class="p">:</span>
+        <span class="n">vals_avail</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">get_tag_values</span><span class="p">(</span><span class="n">base_signal_name</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dbclient</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tag_matches</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vals_avail</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tag value </span><span class="si">{0}</span><span class="s2"> doesn&#39;t exist for key </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_tags_and_fields</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse tags from the signal name and put them in signal_parts.</span>
+
+<span class="sd">    :param signal_parts: Parts of the signal, see generate_influxdb_query</span>
+<span class="sd">    :type signal_parts: dict</span>
+<span class="sd">    :param dbclient: InfluxDB client used to lookup tag keys/values</span>
+<span class="sd">    :type dbclient: InfluxDBClient</span>
+<span class="sd">    :param verify_tags: If true, check if the tag keys/values exist for this signal. Raises KeyError/ValueError if</span>
+<span class="sd">                        the a tag key/value is missing for the given signal.</span>
+<span class="sd">    :type verify_tags: bool</span>
+<span class="sd">    :return None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">measurement_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(?P&lt;name&gt;^\S+?(?=\{|\[|$))&quot;</span><span class="p">)</span>
+    <span class="n">tag_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\{(?P&lt;tag_name&gt;\w+)(?P&lt;tag_op&gt;!=|=)(?P&lt;tag_val&gt;[^\}]+)\}&quot;</span><span class="p">)</span>
+    <span class="n">field_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(?P&lt;measurement&gt;\S+)\[(?P&lt;field&gt;\S+)\]\S*&quot;</span><span class="p">)</span>
+
+    <span class="n">measurement_name</span> <span class="o">=</span> <span class="n">measurement_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">captures</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Parse tag elements if any</span>
+    <span class="n">tag_matches</span> <span class="o">=</span> <span class="n">tag_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tag_matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">verify_tags</span><span class="p">:</span>
+        <span class="n">_check_tag_availability</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">],</span> <span class="n">measurement_name</span><span class="p">,</span> <span class="n">tag_matches</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tag_matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;tagcondition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">tag_matches</span><span class="p">:</span>  <span class="c1"># m = (tag_key, tag_operator, tag_value)</span>
+            <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;tagcondition&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="si">{1}</span><span class="s2">&#39;</span><span class="si">{2}</span><span class="s2">&#39; AND &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="c1"># Match field elements if any</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">field_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+            <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Remove field and tag brackets from the measurement name</span>
+    <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;measurement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_name</span>
+
+
+<div class="viewcode-block" id="generate_influxdb_query"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.generate_influxdb_query">[docs]</a><span class="k">def</span> <span class="nf">generate_influxdb_query</span><span class="p">(</span><span class="n">signal_name</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order_by_desc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">adjust_groupby_boundaries</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate InfluxQL query from signal name. If group by is used will also</span>
+<span class="sd">    suggest a new from_time for the next chunk. Otherwise the third return</span>
+<span class="sd">    value will be None.</span>
+
+<span class="sd">    :param signal_name:</span>
+<span class="sd">    :type signal_name: str</span>
+<span class="sd">    :param from_time: From time</span>
+<span class="sd">    :type from_time: Unix timestamp in [ns] as int64</span>
+<span class="sd">    :param to_time: To time</span>
+<span class="sd">    :type to_time: Unix timestamp in [ns] as int64</span>
+<span class="sd">    :param limit: Max number of points to be returned by this query</span>
+<span class="sd">    :type limit: int</span>
+<span class="sd">    :param dbclient: Influx client used to lookup meta information</span>
+<span class="sd">    :type dbclient: InfluxClient</span>
+<span class="sd">    :param verify_tags: Verify that given tag keys and values are available for the given signal.</span>
+<span class="sd">                        Will raise an error if they don&#39;t exist. Has a small performance penalty</span>
+<span class="sd">                        because it needs to send some extra queries to influx. This may become</span>
+<span class="sd">                        noticeable in rare cases where the list of signals is very long. So it can</span>
+<span class="sd">                        be disabled with this option.</span>
+<span class="sd">    :type verify_tags: bool (Default=True)</span>
+<span class="sd">    :param order_by_desc: Return results in reverse order if true.</span>
+<span class="sd">    :param adjust_groupby_boundaries: When groupby is used, adjusts the boundaries of the query such that groups</span>
+<span class="sd">                                      aren&#39;t broken up as this would otherwise cause inconsistent aggregates.</span>
+<span class="sd">    :type adjust_groupby_boundaries: bool</span>
+<span class="sd">    :type order_by_desc: bool</span>
+<span class="sd">    :return: database name and InfluxQL Query</span>
+<span class="sd">    :rtype: (str, str, pd.Timestamp/None)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">signal_parts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;signal_name&#39;</span><span class="p">:</span> <span class="n">signal_name</span><span class="p">,</span>
+        <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;measurement&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;aggfun&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;aggfun_arg&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tagcondition&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;groupby&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;mathstr_pre&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mathstr_post&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="n">from_time</span><span class="p">,</span>
+        <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="n">to_time</span><span class="p">,</span>
+        <span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="n">limit</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">order_by_desc</span><span class="p">:</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;order_by&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;DESC&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;order_by&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ASC&#39;</span>
+
+    <span class="c1"># Split signal into components</span>
+    <span class="n">split_sig</span> <span class="o">=</span> <span class="n">_split_signal_name</span><span class="p">(</span><span class="n">signal_name</span><span class="p">,</span> <span class="n">signal_parts</span><span class="p">)</span>
+
+    <span class="c1"># Derive database name for the first element of the signal name</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">split_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Convention: Machine numbers &#39;m&#39; or &#39;s&#39; must be lower case.</span>
+    <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">database</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="n">database</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="n">_parse_aggfun_parts</span><span class="p">(</span><span class="n">split_sig</span><span class="p">,</span> <span class="n">signal_parts</span><span class="p">)</span>
+    <span class="n">_parse_tags_and_fields</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span> <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">)</span>
+
+    <span class="c1"># Select query template</span>
+    <span class="k">if</span> <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;aggfun&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;aggfun_arg&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">query_template</span> <span class="o">=</span> <span class="s1">&#39;SELECT </span><span class="si">{mathstr_pre}</span><span class="s1">percentile(&quot;</span><span class="si">{field}</span><span class="s1">&quot;, </span><span class="si">{aggfun_arg}</span><span class="s1">)</span><span class="si">{mathstr_post}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;AS &quot;</span><span class="si">{signal_name}</span><span class="s1">&quot; &#39;</span> \
+                         <span class="s1">&#39;FROM &quot;</span><span class="si">{measurement}</span><span class="s1">&quot; &#39;</span> \
+                         <span class="s1">&#39;WHERE </span><span class="si">{tagcondition}</span><span class="s1"> time&gt;</span><span class="si">{from}</span><span class="s1"> AND time&lt;</span><span class="si">{to}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;GROUP BY time(</span><span class="si">{groupby}</span><span class="s1">) &#39;</span> \
+                         <span class="s1">&#39;FILL(none) &#39;</span> \
+                         <span class="s1">&#39;ORDER BY </span><span class="si">{order_by}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;LIMIT </span><span class="si">{limit}</span><span class="s1">&#39;</span>
+    <span class="k">elif</span> <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;aggfun&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">query_template</span> <span class="o">=</span> <span class="s1">&#39;SELECT </span><span class="si">{mathstr_pre}{aggfun}</span><span class="s1">(&quot;</span><span class="si">{field}</span><span class="s1">&quot;)</span><span class="si">{mathstr_post}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;AS &quot;</span><span class="si">{signal_name}</span><span class="s1">&quot; &#39;</span> \
+                         <span class="s1">&#39;FROM &quot;</span><span class="si">{measurement}</span><span class="s1">&quot; &#39;</span> \
+                         <span class="s1">&#39;WHERE </span><span class="si">{tagcondition}</span><span class="s1"> time&gt;</span><span class="si">{from}</span><span class="s1"> AND time&lt;</span><span class="si">{to}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;GROUP BY time(</span><span class="si">{groupby}</span><span class="s1">) &#39;</span> \
+                         <span class="s1">&#39;FILL(none) &#39;</span> \
+                         <span class="s1">&#39;ORDER BY </span><span class="si">{order_by}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;LIMIT </span><span class="si">{limit}</span><span class="s1">&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">query_template</span> <span class="o">=</span> <span class="s1">&#39;SELECT </span><span class="si">{mathstr_pre}</span><span class="s1">&quot;</span><span class="si">{field}</span><span class="s1">&quot;</span><span class="si">{mathstr_post}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;AS &quot;</span><span class="si">{signal_name}</span><span class="s1">&quot; &#39;</span> \
+                         <span class="s1">&#39;FROM &quot;</span><span class="si">{measurement}</span><span class="s1">&quot; &#39;</span> \
+                         <span class="s1">&#39;WHERE </span><span class="si">{tagcondition}</span><span class="s1"> time&gt;</span><span class="si">{from}</span><span class="s1"> AND time&lt;</span><span class="si">{to}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;ORDER BY </span><span class="si">{order_by}</span><span class="s1"> &#39;</span> \
+                         <span class="s1">&#39;LIMIT </span><span class="si">{limit}</span><span class="s1">&#39;</span>
+
+    <span class="c1"># If there is a groupby statement, determine the last left boundary to</span>
+    <span class="c1"># ensure we don&#39;t stop a chunk in the middle of a group.</span>
+    <span class="n">last_left_group_boundary</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;groupby&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">adjust_groupby_boundaries</span><span class="p">:</span>
+        <span class="n">last_left_group_boundary</span> <span class="o">=</span> <span class="n">_get_last_left_group_boundary</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">)</span>
+        <span class="n">last_left_group_boundary</span> <span class="o">+=</span> <span class="mi">1000</span>  <span class="c1"># InfluxDB offset</span>
+        <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_left_group_boundary</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">query_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">signal_parts</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;*&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>  <span class="c1"># Unquote field asterisks</span>
+
+    <span class="k">return</span> <span class="n">database</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">last_left_group_boundary</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_last_left_group_boundary</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the from time for the next iteration such that groups will not</span>
+<span class="sd">    be broken up when chunking data.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    group size: 3</span>
+<span class="sd">    agg method: last</span>
+<span class="sd">    t :  0  1  2  3  4  5  6  7  8  9  10</span>
+<span class="sd">    x :  0  1  2  3  4  5  6  7  8  9  10</span>
+<span class="sd">    tg:  0        3        6        9</span>
+<span class="sd">    xg:  2        5        8        10</span>
+<span class="sd">                                    ^</span>
+<span class="sd">                                    group is based on only 2 points i.s.o 3</span>
+<span class="sd">                                    adjust tstop for this chunk and tstart</span>
+<span class="sd">                                    for the next chunk to 9.</span>
+
+<span class="sd">    In case of the example this function will return 9 as the suggested time.</span>
+
+<span class="sd">    :param signal_parts: Signal parts, requires &#39;groupby&#39; field</span>
+<span class="sd">    :type signal_parts: dict</span>
+
+<span class="sd">    :return: Last left boundary (9 in the example)</span>
+<span class="sd">    :rtype: pd.Timestamp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;value&gt;\d+)(?P&lt;unit&gt;\w+)&quot;</span><span class="p">,</span> <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;groupby&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;signal_parts[&#39;groupby&#39;] contains invalid syntax&quot;</span><span class="p">)</span>
+    <span class="n">cap_groups</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+    <span class="n">time_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap_groups</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cap_groups</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Pandas uses the T symbol for minutes</span>
+    <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;m&#39;</span><span class="p">:</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;T&#39;</span>
+
+    <span class="n">tstart</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">]))</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">time_value</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">)</span>
+    <span class="n">tstop</span> <span class="o">=</span> <span class="n">tstart</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;limit&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">step</span>
+
+    <span class="n">chunk_end_time</span> <span class="o">=</span> <span class="n">tstop</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">time_value</span><span class="p">)</span> <span class="o">+</span> <span class="n">unit</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">chunk_end_time</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">signal_parts</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="chunk_signal"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.chunk_signal">[docs]</a><span class="k">def</span> <span class="nf">chunk_signal</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">from_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">CHUNK_SIZE</span><span class="p">,</span> <span class="n">dbclient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">verify_tags</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the data of a list of signals in chunks.</span>
+<span class="sd">    The signal are aligned in time and are converted to the local time of the machine.</span>
+
+<span class="sd">    :param signal: Signal to get</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        Each signal in the list should follow the following format:</span>
+<span class="sd">            &lt;source_nr&gt;.&lt;signal_type&gt;.&lt;signal_name&gt;[field]{tag}.&lt;aggregate_time&gt;.&lt;aggregate_func&gt;</span>
+<span class="sd">                Examples:</span>
+<span class="sd">                    Standard          --&gt; s62240.LUER.transmission</span>
+<span class="sd">                    Rolling mean 1h   --&gt; s62240.LUER.transmission.1h.mean</span>
+<span class="sd">                    Specify field     --&gt; s62179.DWMD.MCDWMD_EXPOSURE_MODE_PARAMS_EXPOSURE_MODE_DATA_MINI_BURST_MODE_PARAMETERS_BURST_DUTY_CYCLE_TAG[value01]</span>
+<span class="sd">                    Last of the hour  --&gt; s62240.LUER.image.1h.last</span>
+<span class="sd">                    Single tag filter --&gt; s62440.ScannerLog.de_err{code=DW-3411}.1d.max</span>
+<span class="sd">                    Multi tag filter  --&gt; s62265.RT23.TFMmajorAxis{subroutine=MP}{in_spec=True}</span>
+
+<span class="sd">    :type signal: str</span>
+<span class="sd">    :param user:               name of the user that is requesting the data (will be used for authorisation)</span>
+<span class="sd">    :type user: str</span>
+
+<span class="sd">    :param from_time:          epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is 0</span>
+<span class="sd">    :type from_time:           epoch or pd.Timestamp</span>
+<span class="sd">    :param to_time:            epoch timestamp [ns] or pd.Timestamp(tz=UTC), default is now</span>
+<span class="sd">    :type to_time:             epoch or pd.Timestamp</span>
+<span class="sd">    :param chunksize:          Approximate number of records to return per iteration (default 5000)</span>
+<span class="sd">    :type chunksize:           int</span>
+<span class="sd">    :param dbclient:           Use the provided DataframeClient instead of automatically determinine the client based on</span>
+<span class="sd">    :type dbclient:            DataFrameClient</span>
+<span class="sd">    :param verify_tags: Verify that given tag keys and values are available for the given signal.</span>
+<span class="sd">                        Will raise an error if they don&#39;t exist. Has a small performance penalty</span>
+<span class="sd">                        because it needs to send some extra queries to influx. This may become</span>
+<span class="sd">                        noticeable in rare cases where the list of signals is very long. So it can</span>
+<span class="sd">                        be disabled with this option.</span>
+<span class="sd">    :type verify_tags: bool (Default=True)</span>
+
+<span class="sd">    :param verbose: Prints chunk sizes if True</span>
+<span class="sd">    :type verbose: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dbclient</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DB client required when running from userlan!&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert from_time to pandas.Timestamp if needed</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">from_time</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">)</span> <span class="ow">and</span> <span class="n">from_time</span><span class="o">.</span><span class="n">tzname</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;UTC&#39;</span><span class="p">:</span>
+        <span class="n">from_time</span> <span class="o">=</span> <span class="n">from_time</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">from_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">from_time</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">from_time</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># ns timestamp</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">to_time</span><span class="p">:</span>
+        <span class="n">to_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Convert to_time to pandas.Timestamp if needed</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_time</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">)</span> <span class="ow">and</span> <span class="n">to_time</span><span class="o">.</span><span class="n">tzname</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;UTC&#39;</span><span class="p">:</span>
+        <span class="n">to_time</span> <span class="o">=</span> <span class="n">to_time</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">to_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">to_time</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="c1"># Initial guess of the last timestamp of the chunk</span>
+    <span class="n">chunk_end_time</span> <span class="o">=</span> <span class="n">to_time</span>
+
+    <span class="c1"># Chunking loop</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Use suggested from time for queries with a groupby statement</span>
+        <span class="n">database</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">sugg_from_time</span> <span class="o">=</span> <span class="n">generate_influxdb_query</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">chunksize</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span>
+                                                                <span class="n">verify_tags</span><span class="o">=</span><span class="n">verify_tags</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Chunk </span><span class="si">{0}</span><span class="s2"> - </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">from_time</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">to_time</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)))</span>
+
+        <span class="n">result_dict</span> <span class="o">=</span> <span class="n">query_with_retry</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># Get the first dataframe out of the result dict. There will never</span>
+        <span class="c1"># be more than 1 dataframe because we query them one at a time.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="s1">&#39;time&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+            <span class="c1"># Calculate starting time of the next chunk</span>
+            <span class="n">chunk_end_time</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">sugg_from_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sugg_from_time</span> <span class="o">&gt;=</span> <span class="n">to_time</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">df</span>
+                <span class="k">break</span>
+        <span class="k">elif</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">df</span>  <span class="c1"># return this chunk</span>
+            <span class="k">break</span>
+
+        <span class="c1"># Calculate time interval for the next chunk, +1 should be OK but is</span>
+        <span class="c1"># not robust because of DB resolution</span>
+        <span class="k">if</span> <span class="n">sugg_from_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">from_time</span> <span class="o">=</span> <span class="n">chunk_end_time</span> <span class="o">+</span> <span class="mi">1000</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">from_time</span> <span class="o">=</span> <span class="n">sugg_from_time</span>
+
+        <span class="c1"># Reset chunk_end_time</span>
+        <span class="n">chunk_end_time</span> <span class="o">=</span> <span class="n">to_time</span>
+        <span class="k">yield</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="last_value_before"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.last_value_before">[docs]</a><span class="k">def</span> <span class="nf">last_value_before</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbclient</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the last value of a signal before the given timestamp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Convert from_time to pandas.Timestamp if needed</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_time</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">)</span> <span class="ow">and</span> <span class="n">to_time</span><span class="o">.</span><span class="n">tzname</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;UTC&#39;</span><span class="p">:</span>
+        <span class="n">to_time</span> <span class="o">=</span> <span class="n">to_time</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">to_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">to_time</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">to_time</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># ns timestamp</span>
+
+    <span class="c1"># Disable groupby boundaries because our left boundary is always 0.</span>
+    <span class="n">db</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">generate_influxdb_query</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">to_time</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">order_by_desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dbclient</span><span class="o">=</span><span class="n">dbclient</span><span class="p">,</span>
+                                         <span class="n">adjust_groupby_boundaries</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">result_dict</span> <span class="o">=</span> <span class="n">query_with_retry</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="c1"># Get the first dataframe out of the result dict. There will never</span>
+    <span class="c1"># be more than 1 dataframe because we query them one at a time.</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">default</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">signal</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="first_value_after"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.first_value_after">[docs]</a><span class="k">def</span> <span class="nf">first_value_after</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbclient</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the last value of a signal after the given timestamp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Convert from_time to pandas.Timestamp if needed</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">from_time</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">)</span> <span class="ow">and</span> <span class="n">from_time</span><span class="o">.</span><span class="n">tzname</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;UTC&#39;</span><span class="p">:</span>
+        <span class="n">from_time</span> <span class="o">=</span> <span class="n">from_time</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="mi">100</span>  <span class="c1"># Set from_time to 100ns before to ensure inclusion of from_time</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">from_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">from_time</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">from_time</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># ns timestamp</span>
+
+    <span class="c1"># Disable groupby boundaries because our left boundary is always 0.</span>
+    <span class="n">ts_max</span> <span class="o">=</span> <span class="mi">2147483647000000000</span>  <span class="c1"># Max unix timestamp</span>
+    <span class="n">db</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">generate_influxdb_query</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">ts_max</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">order_by_desc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dbclient</span><span class="o">=</span><span class="n">dbclient</span><span class="p">,</span>
+                                         <span class="n">adjust_groupby_boundaries</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">result_dict</span> <span class="o">=</span> <span class="n">query_with_retry</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="c1"># Get the first dataframe out of the result dict. There will never</span>
+    <span class="c1"># be more than 1 dataframe because we query them one at a time.</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">default</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">signal</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="results_to_dataframe"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.results_to_dataframe">[docs]</a><span class="k">def</span> <span class="nf">results_to_dataframe</span><span class="p">(</span><span class="n">resultset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts results from the InfluxClient to dataframes. This is a workaround</span>
+<span class="sd">    for the &#39;broken&#39; DataFrameClient where it doesn&#39;t support execution of multiple</span>
+<span class="sd">    queries.</span>
+
+<span class="sd">    Borrowed from influxdb.DataFrameClient._to_dataframe.</span>
+<span class="sd">    Modified to return one dataframe per resultset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">resultset</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">tags</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="k">if</span> <span class="n">tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">())))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;utc&#39;</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="get_aggregated_dataframe"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.get_aggregated_dataframe">[docs]</a><span class="k">def</span> <span class="nf">get_aggregated_dataframe</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">report_date</span><span class="p">,</span> <span class="n">signals</span><span class="p">,</span> <span class="n">machines</span><span class="p">,</span> <span class="n">clear_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_retention</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain aggregated values for the given day. Use only for KPI.DayAggregates._ signals.</span>
+
+<span class="sd">    :param client: Influx client to use</span>
+<span class="sd">    :param report_date: datetime.datetime.</span>
+<span class="sd">    :param signals: list of signal names to extract. (Uses value column)</span>
+<span class="sd">    :param machines: list of machines to include.</span>
+
+<span class="sd">    :param clear_cache: Set to true to clear the query cache</span>
+<span class="sd">    :param max_retention: integer number of days, default is 0. Allow the this function to return older aggregated values</span>
+<span class="sd">      if no values are available for the given day. Values will not be older than [max_retention] days. If set to 0</span>
+<span class="sd">      no older values will be used.</span>
+
+<span class="sd">    *This function makes the following assumptions for the signal*</span>
+
+<span class="sd">    * The aggregated value for a given day is written with a timestamp 00:00:00 (start of the day)</span>
+<span class="sd">        a tolerance of +/- 1s is used.</span>
+<span class="sd">    * There is only one aggregated value in this range</span>
+
+<span class="sd">    Returns: pandas.DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#</span>
+    <span class="n">dt_start_str</span> <span class="o">=</span> <span class="p">(</span><span class="n">report_date</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">days</span><span class="o">=</span><span class="n">max_retention</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+    <span class="n">dt_stop_str</span> <span class="o">=</span> <span class="p">(</span><span class="n">report_date</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+    <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;WHERE time &gt; &#39;</span><span class="si">{0}</span><span class="s2">&#39; and time &lt; &#39;</span><span class="si">{1}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dt_start_str</span><span class="p">,</span> <span class="n">dt_stop_str</span><span class="p">)</span>
+    <span class="n">qry_tpl</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;SELECT value from &quot;s</span><span class="si">{0}</span><span class="s1">&quot;..&quot;</span><span class="si">{1}</span><span class="s1">&quot; &#39;</span> <span class="o">+</span> <span class="n">where_clause</span>  <span class="c1"># Note: &#39;..&#39; will get the default retention policy</span>
+    <span class="n">super_qry</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="c1"># Switch to the first allowed DB so we have the right to run queries</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">switch_database</span><span class="p">(</span><span class="s1">&#39;s</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">machines</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;source_nr&#39;</span><span class="p">]))</span>
+
+    <span class="c1"># Build one big query for increased performance</span>
+    <span class="n">resultlist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">machines</span><span class="p">:</span>
+        <span class="c1"># Build one big query per machine for increased performance</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="n">resultlist</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;machine_nr&#39;</span><span class="p">],</span> <span class="n">s</span><span class="p">])</span>
+            <span class="n">qry</span> <span class="o">=</span> <span class="n">qry_tpl</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;source_nr&#39;</span><span class="p">],</span> <span class="n">s</span><span class="p">)</span>
+            <span class="n">super_qry</span> <span class="o">+=</span> <span class="n">qry</span> <span class="o">+</span> <span class="s1">&#39;;&#39;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">super_qry</span><span class="p">)</span>
+
+    <span class="c1"># If only a single aggregate is requested, the query will return a dict instead of a list of dicts</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
+
+    <span class="c1"># The number of returned results must match the number of prepared items in the resultlist (equals nr queryies).</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">resultlist</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Unexpected number of results returned. Got </span><span class="si">{0}</span><span class="s2">, expected </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">resultlist</span><span class="p">)))</span>
+
+    <span class="c1"># Convert results to dataframes and link them to the result list</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">resultlist</span><span class="p">):</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">results_to_dataframe</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span>  <span class="c1"># We expect at most 1 result.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resultlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">resultlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">resultdict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resultlist</span><span class="p">:</span>
+        <span class="n">resultdict</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">df_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">resultdict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_result</span></div>
+
+
+<div class="viewcode-block" id="get_tag_keys"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.get_tag_keys">[docs]</a><span class="k">def</span> <span class="nf">get_tag_keys</span><span class="p">(</span><span class="n">signal_name</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns available tag keys for the given signal. Will return an empty</span>
+<span class="sd">    list if there are none.</span>
+
+<span class="sd">    :param signal_name: Signal name e.g. s66224.RT23.TFMdebrisArea</span>
+<span class="sd">    :type signal_name: str</span>
+<span class="sd">    :param dbclient: Influx client to use</span>
+<span class="sd">    :type dbclient: InfluxDB client</span>
+
+<span class="sd">    :rtype: list of strings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">signal_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">measurement_name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">signal_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">dbclient</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+        <span class="s2">&quot;SHOW TAG KEYS FROM </span><span class="se">\&quot;</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">measurement_name</span><span class="p">),</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">)</span>
+
+    <span class="n">tag_keys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">r</span><span class="p">:</span>
+            <span class="n">tag_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;tagKey&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">tag_keys</span></div>
+
+
+<div class="viewcode-block" id="get_tag_values"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.get_tag_values">[docs]</a><span class="k">def</span> <span class="nf">get_tag_values</span><span class="p">(</span><span class="n">signal_name</span><span class="p">,</span> <span class="n">tag_key</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns available tag values for the given tag key. Will return</span>
+<span class="sd">    an empty list if there are none.</span>
+
+<span class="sd">    :param signal_name: Signal name e.g. s66224.RT23.TFMdebrisArea</span>
+<span class="sd">    :type signal_name: str</span>
+<span class="sd">    :param tag_key: Tag name e.g. &#39;root_cause&#39;</span>
+<span class="sd">    :type tag_key: str</span>
+<span class="sd">    :param dbclient: Influx client to use</span>
+<span class="sd">    :type dbclient: InfluxDB client</span>
+
+<span class="sd">    :rtype: list of strings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">signal_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">measurement_name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">signal_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">dbclient</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+        <span class="s2">&quot;SHOW TAG VALUES FROM </span><span class="se">\&quot;</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2"> WITH KEY=</span><span class="se">\&quot;</span><span class="si">{1}</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">measurement_name</span><span class="p">,</span> <span class="n">tag_key</span><span class="p">),</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">)</span>
+
+    <span class="n">tag_values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">r</span><span class="p">:</span>
+            <span class="n">tag_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">tag_values</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># DATABASE MANAGEMENT</span>
+<span class="c1">#################################################################################</span>
+
+
+<div class="viewcode-block" id="query_with_retry"><a class="viewcode-back" href="../../../EUVDashboard.html#pyeuv.EUVDashboard.shared.query_with_retry">[docs]</a><span class="k">def</span> <span class="nf">query_with_retry</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">dbclient</span><span class="p">,</span> <span class="n">n_retry</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the query and retry if it fails.</span>
+
+<span class="sd">    :param query: InfluxQL query</span>
+<span class="sd">    :type query: str</span>
+<span class="sd">    :param database: Database (source_nr) to query on</span>
+<span class="sd">    :type database: str</span>
+<span class="sd">    :param dbclient: Influx client to use</span>
+<span class="sd">    :type dbclient: influx.DataFrameClient</span>
+<span class="sd">    :param n_retry: Max number of retries</span>
+<span class="sd">    :type n_retry: int</span>
+
+<span class="sd">    :return: Query result</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Retry loop in case we (temporarily) lose connection to InfluxDB</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_retry</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="n">dbclient</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">)</span>
+            <span class="k">break</span>  <span class="c1"># Success break out of the retry loop</span>
+        <span class="k">except</span> <span class="n">InfluxDBClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># call to db failed</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>  <span class="c1"># Not authorized</span>
+                <span class="c1"># Not authorized stop retrying</span>
+                <span class="k">raise</span> <span class="n">InfluxDBClientError</span><span class="p">(</span><span class="s2">&quot;User </span><span class="si">{0}</span><span class="s2"> not authorized. &quot;</span>
+                                          <span class="s2">&quot;Check your credentials&quot;</span>
+                                          <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="mi">403</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InfluxDBClientError</span><span class="p">(</span><span class="s2">&quot;User </span><span class="si">{0}</span><span class="s2"> not authorized to &quot;</span>
+                                          <span class="s2">&quot;run this query or the &quot;</span>
+                                          <span class="s2">&quot;requested signal doesn&#39;t &quot;</span>
+                                          <span class="s2">&quot;exist. Check your query.&quot;</span>
+                                          <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InfluxDBClientError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">&gt;=</span> <span class="mi">500</span><span class="p">:</span>
+                <span class="c1"># Retry server errors</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span>  <span class="c1"># Internal server error (&gt;=500), wait and retry</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>  <span class="c1"># Give up on all other client errors</span>
+        <span class="k">except</span> <span class="n">InfluxDBServerError</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>  <span class="c1"># wait and retry</span>
+            <span class="k">continue</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Could not get signal&#39;</span><span class="p">)</span>  <span class="c1"># tried 4 times --&gt; stop</span>
+
+    <span class="k">return</span> <span class="n">result_dict</span></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+Unit testing
+============
+
+**NB: This section is intended for pyeuv developers**
+
+The unit tests included in this module require test data to run. These files are
+too large to be included in the SVN repository so they have been moved to the following
+network share:
+
+::
+
+    \\asml.com\eu\shared\nl011150\WWW\nonconf\EUV\projects\Source\Tooling\pyeuv\test_data
+
+
+Before running the tests, please copy all the files from this network share to the 
+test_data folder of pyeuv.
+
+To run these tests you will need the pytest package Most python
+distributions such as Anaconda and WinPython include this package by default.
+
+To start the tests, open a command prompt inside this directory and run the following command:
+
+::
+
+    pytest
+
+Some tests require access to the EUV Dashboard so you will be prompted for your ASML password.
+
+The PMA NG tests require a PMA account and API key. To avoid having to enter these details on every
+test run it will attempt to read them from the following config file:
+
+::
+
+    %HOME%/.pyeuv/test_credentials.conf
+
+Thils config file must have a PMA section containing a username, password and api_key field.
+
+Example file:
+
+::
+
+    [PMA]
+    username=MaryPoppins
+    password=Supercalifragilisticexpialidocious
+    api_key=this-is-your-personal-or-application-pma-api-key
+    [EUVDB]
+    username=Mickey_Mouse
+    password=Oswald_the_Lucky_Rabbit
+
+
+Please make sure that this file exists before attempting to run the PMA tests, otherwise these
+tests will fail.

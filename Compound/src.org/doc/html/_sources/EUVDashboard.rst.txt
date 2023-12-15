@@ -1,0 +1,24 @@
+EUVDashboard
+============
+
+Clients
+-------
+
+.. automodule:: pyeuv.EUVDashboard.clients
+    :members:
+
+.. autoclass:: pyeuv.EUVDashboard.clients.UserLANClient
+    :members:
+
+Common
+------
+
+.. automodule:: pyeuv.EUVDashboard.common
+    :members:
+
+Shared
+------
+
+.. automodule:: pyeuv.EUVDashboard.shared
+    :members:
+

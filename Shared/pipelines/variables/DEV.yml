@@ -1,0 +1,13 @@
+variables:
+  ServiceConnection: asml-dta01-ESDCloudOp
+  ServicePrincipalObjectId: bf24fc99-1199-4e60-af02-125a10784c57
+  SubscriptionId: 54e496c7-7841-41ba-9013-ee87bee4f366
+  ResourceGroupName: shared-dta01-rg
+  
+  Location: westeurope
+  StorageAccountName: shareddta01tfbackendsa
+  StorageContainerName: terraform-state
+  SubnetId: '/subscriptions/07fba911-b0ce-4b88-993a-79b8e5de293a/resourceGroups/vneteuwe-dta01-rg/providers/Microsoft.Network/virtualNetworks/dta01-shared-westeurope-vnet/subnets/data01-subnet'
+  PrivateDnsSubscriptionId: 19a5edd0-42d3-4b5f-88b5-45f718494ad3
+  PrivateDnsResourceGroupName: dns-mgt01-rg
+  PrincipleIds: 'bf24fc99-1199-4e60-af02-125a10784c57'

@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Radon.radon_reference_image &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Radon.radon_reference_image</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Radon.radon_reference_image</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">radon_reference_image.py</span>
+<span class="sd">Authors: RWKL, JJCW</span>
+<span class="sd">Date:  2019-05-12</span>
+<span class="sd">Last modified : 2019-08-29</span>
+
+<span class="sd">This module facilitates functionality to obtain a reference image to be used in the radon_roi calculation,</span>
+<span class="sd">and contains functionality to generate a generic reference image.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pyeuv.Shared.configuration</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Shared.shared</span> <span class="k">as</span> <span class="nn">shared</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Collector.Shared.directory_structure</span> <span class="k">as</span> <span class="nn">directory_structure</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Collector.Radon.radon_io</span> <span class="k">as</span> <span class="nn">radon_io</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<div class="viewcode-block" id="get_reference"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_reference_image.get_reference">[docs]</a><span class="k">def</span> <span class="nf">get_reference</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_type</span><span class="o">=</span><span class="s1">&#39;new_collectors_per_mirror_and_pupil&#39;</span><span class="p">,</span>
+                  <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">custom_reference_filepath</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function returns a generic reference, depending on the prescribed reference type.</span>
+<span class="sd">    Implemented reference types are:</span>
+<span class="sd">    - first_luer: first luer of collector</span>
+<span class="sd">    - from_radial_profile: a with_keys luer image for which the intensity is generated by averaged radial profile</span>
+<span class="sd">    - from_radial_profile_blurred : blurred version of &#39;from_radial_profile&#39; (for smoothed image)</span>
+<span class="sd">    - new_collectors_per_mirror_and_pupil : median of new collectors</span>
+<span class="sd">    - new_collectors_per_mirror_and_pupil_blurred : blurred version of new_collectors_per_mirror_and_pupil</span>
+<span class="sd">    </span>
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: source id of system for which we are calculating the ROI contributions</span>
+<span class="sd">    :param start_time: start time, to be used for some of the reference types</span>
+<span class="sd">    :param reference_type: string to specify what type of reference image has to be used.</span>
+<span class="sd">    :raises Exception: not supported reference type</span>
+<span class="sd">    :param use_keys: switch to use with_keys format for with_dots luer files (default=True)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: reference: dictionary with image data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="n">generation</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get_system_generation</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">reference_type</span> <span class="o">==</span> <span class="s1">&#39;first_luer&#39;</span><span class="p">:</span>
+        <span class="c1"># first luer of collector</span>
+        <span class="c1"># validate input</span>
+        <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Input missing for get_reference of type:&quot;</span><span class="p">,</span> <span class="n">reference_type</span><span class="p">)</span>
+            
+        <span class="n">reference_dict</span> <span class="o">=</span> <span class="n">get_first_luer_from_share_drive</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
+        
+    <span class="k">elif</span> <span class="n">reference_type</span> <span class="o">==</span> <span class="s1">&#39;from_radial_profile&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">generation</span> <span class="o">==</span> <span class="s1">&#39;3400&#39;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_from_radial_profile_of_first_collector_images_3400.dat&#39;</span>
+        <span class="k">elif</span> <span class="n">generation</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;3300&#39;</span><span class="p">,</span> <span class="s1">&#39;3350&#39;</span><span class="p">]:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_from_radial_profile_of_first_collector_images_33x0.dat&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Reference_type </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> only implemented for 3300, 3350 and 3400 systems&#39;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_type</span><span class="p">))</span>
+
+        <span class="n">reference_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">ref_dir</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">get_reference_directory</span><span class="p">()</span>
+        <span class="n">reference_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">load_dots</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ref_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">reference_type</span> <span class="o">==</span> <span class="s1">&#39;from_radial_profile_blurred&#39;</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">generation</span> <span class="o">==</span> <span class="s1">&#39;3400&#39;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_from_radial_profile_of_first_collector_images_3400-blurred.dat&#39;</span>
+        <span class="k">elif</span> <span class="n">generation</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;3300&#39;</span><span class="p">,</span> <span class="s1">&#39;3350&#39;</span><span class="p">]:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_from_radial_profile_of_first_collector_images_33x0-blurred.dat&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Reference_type </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> only implemented for 3300, 3350 and 3400 systems&#39;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_type</span><span class="p">))</span>
+
+        <span class="n">reference_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">ref_dir</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">get_reference_directory</span><span class="p">()</span>
+        <span class="n">reference_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">load_dots</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ref_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">remove_zeros</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">reference_type</span> <span class="o">==</span> <span class="s1">&#39;new_collectors_per_mirror_and_pupil&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Reference_type </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> only implemented when using keys&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_type</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">generation</span> <span class="o">==</span> <span class="s1">&#39;3400&#39;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_median_per_mirror_and_pupil_3400.dat&#39;</span>
+        <span class="c1"># todo : generate references for 33x0</span>
+        <span class="k">elif</span> <span class="n">generation</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;3300&#39;</span><span class="p">,</span> <span class="s1">&#39;3350&#39;</span><span class="p">]:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_median_per_mirror_and_pupil_33X0.dat&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Reference_type </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> only implemented for 3300, 3350 and 3400 systems&#39;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_type</span><span class="p">))</span>
+
+        <span class="n">reference_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">ref_dir</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">get_reference_directory</span><span class="p">()</span>
+        <span class="n">reference_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">load_dots</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ref_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">use_keys</span><span class="o">=</span><span class="n">use_keys</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">reference_type</span> <span class="o">==</span> <span class="s1">&#39;new_collectors_per_mirror_and_pupil_blurred&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">generation</span> <span class="o">==</span> <span class="s1">&#39;3400&#39;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_median_per_mirror_and_pupil_3400-blurred.dat&#39;</span>
+        <span class="c1"># todo : generate blurred references for 33x0</span>
+        <span class="k">elif</span> <span class="n">generation</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;3300&#39;</span><span class="p">,</span> <span class="s1">&#39;3350&#39;</span><span class="p">]:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;generic_reference_median_per_mirror_and_pupil_33X0-blurred.dat&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Reference_type </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> only implemented for 3300, 3350 and 3400 systems&#39;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_type</span><span class="p">))</span>
+        <span class="n">reference_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">ref_dir</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">get_reference_directory</span><span class="p">()</span>
+        <span class="n">reference_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">load_dots</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ref_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">remove_zeros</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">reference_type</span> <span class="o">==</span> <span class="s1">&#39;custom_reference&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Reference_type </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> only implemented when using keys&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_type</span><span class="p">))</span>
+
+        <span class="n">reference_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">reference_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">load_dots</span><span class="p">(</span><span class="n">custom_reference_filepath</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="n">use_keys</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown reference type </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_type</span><span class="p">))</span>
+
+    <span class="c1"># assume that the reference is at a SLIEDT of 100%. This is not necessarily true! For scaling, use the</span>
+    <span class="c1"># &quot;scale_generic_ref&quot; function in radon_roi.py</span>
+    <span class="n">reference_dict</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">return</span> <span class="n">reference_dict</span></div>
+
+
+<div class="viewcode-block" id="get_first_luer_from_share_drive"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_reference_image.get_first_luer_from_share_drive">[docs]</a><span class="k">def</span> <span class="nf">get_first_luer_from_share_drive</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks luers on CPR sharedrive, and determines the first luer of the collector</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: source id of system for which we are calculating the ROI contributions</span>
+<span class="sd">    :param start_time: start time, to be used for some of the reference types</span>
+<span class="sd">    :param use_keys: switch to use with_keys format for with_dots luer files (default=False)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :raises ValueError: When Collector.swap could not be received</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># make sure start time is in utc</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;utc&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># determine collector</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># todo: refactor to use function call</span>
+        <span class="n">collector_swaps</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.Collector.Swap&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_id</span><span class="p">)])</span>
+        <span class="n">collector_swaps</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;swap&#39;</span><span class="p">]</span>
+        <span class="n">collector_swaps</span> <span class="o">=</span> <span class="n">collector_swaps</span><span class="p">[</span><span class="n">collector_swaps</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">start_time</span><span class="p">]</span>
+        <span class="n">collector_name</span> <span class="o">=</span> <span class="n">collector_swaps</span><span class="p">[</span><span class="s1">&#39;swap&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        
+    <span class="c1"># get first image from share drive</span>
+    <span class="c1"># determine radon directory</span>
+    <span class="c1"># todo: refactor to use recently added single function to get radon directory</span>
+    <span class="n">machine_list</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_machine_list</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;dataframe&#39;</span><span class="p">)</span>
+    <span class="n">machine</span> <span class="o">=</span> <span class="n">machine_list</span><span class="p">[</span><span class="n">machine_list</span><span class="o">.</span><span class="n">source_nr</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">source_id</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">()</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">set_configuration</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">machine</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">collector_name</span><span class="p">)</span>
+    <span class="n">radon_dir</span> <span class="o">=</span> <span class="n">directory_structure</span><span class="o">.</span><span class="n">get_luer_directory</span><span class="p">(</span>
+            <span class="n">directory_structure</span><span class="o">.</span><span class="n">get_collector_directory</span><span class="p">(</span>
+                    <span class="n">conf</span><span class="p">,</span> <span class="n">directory_structure</span><span class="o">.</span><span class="n">get_share_base_directory</span><span class="p">()))</span>
+    
+    <span class="c1"># get list of luer dots files and raw luers</span>
+    <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+        <span class="n">dots_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">radon_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">is_valid_with_keys_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dots_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">radon_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">is_valid_with_dots_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    
+    <span class="n">raw_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">radon_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">is_valid_raw_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    
+    <span class="c1"># get indices for dots and raw files</span>
+    <span class="n">dots_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">radon_io</span><span class="o">.</span><span class="n">get_index_from_with_dots_luer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">radon_dir</span><span class="p">)</span> <span class="k">if</span> 
+                    <span class="n">radon_io</span><span class="o">.</span><span class="n">is_valid_with_dots_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    <span class="n">raw_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">radon_io</span><span class="o">.</span><span class="n">get_index_from_raw_luer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">radon_dir</span><span class="p">)</span> <span class="k">if</span> 
+                   <span class="n">radon_io</span><span class="o">.</span><span class="n">is_valid_raw_luer_filename</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    
+    <span class="c1"># use first file for which both raw and dots is available</span>
+    <span class="n">reference_index</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dots_indices</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">raw_indices</span><span class="p">))</span>
+    <span class="n">reference_raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">raw_files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:04d}</span><span class="s1">.raw&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_index</span><span class="p">))][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">reference_dots_file</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dots_files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;LUER.</span><span class="si">{:04d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference_index</span><span class="p">))][</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reference:&#39;</span><span class="p">,</span> <span class="n">reference_index</span><span class="p">,</span> <span class="n">reference_raw</span><span class="p">,</span> <span class="n">reference_dots_file</span><span class="p">)</span>
+    
+    <span class="n">ref_dict</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">get_luer_dict_object</span><span class="p">(</span>
+            <span class="n">radon_io</span><span class="o">.</span><span class="n">load_dots</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">radon_dir</span><span class="p">,</span> <span class="n">reference_dots_file</span><span class="p">),</span> <span class="n">use_keys</span><span class="o">=</span><span class="n">use_keys</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">),</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">radon_dir</span><span class="p">,</span> <span class="n">reference_raw</span><span class="p">),</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
+            <span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">ref_dict</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

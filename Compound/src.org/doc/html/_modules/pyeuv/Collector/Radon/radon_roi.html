@@ -1,0 +1,978 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Collector.Radon.radon_roi &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Collector.Radon.radon_roi</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Collector.Radon.radon_roi</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">radon_roi.py</span>
+<span class="sd">Authors: RWKL</span>
+<span class="sd">Date:  2019-05-12</span>
+
+<span class="sd">Radon ROI calculated the contribution within a region of interest, as part of the total loss within a radon image.</span>
+
+<span class="sd">Usage:</span>
+
+<span class="sd">::</span>
+
+<span class="sd">    from pyeuv.EUVDashboard.clients import UserLANClient</span>
+<span class="sd">    from pyeuv.Collector.Radon.radon_roi import get_predefined_rois</span>
+<span class="sd">    from pyeuv.Collector.Radon.radon_roi import radon_io</span>
+<span class="sd">    from pyeuv.Collector.Radon.radon_roi import calculate_roi_contributions</span>
+
+<span class="sd">    client = UserLANClient()</span>
+<span class="sd">    raw_luer_file = &#39;LUER_mYYYY_timestamp.XXXX.raw&#39;</span>
+<span class="sd">    processed_luer_file = &#39;LUER.XXXX._SN_FAR_FIELD_WITH_DOTS.dat&#39;</span>
+<span class="sd">    processed_luer = radon_io.load_dots(processed_luer_file)</span>
+<span class="sd">    luer_dict = radon_io.get_luer_dict_object(processed_luer, raw_luer_file)</span>
+<span class="sd">    loss_per_roi = calculate_roi_contributions(client, source_id, luer_dict, roi_dict)</span>
+
+<span class="sd">New functions (DAAU): scale_generic_ref, calculate_stains, generate_analysis_results,</span>
+<span class="sd">    calculate_initial_reflectivity_loss, add_local_reflectivity</span>
+<span class="sd">Date:  2020-06-02</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Collector.Radon.radon_reference_image</span> <span class="k">as</span> <span class="nn">radon_reference</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Collector.Radon.radon_scaling</span> <span class="k">as</span> <span class="nn">radon_scaling</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Collector.Radon.shared</span> <span class="k">as</span> <span class="nn">radon_shared</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Collector.Radon.roi_io</span> <span class="k">as</span> <span class="nn">roi_io</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Collector.Radon.radon_io</span> <span class="k">as</span> <span class="nn">radon_io</span>
+<span class="kn">import</span> <span class="nn">pyeuv.Do_It.do_it_library</span> <span class="k">as</span> <span class="nn">do_it</span>  <span class="c1"># generic library functions</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span>  <span class="c1"># internal tooling functions</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Collector.Radon.radon_plotting</span> <span class="kn">import</span> <span class="n">plot_radon</span><span class="p">,</span> <span class="n">plot_histogram</span><span class="p">,</span> <span class="n">plot_fit_generic_ref_scaling</span><span class="p">,</span> <span class="n">plot_sliedt</span><span class="p">,</span> <span class="n">plot_rois</span>
+<span class="kn">from</span> <span class="nn">pyeuv.Collector.Radon.radon_scaling</span> <span class="kn">import</span> <span class="n">gaussian</span><span class="p">,</span> <span class="n">calculate_intensity_ratio</span><span class="p">,</span> <span class="n">pre_scale_reflectivity</span>
+
+<div class="viewcode-block" id="calculate_roi_contributions"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.calculate_roi_contributions">[docs]</a><span class="k">def</span> <span class="nf">calculate_roi_contributions</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">luer_dict</span><span class="p">,</span> <span class="n">roi_dict</span><span class="p">,</span>
+                                <span class="n">reference_type</span><span class="o">=</span><span class="s1">&#39;new_collectors_per_mirror_and_pupil&#39;</span><span class="p">,</span>
+                                <span class="n">scaling_method</span><span class="o">=</span><span class="s1">&#39;sliedt_interpolate&#39;</span><span class="p">,</span>
+                                <span class="n">ref_scaling_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">threshold_slie_dt_upper</span><span class="o">=</span><span class="mi">110</span><span class="p">,</span>
+                                <span class="n">use_sg_filtering</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">analyze_stains</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">conf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">custom_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">use_first_stain_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">icrm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">compensate_shift</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">min_bound_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">custom_reference_filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function calculates calculates the contribution per ROI.</span>
+<span class="sd">    </span>
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: source id of system for which we are calculating the ROI contributions</span>
+<span class="sd">    :param luer_dict: dictionary containing luers to process, scaling factors, etc.</span>
+<span class="sd">    :param roi_dict: dictionary with roi definitions. The dictionary contains one roi per luer_key.</span>
+<span class="sd">        Each roi contains &#39;type&#39; (polygon, polar_bounds) and a set of keys depending on the type.</span>
+<span class="sd">    :param reference_type: string to specify what type of reference image has to be used.</span>
+<span class="sd">    :param scaling_method: string to specify which scaling method to be applied. Options are &#39;sliedt_interpolate&#39;</span>
+<span class="sd">        (default), &#39;sliedt_nearest&#39;, &#39;sliedt_ffill&#39;, &#39;intensity&#39;</span>
+<span class="sd">    :param ref_scaling_method: method to scale the reference to the right global reflectivity value</span>
+<span class="sd">    :param threshold_slie_dt_upper: upper limit fir slie_dt</span>
+<span class="sd">    :param use_sg_filtering: apply sg filter for slie/dt scaling of luers (default: False)</span>
+<span class="sd">    :param use_keys: switch to use with_keys format for with_dots luer files</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :param analyze_stains: provide extensive extra info + plots on the generic reference scale in the results file</span>
+<span class="sd">    :param conf: object with machine/collector info</span>
+<span class="sd">    :param custom_dir: custom directory to store images/analysis results</span>
+<span class="sd">    :param use_first_stain_area: only use the stains detected in the first luer for processing the other luers</span>
+<span class="sd">    :param icrm: use icrm data instead of SLIE/DT</span>
+<span class="sd">    :param compensate_shift: compensate the shift of the non-stain peak, and use this to estimate the scanner loss</span>
+<span class="sd">    :param min_bound_correction: use a specific width of a histogram (e.g. from the first LUER) to correct the min-bound</span>
+<span class="sd">            for stain detection</span>
+<span class="sd">    :param custom_reference_filepath: select a custom reference path</span>
+<span class="sd">    :return: dataframe with loss per roi. The key should be the luer timestamp.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">first_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">luer_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">reference</span> <span class="o">=</span> <span class="n">radon_reference</span><span class="o">.</span><span class="n">get_reference</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">luer_dict</span><span class="p">[</span><span class="n">first_key</span><span class="p">][</span><span class="s1">&#39;timestamp&#39;</span><span class="p">],</span>
+                                              <span class="n">reference_type</span><span class="o">=</span><span class="n">reference_type</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="n">use_keys</span><span class="p">,</span>
+                                              <span class="n">custom_reference_filepath</span><span class="o">=</span><span class="n">custom_reference_filepath</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># get scaling factors</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="p">[</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">luer</span> <span class="ow">in</span> <span class="n">luer_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+
+    <span class="n">scaling_factors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">radon_scaling</span><span class="o">.</span><span class="n">get_scaling</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span>
+                                                             <span class="n">luer_timestamps</span><span class="o">=</span><span class="n">timestamps</span><span class="p">,</span>
+                                                             <span class="n">scaling_method</span><span class="o">=</span><span class="n">scaling_method</span><span class="p">,</span>
+                                                             <span class="n">threshold_upper</span><span class="o">=</span><span class="n">threshold_slie_dt_upper</span><span class="p">,</span>
+                                                             <span class="n">use_sg_filtering</span><span class="o">=</span><span class="n">use_sg_filtering</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                                             <span class="n">icrm</span><span class="o">=</span><span class="n">icrm</span><span class="p">))</span>
+
+    <span class="c1"># add collector and scanner pulse count data to the scaling factors</span>
+    <span class="n">scaling_factors</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">connect_scaling_factors_to_influx_data</span><span class="p">(</span><span class="n">scaling_factors</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span>
+                                                                      <span class="n">luer_dict</span><span class="p">[</span><span class="n">first_key</span><span class="p">][</span><span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="n">icrm</span><span class="o">=</span><span class="n">icrm</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">luer_key</span><span class="p">,</span> <span class="n">luer</span> <span class="ow">in</span> <span class="n">luer_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaling_factors</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;luer_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_key</span>
+
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaling_factors</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">]</span>
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaling_factors</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">]</span>
+
+        <span class="c1"># If a generic reference is selected as collector, instead of assuming that the this reference is at the</span>
+        <span class="c1"># normalized reflectivity (SLIEDT) value of the start, it calculates the actual reflectivity based on comparing</span>
+        <span class="c1"># the intensity map of the 1st luer with the generic reference. If only the non-stain area is considered, and</span>
+        <span class="c1"># it is assumed that this area is not degraded/contaminated, the reflectivity of the generic reference can be</span>
+        <span class="c1"># back-calculated:</span>
+        <span class="c1"># 1) first the intensity of the generic ref is calibrated (may differ due to different integration time/plasma</span>
+        <span class="c1"># conditions) using the median ratio of intensity of the non-stain (=~clean) area.</span>
+        <span class="c1"># 2) the reflectivity of the generic reference can now be computed using the ratio of the summed intensity of the</span>
+        <span class="c1"># current luer over the summed intensity of the generic reference.</span>
+
+        <span class="k">if</span> <span class="n">luer_key</span> <span class="o">==</span> <span class="n">first_key</span><span class="p">:</span>
+            <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">]</span>
+            <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;clean&#39;</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">reference_type</span> <span class="o">!=</span> <span class="s1">&#39;first_luer&#39;</span><span class="p">):</span>
+                <span class="n">reference</span> <span class="o">=</span> <span class="n">scale_generic_ref</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="o">=</span><span class="n">ref_scaling_method</span><span class="p">,</span>
+                                              <span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">,</span> <span class="n">custom_dir</span><span class="o">=</span><span class="n">custom_dir</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+
+    <span class="n">loss_per_roi</span> <span class="o">=</span> <span class="n">determine_roi_contributions</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">luer_dict</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">roi_dict</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="n">use_keys</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> \
+                                               <span class="n">analyze_stains</span><span class="o">=</span><span class="n">analyze_stains</span><span class="p">,</span> \
+                                               <span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">,</span>
+                                               <span class="n">custom_dir</span><span class="o">=</span><span class="n">custom_dir</span><span class="p">,</span>
+                                               <span class="n">ref_scaling_method</span><span class="o">=</span><span class="n">ref_scaling_method</span><span class="p">,</span>
+                                               <span class="n">use_first_stain_area</span><span class="o">=</span><span class="n">use_first_stain_area</span><span class="p">,</span>
+                                               <span class="n">compensate_shift</span><span class="o">=</span><span class="n">compensate_shift</span><span class="p">,</span>
+                                               <span class="n">icrm</span><span class="o">=</span><span class="n">icrm</span><span class="p">,</span>
+                                               <span class="n">min_bound_correction</span><span class="o">=</span><span class="n">min_bound_correction</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">loss_per_roi</span></div>
+
+
+<div class="viewcode-block" id="determine_roi_contributions"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.determine_roi_contributions">[docs]</a><span class="k">def</span> <span class="nf">determine_roi_contributions</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">luer_dict</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">roi_dict</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">analyze_stains</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">custom_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">ref_scaling_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_first_stain_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">compensate_shift</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sigma_correction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">sigma_correction_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">icrm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_bound_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function calculates the contribution per ROI,</span>
+<span class="sd">    given a luer_dict including scaling information and a set of roi&#39;s.</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param luer_dict: dictionary containing luers to process, scaling factors, etc.</span>
+<span class="sd">    :param reference: dictionary containing the reference image</span>
+<span class="sd">    :param roi_dict: dictionary with roi definitions. The dictionary contains one roi per key.</span>
+<span class="sd">        Each roi contains &#39;type&#39; (polygon, polar_bounds) and a set of keys depending on the type.</span>
+<span class="sd">    :param use_keys: switch to use with_keys format for with_dots luer_dict files</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :param analyze_stains: provide extensive extra info + plots on the generic reference scale in the results file</span>
+<span class="sd">    :param conf: object with machine/collector info</span>
+<span class="sd">    :param custom_dir: custom directory to store images/analysis results</span>
+<span class="sd">    :param ref_scaling_method: method to scale the reference to the right global reflectivity value</span>
+<span class="sd">    :param use_first_stain_area: only use the stains detected in the first luer for processing the other luers</span>
+<span class="sd">    :param compensate_shift: instead of SLIEDT, always scale the images compared to generic reference</span>
+<span class="sd">    :param sigma_correction: correct for widening in reflectivity distribution of the non-stain area</span>
+<span class="sd">    :param sigma_correction_factor: select at what sigma level to fixate the correction (e.g. 1 sigma or 2 sigma)</span>
+<span class="sd">    :param icrm: use icrm data instead of SLIE/DT</span>
+<span class="sd">    :param min_bound_correction: use a specific width of a histogram (e.g. from the first LUER) to correct the min-bound</span>
+<span class="sd">            for stain detection</span>
+<span class="sd">    :return dataframe: with loss per roi. The key should be the luer_dict timestamp.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">loss_per_roi</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">n_keys</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">luer_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="n">first_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">luer_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mask_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">luer_key</span><span class="p">,</span> <span class="n">luer</span> <span class="ow">in</span> <span class="n">luer_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="c1"># Instead of SLIEDT, always scale the images compared to generic reference; differences are attributed to the</span>
+        <span class="c1"># scanner degradation (but could also be due to uniform contamination and SLIE/DT artefacts!).</span>
+        <span class="k">if</span> <span class="n">compensate_shift</span><span class="p">:</span>
+            <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">add_local_reflectivity</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="n">radon_scaling</span><span class="o">.</span><span class="n">get_scaling_factor_from_intensities</span><span class="p">(</span>
+                <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity_scaled&#39;</span><span class="p">],</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity_scaled&#39;</span><span class="p">],</span>
+                <span class="n">ref_scaling_method</span><span class="o">=</span><span class="s1">&#39;clean_area_auto&#39;</span> <span class="k">if</span> <span class="s1">&#39;clean&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span> <span class="k">else</span> <span class="n">ref_scaling_method</span><span class="p">)</span>
+
+            <span class="c1"># Determine initial conditions</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">luer_key</span> <span class="o">==</span> <span class="n">first_key</span><span class="p">):</span>
+                <span class="n">initial_scaling_factor</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+                <span class="n">initial_sigma_peak</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;sigma_peak&#39;</span><span class="p">]</span>
+                <span class="n">initial_peak_reflectivity</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Assume that the uniform area is not contaminated. Additionally, assume that the widening of the peak</span>
+            <span class="c1"># reflectivity is due to convolution of stains. By correcting for this by assuming that &quot;2*sigma + mu&quot;</span>
+            <span class="c1"># (position at 2 sigma) stays the same, we can now correlate the remaining shift in reflectivity to the</span>
+            <span class="c1"># scanner loss. See EPS D000884328-00</span>
+            <span class="n">compensation_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">sigma_correction_factor</span> <span class="o">*</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;sigma_peak&#39;</span><span class="p">])</span> <span class="o">/</span> \
+                                  <span class="p">(</span><span class="n">initial_peak_reflectivity</span> <span class="o">+</span> <span class="n">sigma_correction_factor</span> <span class="o">*</span> <span class="n">initial_sigma_peak</span><span class="p">)</span>
+            <span class="c1"># The estimated compensation factor is</span>
+            <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;est_scanner_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">compensation_factor</span><span class="p">)</span>
+            <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">compensation_factor</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;est_scanner_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">add_reflectivity_loss</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;luer:&#39;</span><span class="p">,</span> <span class="n">luer_key</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;reflectivity_loss: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+
+        <span class="k">for</span> <span class="n">roi_key</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">roi_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+                <span class="c1"># dark facets have NaNs for x, y, intensity, so use the reference to obtain the position based mask.</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">get_roi_mask</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">roi</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># for backward compatibility, determine the mask (for now) on the current image.</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">get_roi_mask</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">roi</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="n">roi_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">analyze_stains</span><span class="p">:</span>
+            <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">add_local_reflectivity</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">luer_key</span> <span class="o">==</span> <span class="n">first_key</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;clean&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span><span class="p">:</span>
+                    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;initial_reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;calibration_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;pre_calibration_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">mask_dict</span><span class="p">,</span> <span class="n">stain_range</span> <span class="o">=</span> <span class="n">calculate_stains</span><span class="p">(</span><span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">luer_key</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span>
+                        <span class="n">roi_dict</span><span class="p">,</span> <span class="n">mask_dict</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">use_first_stain_area</span><span class="p">,</span> <span class="n">first_key</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span>
+                        <span class="n">min_bound_correction</span> <span class="o">=</span> <span class="n">min_bound_correction</span><span class="p">)</span>
+            <span class="c1"># store parameters of first LUER</span>
+            <span class="k">if</span> <span class="n">luer_key</span> <span class="o">==</span> <span class="n">first_key</span><span class="p">:</span> <span class="n">parameters_first</span> <span class="o">=</span> <span class="n">parameters</span>
+
+    <span class="k">if</span> <span class="n">analyze_stains</span><span class="p">:</span>
+        <span class="n">generate_analysis_results</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span>
+                                  <span class="n">use_first_stain_area</span><span class="p">,</span> <span class="n">stain_range</span><span class="p">,</span> <span class="n">n_keys</span><span class="p">,</span> <span class="n">parameters_first</span><span class="o">=</span><span class="n">parameters_first</span><span class="p">,</span>
+                                  <span class="n">icrm</span><span class="o">=</span><span class="n">icrm</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">loss_per_roi</span></div>
+
+
+<div class="viewcode-block" id="calculate_stains"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.calculate_stains">[docs]</a><span class="k">def</span> <span class="nf">calculate_stains</span><span class="p">(</span><span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">luer_key</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">roi_dict</span><span class="p">,</span> <span class="n">mask_dict</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span>
+                     <span class="n">use_first_stain_area</span><span class="p">,</span> <span class="n">first_key</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">min_bound_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyzes the ROI in more detail by looking at the stain vs non-stain region</span>
+
+<span class="sd">    :param loss_per_roi: dataframe with the end results on reflectivity</span>
+<span class="sd">    :param luer_key: luer id</span>
+<span class="sd">    :param luer: luer information including intensity, reflectivity</span>
+<span class="sd">    :param reference: reference information including intensity, reflectivity</span>
+<span class="sd">    :param roi_dict: dictionary with roi definitions. The dictionary contains one roi per luer_key.</span>
+<span class="sd">        Each roi contains &#39;type&#39; (polygon, polar_bounds) and a set of keys depending on the type.</span>
+<span class="sd">    :param mask_dict: dictionary of custom rois.</span>
+<span class="sd">    :param ref_scaling_method: refernece scaling method</span>
+<span class="sd">    :param conf: object with machine/collector info</span>
+<span class="sd">    :param custom_dir: custom directory to store images/analysis results</span>
+<span class="sd">    :param use_first_stain_area: fixate the stain vs non-stain region using the first luer</span>
+<span class="sd">    :param first_key: the luer id of the first luer</span>
+<span class="sd">    :return:</span>
+<span class="sd">        loss_per_roi: dataframe with the end results on reflectivity per ler</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;luer_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer_key</span>
+
+    <span class="c1"># add information retrieved from InfluxDB</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;sliedt_luer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;sliedt_reference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;est_scanner_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;est_scanner_loss&#39;</span><span class="p">]</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;collector_pulse_count&#39;</span><span class="p">]</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scanner_pulse_count&#39;</span><span class="p">]</span>
+
+    <span class="c1"># add luer intensity</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;intensity_luer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;intensity_reference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="c1"># Go from the relative SLIEDT scale to an absolute scale, by dividing the reflectivity loss by the scale \</span>
+    <span class="c1"># factor of the first luer. In the case of local reflectivity this is not needed, as it already is compensated in</span>
+    <span class="c1"># the fraction: R = (I * SLIE/DT) / (I_ref * SLIE/DT_ref)</span>
+    <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">roi_key</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">roi_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="n">roi_key</span><span class="p">]</span> <span class="o">/=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+
+    <span class="c1"># scale calibration factor of the generic reference intensity as function of the first radon map</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">radon_scaling</span><span class="o">.</span><span class="n">get_scaling_factor_from_intensities</span><span class="p">(</span>
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity_scaled&#39;</span><span class="p">],</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity_scaled&#39;</span><span class="p">],</span>
+        <span class="n">ref_scaling_method</span><span class="o">=</span><span class="s1">&#39;clean_area_auto&#39;</span> <span class="k">if</span> <span class="s1">&#39;clean&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span> <span class="k">else</span> <span class="n">ref_scaling_method</span><span class="p">)</span>
+
+    <span class="c1"># In the case of compensating the reflectivity based on the conditions of the first LUER, as well as in the case of</span>
+    <span class="c1"># the upper and lower bound method, the actual position of the clean area reflectivity peak in the</span>
+    <span class="c1"># histogram is different as the value from the parameters dictionary. Hence, we have to correct the border between</span>
+    <span class="c1"># stain and non-stain area. See EPS D000884328-00</span>
+    <span class="k">if</span> <span class="n">min_bound_correction</span> <span class="ow">and</span> <span class="p">((</span><span class="n">luer_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">first_key</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;clean_area_auto_&#39;</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span><span class="p">)):</span>
+        <span class="c1"># Correct the amplitude based on the last fit. Calculate bin index of fit at center of first peak</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;bins&#39;</span><span class="p">]</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">luer_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">first_key</span><span class="p">):</span>
+            <span class="c1"># Use the parameters of the first LUER</span>
+            <span class="n">initial_peak_reflectivity</span> <span class="o">=</span> <span class="n">loss_per_roi</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span>
+            <span class="n">initial_sigma_peak</span> <span class="o">=</span> <span class="n">loss_per_roi</span><span class="p">[</span><span class="s1">&#39;sigma_peak&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="k">elif</span> <span class="s1">&#39;clean_area_auto_&#39;</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span><span class="p">:</span>
+            <span class="c1"># If the upper bound and lower bound automated clean area detection algo is used, the fitted peak is not the</span>
+            <span class="c1"># peak which is used to derive the normalization value. Recalculate the corrected peak position and width.</span>
+            <span class="kn">from</span> <span class="nn">pyeuv.Collector.Radon.radon_scaling</span> <span class="kn">import</span> <span class="n">calculate_min_max_compensation_factor</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">initial_peak_reflectivity</span><span class="p">,</span> <span class="n">initial_sigma_peak</span> <span class="o">=</span> \
+                <span class="n">calculate_min_max_compensation_factor</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;sigma_peak&#39;</span><span class="p">],</span>
+                                                      <span class="n">ref_scaling_method</span><span class="p">)</span>
+
+        <span class="c1"># determine initial Gauss</span>
+        <span class="n">popt</span> <span class="o">=</span> <span class="n">radon_scaling</span><span class="o">.</span><span class="n">determine_location_initial_distribution</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">initial_peak_reflectivity</span><span class="p">,</span>
+                                                                     <span class="n">initial_sigma_peak</span><span class="p">)</span>
+
+        <span class="c1"># determine min bound using this initial Gauss</span>
+        <span class="n">remainder</span><span class="p">,</span> <span class="n">min_bound</span> <span class="o">=</span> <span class="n">radon_scaling</span><span class="o">.</span><span class="n">determine_stain_area</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">initial_peak_reflectivity</span><span class="p">,</span>
+                                                                  <span class="n">initial_sigma_peak</span><span class="p">,</span> <span class="n">popt</span><span class="p">)</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;min_bound&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_bound</span>
+
+    <span class="c1"># add scaling related values</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;initial_reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;initial_reflectivity_loss&#39;</span><span class="p">]</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;calibration_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;calibration_factor&#39;</span><span class="p">]</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;pre_calibration_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;pre_calibration_factor&#39;</span><span class="p">]</span>
+
+    <span class="c1"># add fitting parameters</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;min_bound&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;min_bound&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="k">if</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;applied_fit&#39;</span><span class="p">]:</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;error_peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;error_peak&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;sigma_peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;sigma_peak&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;error_sigma&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;error_sigma&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;amplitude_peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;amplitude_peak&#39;</span><span class="p">]</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;error_amplitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;error_amplitude&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;error_peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;sigma_peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;error_sigma&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;amplitude_peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;error_amplitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># add stain/non-stain reflectivity values</span>
+    <span class="n">stain_range</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">local_reflectivity</span> <span class="o">&lt;</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;min_bound&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">non_stain_range</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">local_reflectivity</span> <span class="o">&gt;=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;min_bound&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="k">if</span> <span class="n">use_first_stain_area</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">luer_key</span> <span class="ow">is</span> <span class="n">first_key</span><span class="p">):</span>
+            <span class="n">mask_dict</span><span class="p">[</span><span class="s1">&#39;stain_range&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stain_range</span>
+            <span class="n">mask_dict</span><span class="p">[</span><span class="s1">&#39;non_stain_range&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">non_stain_range</span>
+        <span class="n">stain_range</span> <span class="o">=</span> <span class="n">mask_dict</span><span class="p">[</span><span class="s1">&#39;stain_range&#39;</span><span class="p">]</span>
+        <span class="n">non_stain_range</span> <span class="o">=</span> <span class="n">mask_dict</span><span class="p">[</span><span class="s1">&#39;non_stain_range&#39;</span><span class="p">]</span>
+
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;stain_reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stain_range</span><span class="p">,</span> <span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;stain_local_reflectivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stain_range</span><span class="p">,</span> <span class="s1">&#39;local_reflectivity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;non_stain_reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">non_stain_range</span><span class="p">,</span> <span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;non_stain_local_reflectivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">non_stain_range</span><span class="p">,</span> <span class="s1">&#39;local_reflectivity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;area_percentage_stain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stain_range</span><span class="p">,</span> <span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">/</span> \
+                            <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;max_local_reflectivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;local_reflectivity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;98p_local_reflectivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;local_reflectivity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="o">.</span><span class="mi">98</span><span class="p">)</span>
+
+    <span class="c1"># add region of interest used by ES-ratio</span>
+    <span class="n">es_ratio_range</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;_1&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;_13&#39;</span><span class="p">)</span>
+    <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">add_reflectivity_loss</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">es_ratio_range</span><span class="p">,</span> <span class="n">mask_prefix</span> <span class="o">=</span> <span class="s1">&#39;es_ratio_&#39;</span><span class="p">)</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;es_ratio_reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">es_ratio_range</span><span class="p">,</span> <span class="s1">&#39;es_ratio_reflectivity_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">luer_key</span><span class="p">,</span> <span class="s1">&#39;es_ratio_local_reflectivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">es_ratio_range</span><span class="p">,</span> <span class="s1">&#39;local_reflectivity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">custom_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">conf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># create a subdir to save the more detailed figures</span>
+        <span class="n">custom_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">machine_name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">collector_name</span> <span class="o">+</span> \
+                                     <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">ref_scaling_method</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">custom_subdir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">custom_subdir</span><span class="p">)</span>
+
+        <span class="n">use_first_stain_area_txt</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">use_first_stain_area</span><span class="p">:</span> <span class="n">use_first_stain_area_txt</span> <span class="o">=</span> <span class="s1">&#39;_use_first_stain_area&#39;</span>
+
+        <span class="n">plot_histogram</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_subdir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">use_first_stain_area_txt</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">stain_range</span><span class="p">)</span>
+        <span class="n">plot_radon</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_subdir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">plot_radon</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_subdir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;_stains&#39;</span> <span class="o">+</span> <span class="n">use_first_stain_area_txt</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">stain_range</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;clean&#39;</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span><span class="p">:</span>
+            <span class="n">plot_fit_generic_ref_scaling</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">,</span> <span class="n">luer</span><span class="o">=</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="n">reference</span><span class="p">,</span>
+                <span class="n">custom_dir</span><span class="o">=</span><span class="n">custom_subdir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">mask_dict</span><span class="p">,</span> <span class="n">stain_range</span></div>
+
+
+<div class="viewcode-block" id="generate_analysis_results"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.generate_analysis_results">[docs]</a><span class="k">def</span> <span class="nf">generate_analysis_results</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span>
+                              <span class="n">use_first_stain_area</span><span class="p">,</span> <span class="n">stain_range</span><span class="p">,</span> <span class="n">n_keys</span><span class="p">,</span> <span class="n">parameters_first</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">icrm</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This generates analysis results, including:</span>
+<span class="sd">    * Local reflectivity histogram</span>
+<span class="sd">    * RADON reflectivity image</span>
+<span class="sd">    * RADON reflectivity image - stain area marked with white</span>
+<span class="sd">    If more than one image:</span>
+<span class="sd">    * SLIEDT + non-stain local reflectivity evolution</span>
+<span class="sd">    * ROI (stain/non stain) contribution to global loss evolution</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param luer: luer information including intensity, reflectivity</span>
+<span class="sd">    :param reference: reference information including intensity, reflectivity</span>
+<span class="sd">    :param custom_dir: custom directory to store images/analysis results</span>
+<span class="sd">    :param conf: object with machine/collector info</span>
+<span class="sd">    :param ref_scaling_method: refernece scaling method</span>
+<span class="sd">    :param loss_per_roi: dataframe with the end results on reflectivity per ler</span>
+<span class="sd">    :param parameters: dataframe with various values associated to the scaling method of the current LUER</span>
+<span class="sd">    :param use_first_stain_area: fixate the stain vs non-stain region using the first luer</span>
+<span class="sd">    :param stain_range: indices of locations of collector area with a stain</span>
+<span class="sd">    :param n_keys: total number of luers</span>
+<span class="sd">    :param parameters_first: dataframe with various values associated to the scaling method of the first LUER</span>
+<span class="sd">    :param icrm: use icrm data instead of SLIE/DT</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">use_first_stain_area_txt</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">use_first_stain_area</span><span class="p">:</span> <span class="n">use_first_stain_area_txt</span> <span class="o">=</span> <span class="s1">&#39;_use_first_stain_area&#39;</span>
+
+    <span class="n">plot_histogram</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                   <span class="n">parameters_first</span><span class="o">=</span><span class="n">parameters_first</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">use_first_stain_area_txt</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">stain_range</span><span class="p">)</span>
+    <span class="n">plot_radon</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">plot_radon</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;_stains&#39;</span> <span class="o">+</span> <span class="n">use_first_stain_area_txt</span><span class="p">,</span>
+               <span class="n">mask</span><span class="o">=</span><span class="n">stain_range</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n_keys</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">plot_sliedt</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span>
+                    <span class="n">use_first_stain_area_txt</span><span class="p">,</span> <span class="n">icrm</span> <span class="o">=</span> <span class="n">icrm</span><span class="p">)</span>
+        <span class="n">plot_rois</span><span class="p">(</span><span class="n">loss_per_roi</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">custom_dir</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ref_scaling_method</span><span class="p">,</span> <span class="n">use_first_stain_area_txt</span><span class="p">)</span>
+
+        <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;results_&#39;</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">machine_name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">conf</span><span class="o">.</span><span class="n">collector_name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">ref_scaling_method</span> <span class="o">+</span> \
+                <span class="n">use_first_stain_area_txt</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span>
+        <span class="n">loss_per_roi</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">custom_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="scale_generic_ref"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.scale_generic_ref">[docs]</a><span class="k">def</span> <span class="nf">scale_generic_ref</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">luer</span><span class="p">,</span> <span class="n">ref_scaling_method</span> <span class="o">=</span> <span class="s1">&#39;clean_area&#39;</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">custom_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to calibrate the intenstiy of the generic ref and to estimate its reflectivity.</span>
+<span class="sd">    For this, it uses the reference scaling method.</span>
+
+<span class="sd">    :param reference: dictionary containing the reference image</span>
+<span class="sd">    :param luer: dictionary containing luers to process, scaling factors, etc.</span>
+<span class="sd">    :param ref_scaling_method: method to scale</span>
+<span class="sd">    :param conf: object with machine/collector info</span>
+<span class="sd">    :param custom_dir: custom directory to store images/analysis results</span>
+<span class="sd">    :return:</span>
+<span class="sd">        reference: the scaled reference dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># reference intensity is normalized, so is difficult to compare with the luer; hence, scale the reference to</span>
+    <span class="c1"># similar values as the current luer</span>
+    <span class="n">reflectivity</span> <span class="o">=</span> <span class="n">calculate_intensity_ratio</span><span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">],</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">])</span>
+    <span class="n">pre_calibrate_factor</span> <span class="o">=</span> <span class="n">pre_scale_reflectivity</span><span class="p">(</span><span class="n">reflectivity</span><span class="p">)</span>
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">pre_calibrate_factor</span>
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;pre_calibration_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pre_calibrate_factor</span>
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span>
+
+    <span class="c1"># scale calibration factor of the generic reference intensity as function of the first radon map</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">radon_scaling</span><span class="o">.</span><span class="n">get_scaling_factor_from_intensities</span><span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">],</span>
+                                                                   <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">],</span>
+                                                                   <span class="n">ref_scaling_method</span> <span class="o">=</span> <span class="n">ref_scaling_method</span><span class="p">)</span>
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;calibration_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span>
+
+    <span class="c1"># calculating the relative reflectivity loss</span>
+    <span class="n">initial_reflectivity_loss</span> <span class="o">=</span> <span class="n">calculate_initial_reflectivity_loss</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">])</span>
+
+    <span class="c1"># calibrate the reference intensity to the same scaling as the first luer (i.e. if this factor is applied, the clean</span>
+    <span class="c1"># area in the radon image has a more or less 100% median reflectivity).</span>
+    <span class="k">if</span> <span class="s1">&#39;clean_area_auto_&#39;</span> <span class="ow">in</span> <span class="n">ref_scaling_method</span><span class="p">:</span>
+        <span class="c1"># If the upper bound and lower bound automated clean area detection algo is used, we will compensate the center</span>
+        <span class="c1"># of the fit by correcting for a smaller/larger width of the peak. The basic assumption is that &quot;2*sigma + mu&quot;</span>
+        <span class="c1"># (position at 2 sigma) stays the same.</span>
+        <span class="kn">from</span> <span class="nn">pyeuv.Collector.Radon.radon_scaling</span> <span class="kn">import</span> <span class="n">calculate_min_max_compensation_factor</span>
+        <span class="n">compensation_factor</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">calculate_min_max_compensation_factor</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">],</span> \
+                                                                          <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;sigma_peak&#39;</span><span class="p">],</span>
+                                                                          <span class="n">ref_scaling_method</span><span class="p">)</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">compensation_factor</span>
+        <span class="n">initial_reflectivity_loss</span> <span class="o">=</span> <span class="n">calculate_initial_reflectivity_loss</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">])</span>
+
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;initial_reflectivity_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">initial_reflectivity_loss</span>
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;peak_reflectivity&#39;</span><span class="p">]</span>
+
+    <span class="c1"># calculate what the reflectivity of the generic ref is, starting from the reflectivity of the first luer, and</span>
+    <span class="c1"># multiplying that by the inverse of the relative reflectivity drop ratio</span>
+    <span class="n">reflectivity_first_luer</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+    <span class="n">reflectivity_generic_ref</span> <span class="o">=</span> <span class="n">reflectivity_first_luer</span> <span class="o">*</span> <span class="mf">100.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">100.</span> <span class="o">-</span> <span class="n">initial_reflectivity_loss</span><span class="p">)</span>
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reflectivity_generic_ref</span>
+
+    <span class="k">if</span> <span class="n">custom_dir</span><span class="p">:</span>
+        <span class="n">plot_fit_generic_ref_scaling</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">conf</span> <span class="o">=</span> <span class="n">conf</span><span class="p">,</span> <span class="n">luer</span> <span class="o">=</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="p">,</span>
+                                     <span class="n">custom_dir</span><span class="o">=</span><span class="n">custom_dir</span><span class="p">,</span> <span class="n">add_deltas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">add_key</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">reference</span></div>
+
+
+<div class="viewcode-block" id="calculate_initial_reflectivity_loss"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.calculate_initial_reflectivity_loss">[docs]</a><span class="k">def</span> <span class="nf">calculate_initial_reflectivity_loss</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">calibration_factor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function calculates the initial reflectivity loss.</span>
+
+<span class="sd">    :param luer: dictionary containing luers to process, scaling factors, etc.</span>
+<span class="sd">    :param reference: dictionary with reference luer data</span>
+<span class="sd">    :param calibration_factor: the calibration factor for the reference intensity</span>
+<span class="sd">    :return: dataframe:</span>
+<span class="sd">        initial_reflectivity_loss: the estimation of the initial relative reflectivity loss</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># estimate the reflectivity loss in between the generic reference and the first radon map</span>
+    <span class="n">initial_reflectivity_loss</span> <span class="o">=</span> \
+        <span class="p">((</span><span class="n">calibration_factor</span> <span class="o">*</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">-</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">/</span> \
+        <span class="p">(</span><span class="n">calibration_factor</span> <span class="o">*</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">*</span><span class="mi">100</span>
+
+    <span class="k">return</span> <span class="n">initial_reflectivity_loss</span></div>
+
+
+<div class="viewcode-block" id="add_local_reflectivity"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.add_local_reflectivity">[docs]</a><span class="k">def</span> <span class="nf">add_local_reflectivity</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds the local reflectivity per data point to the luer dataframe</span>
+
+<span class="sd">    :param luer: dictionary with luer data</span>
+<span class="sd">    :param reference: dictionary with reference luer data</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: dictionary with luer data including local reflectivity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># normalize luer</span>
+    <span class="n">intensity_norm</span> <span class="o">=</span> <span class="n">radon_shared</span><span class="o">.</span><span class="n">get_normalized_intensity</span><span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">intensity_ref_norm</span> <span class="o">=</span> <span class="n">radon_shared</span><span class="o">.</span><span class="n">get_normalized_intensity</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># scale luer</span>
+    <span class="n">intensity_scaled</span> <span class="o">=</span> <span class="n">intensity_norm</span> <span class="o">*</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+    <span class="n">intensity_ref_scaled</span> <span class="o">=</span> <span class="n">intensity_ref_norm</span> <span class="o">*</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+
+    <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity_scaled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">intensity_scaled</span>
+    <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity_scaled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">intensity_ref_scaled</span>
+
+    <span class="c1"># calculate the local reflectivity</span>
+    <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;local_reflectivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculate_intensity_ratio</span><span class="p">(</span><span class="n">intensity_scaled</span><span class="p">,</span> <span class="n">intensity_ref_scaled</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="k">return</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span></div>
+
+
+<div class="viewcode-block" id="add_reflectivity_loss"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.add_reflectivity_loss">[docs]</a><span class="k">def</span> <span class="nf">add_reflectivity_loss</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mask_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds the reflectivity loss contribution per data point to the luer dataframe</span>
+<span class="sd">    The sum of all these loss contributions sum up to the total loss (as percentage)</span>
+
+<span class="sd">    :param luer: dictionary with luer data</span>
+<span class="sd">    :param reference: dictionary with reference luer data</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :param mask: apply on to limited area of luer data</span>
+<span class="sd">    :param mask: add mask_prefix to not confuse with non-masked column name</span>
+<span class="sd">    :return: dictionary with luer data including reflectivity loss</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># if no mask_prefix is defined in case of using as mask, create default name</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">mask_prefix</span> <span class="ow">is</span> <span class="s1">&#39;&#39;</span><span class="p">):</span> <span class="n">mask_prefix</span> <span class="o">=</span> <span class="s1">&#39;mask_&#39;</span>
+
+    <span class="c1"># apply mask if available</span>
+    <span class="n">luer_data</span> <span class="o">=</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">reference_data</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span>
+
+    <span class="c1"># normalize luer</span>
+    <span class="n">intensity_norm</span> <span class="o">=</span> <span class="n">radon_shared</span><span class="o">.</span><span class="n">get_normalized_intensity</span><span class="p">(</span><span class="n">luer_data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">intensity_ref_norm</span> <span class="o">=</span> <span class="n">radon_shared</span><span class="o">.</span><span class="n">get_normalized_intensity</span><span class="p">(</span><span class="n">reference_data</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># scale luer</span>
+    <span class="n">intensity_scaled</span> <span class="o">=</span> <span class="n">intensity_norm</span> <span class="o">*</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+    <span class="n">intensity_ref_scaled</span> <span class="o">=</span> <span class="n">intensity_ref_norm</span> <span class="o">*</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span>
+
+    <span class="c1">## Bring specific ROIs to zero if needed</span>
+    <span class="c1"># for roi_key, roi in roi_dict.items():</span>
+    <span class="c1">#     mask = get_roi_mask(reference, roi, verbose=verbose)</span>
+    <span class="c1">#     intensity_scaled.loc[mask] = 0</span>
+
+    <span class="c1"># calculate intensity loss</span>
+    <span class="n">intensity_loss</span> <span class="o">=</span> <span class="n">intensity_ref_scaled</span> <span class="o">-</span> <span class="n">intensity_scaled</span>
+
+    <span class="c1"># calculate the reflectivity loss</span>
+    <span class="n">column_name</span> <span class="o">=</span> <span class="n">mask_prefix</span> <span class="o">+</span> <span class="s1">&#39;reflectivity_loss&#39;</span>
+    <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference</span><span class="p">[</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">intensity_loss</span> <span class="o">/</span> <span class="n">intensity_ref_scaled</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="k">return</span> <span class="n">luer</span><span class="p">,</span> <span class="n">reference</span></div>
+
+
+<div class="viewcode-block" id="get_roi_mask"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.get_roi_mask">[docs]</a><span class="k">def</span> <span class="nf">get_roi_mask</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">roi</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the mask that selects the datapoints within the specified region of interest</span>
+<span class="sd">    The roi can be defined by a polygon (&#39;format&#39; = &#39;polygon&#39;), or by limits in polar coordinates (&#39;format&#39; = &#39;polar&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">    :param luer: dictionary containing the luer image</span>
+<span class="sd">    :param roi: dictionary containing the roi</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return mask: dictionary containing the mask for the LUER image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">path</span>
+    <span class="k">if</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;ROI&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Object is of type </span><span class="si">{}</span><span class="s1">, expected type </span><span class="se">\&#39;</span><span class="s1">ROI</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;polar&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="s1">&#39;r_min&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roi</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="s1">&#39;r_max&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roi</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="s1">&#39;phi_min&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roi</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="s1">&#39;phi_max&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roi</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s1">&#39;ROI (polar) should have keys </span><span class="se">\&#39;</span><span class="s1">r_min</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">r_max</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">phi_min</span><span class="se">\&#39;</span><span class="s1">, and </span><span class="se">\&#39;</span><span class="s1">phi_max</span><span class="se">\&#39;</span><span class="s1">. Keys are </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">roi</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ROI properties (r_min, r_max, phi_min, phi_max): </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                  <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_min&#39;</span><span class="p">],</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_max&#39;</span><span class="p">],</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_min&#39;</span><span class="p">],</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_max&#39;</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;types:&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_min&#39;</span><span class="p">]),</span> <span class="nb">type</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_max&#39;</span><span class="p">]),</span> <span class="nb">type</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_min&#39;</span><span class="p">]),</span> <span class="nb">type</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_max&#39;</span><span class="p">]))</span>
+
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_shared</span><span class="o">.</span><span class="n">get_radius</span><span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_shared</span><span class="o">.</span><span class="n">get_phi</span><span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;minimum and max radius&#39;</span><span class="p">,</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_max&#39;</span><span class="p">]:</span>
+            <span class="c1"># this is typically the case</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="p">((</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_min&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_max&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_min&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_max&#39;</span><span class="p">])</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if phi_min=345, phi_max=15, it means from 2:30 (phi_max) to 3:30 (phi_min)</span>
+            <span class="c1"># so 2:30 to 3 and 3 to 3:30 (&lt;15 and &gt;354)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_min&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+                    <span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;r_max&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+                    <span class="p">(</span>
+                            <span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_min&#39;</span><span class="p">])</span> <span class="o">|</span>
+                            <span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;phi_max&#39;</span><span class="p">])</span>
+                    <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">roi</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;polygon&#39;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># create a list of coordinates ([[x0, y0], ..., [xn, yn]])</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
+                <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+            <span class="c1"># create a polygon and and create mask for all points in the polygon</span>
+            <span class="n">polygon</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">])</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">polygon</span><span class="o">.</span><span class="n">contains_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;get_roi_mask fails for ROI with format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;get_roi_mask not implemented for roi type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]))</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;get_roi_mask not implemented for roi type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">roi</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">mask</span></div>
+
+
+<div class="viewcode-block" id="deal_with_dark_facets"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.deal_with_dark_facets">[docs]</a><span class="k">def</span> <span class="nf">deal_with_dark_facets</span><span class="p">(</span><span class="n">luer</span><span class="p">,</span> <span class="n">use_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the dark pupil facets (that are np.NaN in the with_keys files), to 0.</span>
+<span class="sd">    This correction can only be performed in case use_keys = True.</span>
+<span class="sd">    Otherwise, nothing is done</span>
+<span class="sd">    This should be used for SLIE/DT scaling to ensure that the sum of all losses adds up to the SLIE/DT loss.</span>
+<span class="sd">    </span>
+<span class="sd">    :param luer: dictionary containing the luer image</span>
+<span class="sd">    :param use_keys: indicator of the format of the luer (default=False)</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return: dictionary with the luer with updated intensities</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">luer</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;luer keys:&#39;</span><span class="p">,</span> <span class="n">luer</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">use_keys</span><span class="p">:</span>
+        <span class="n">luer</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">luer</span></div>
+
+
+<div class="viewcode-block" id="get_predefined_rois"><a class="viewcode-back" href="../../../../Collector.html#pyeuv.Collector.Radon.radon_roi.get_predefined_rois">[docs]</a><span class="k">def</span> <span class="nf">get_predefined_rois</span><span class="p">(</span><span class="n">roi_definition</span><span class="o">=</span><span class="s1">&#39;spiderweb&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load roi definitions from a json file. Depending on the value of roi_definition it loads:</span>
+<span class="sd">    - &#39;spiderweb&#39;: the 60 spiderweb elements</span>
+<span class="sd">    - &#39;rois_from_field&#39;: a few roi definitions based on commonly observed roi patterns in the field</span>
+
+<span class="sd">    :param roi_definition: string refering to the predifined roi definition</span>
+<span class="sd">    :raises ValueError: not supported roi definition</span>
+<span class="sd">    :param verbose: switches debug mode (default=False)</span>
+<span class="sd">    :return dictionary: with the rois</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">do_it</span><span class="o">.</span><span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+
+    <span class="c1"># Reminder: syntax as below (&#39;string is string&#39;) is not py27 compatible</span>
+    <span class="c1"># if roi_definition is &#39;spiderweb&#39;:</span>
+    <span class="k">if</span> <span class="n">roi_definition</span> <span class="o">==</span> <span class="s1">&#39;spiderweb&#39;</span><span class="p">:</span>
+        <span class="n">path_to_roi_definition</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">radon_io</span><span class="o">.</span><span class="n">get_roi_directory</span><span class="p">(),</span> <span class="s1">&#39;spiderweb.json&#39;</span><span class="p">)</span>
+        <span class="n">roi_dict</span> <span class="o">=</span> <span class="n">roi_io</span><span class="o">.</span><span class="n">read_rois_from_json</span><span class="p">(</span><span class="n">path_to_roi_definition</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">roi_definition</span> <span class="o">==</span> <span class="s1">&#39;rois_from_field&#39;</span><span class="p">:</span>
+        <span class="n">path_to_roi_definition</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">radon_io</span><span class="o">.</span><span class="n">get_roi_directory</span><span class="p">(),</span> <span class="s1">&#39;roi_definitions_from_field.json&#39;</span><span class="p">)</span>
+        <span class="n">roi_dict</span> <span class="o">=</span> <span class="n">roi_io</span><span class="o">.</span><span class="n">read_rois_from_json</span><span class="p">(</span><span class="n">path_to_roi_definition</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;ROI definition  </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> not implemented&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">roi_definition</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">roi_dict</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+    <span class="kn">from</span> <span class="nn">pyeuv.Collector.Radon.radon_roi</span> <span class="kn">import</span> <span class="n">get_predefined_rois</span><span class="p">,</span> <span class="n">radon_io</span><span class="p">,</span> <span class="n">calculate_roi_contributions</span>
+    <span class="kn">from</span> <span class="nn">pyeuv.Shared.configuration</span> <span class="kn">import</span> <span class="n">Configuration</span>
+
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">()</span>
+
+    <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">roi_dict_field</span> <span class="o">=</span> <span class="n">get_predefined_rois</span><span class="p">(</span><span class="n">roi_definition</span><span class="o">=</span><span class="s1">&#39;rois_from_field&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2020-04-21 13:23:00&#39;</span><span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">UserLANClient</span><span class="p">()</span>
+    <span class="n">source_id</span> <span class="o">=</span> <span class="s1">&#39;s62280&#39;</span>
+    <span class="n">collector</span> <span class="o">=</span> <span class="s1">&#39;SDMSC161.H01&#39;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;W:\Collector_Performance_Reports\3400\Intel#1_4129_V51_62280\#14_&#39;</span><span class="o">+</span><span class="n">collector</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;\2.in-use\RADON&#39;</span>
+    <span class="n">raw_luer_file</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;\LUER_m4129_202004192309.0296.raw&#39;</span>
+    <span class="n">processed_luer_file</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;\LUER.0296_SN_FAR_FIELD_WITH_DOTS_WITH_KEYS.DAT&#39;</span>
+    <span class="n">ref_scaling_method</span> <span class="o">=</span> <span class="s1">&#39;clean_area_auto&#39;</span>
+    <span class="n">analyze_stains</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">custom_dir</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;W:\Collector_Performance_Reports\3400\database_initial_reflectivity_loss&#39;</span>
+
+    <span class="n">machine_list</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_machine_list</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;dataframe&#39;</span><span class="p">)</span>
+    <span class="n">machine</span> <span class="o">=</span> <span class="n">machine_list</span><span class="p">[</span><span class="n">machine_list</span><span class="o">.</span><span class="n">source_nr</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">source_id</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">set_configuration</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">machine</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">collector</span><span class="p">)</span>
+
+    <span class="n">processed_luer</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">load_dots</span><span class="p">(</span><span class="n">processed_luer_file</span><span class="p">)</span>
+    <span class="n">luer_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">luer_dict</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">radon_io</span><span class="o">.</span><span class="n">get_luer_dict_object</span><span class="p">(</span><span class="n">processed_luer</span><span class="p">,</span> <span class="n">raw_luer_file</span><span class="p">)</span>
+    <span class="n">loss_per_roi</span> <span class="o">=</span> <span class="n">calculate_roi_contributions</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">luer_dict</span><span class="p">,</span> <span class="n">roi_dict_field</span><span class="p">,</span>
+                                               <span class="n">ref_scaling_method</span> <span class="o">=</span> <span class="n">ref_scaling_method</span><span class="p">,</span>
+                                               <span class="n">analyze_stains</span> <span class="o">=</span> <span class="n">analyze_stains</span><span class="p">,</span>
+                                               <span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">,</span>
+                                               <span class="n">custom_dir</span><span class="o">=</span><span class="n">custom_dir</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

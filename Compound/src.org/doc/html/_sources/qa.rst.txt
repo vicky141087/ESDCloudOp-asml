@@ -1,0 +1,46 @@
+Q&A
+===
+**Where is the documentation of the various functions?**
+  You have 3 options:
+  
+  1. Use the included html documentation (the one your're reading now) and look for
+     the function in the API reference or Module Index. You can also use the search function.
+
+  2. Once you've imported a module or function in python, you can type help(<function_or_module>)
+     to view the documentatoin.
+
+  3. Use the buildin documentation features of your IDE such as pycharm or spyder.
+
+**How do I get started?**
+  Follow the installation instructions in this document and then proceed with the examples.
+
+**What is regarded as abuse?**
+  Scripts that try to 'crawl' our database in order to copy large portions of it
+  Scripts that run continously and request large amounts of data, say more than 
+  one million points per hour.
+  Scripts that continously send out more than 10 requests per minute.
+  If you really need excessive amounts of data, please contact dl-euv-dashboard-support@asml.com
+
+**Does something similar exist for MATLAB?**
+  Yes! To use EUVDashboard/InfluxDB data in MATLAB you will need Influxmat.
+  It can be downloaded here: https://euv-dashboard.asml.com/service/tools.html
+  For more information contact RLBL
+
+**Python is complaining that it's missing a module!**
+  If you're using Anaconda this shouldn't be the case, contact rob.de.laat@asml.com.
+  If you're not using Anaconda you're on your own. Use tools like pip and
+  google to figure out how to install additional packages or switch to Anaconda.
+
+**Nothing seems to be working!**
+  1. Uninstall the python provided by ITMS using the Software Center.
+  2. Download and install anaconda (No admin rights required)
+  3. Make sure to add the Anaconda and the Anaconda/scripts folder to your PATH
+ 
+**Can I use this module in my python tool?**
+  Probably, please contact dl-euv-dashboard-support@asml.com for the details.
+
+**How can I list the contents of a DATv2 file?**
+  Use the ls_dat() function provided by pyeuv.Parsers.dat_parser
+
+**How can I list the machines in InfluxDB available to me?**
+  Use the get_machine_list() method provided by UserLANClient instances

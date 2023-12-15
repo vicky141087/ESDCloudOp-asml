@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Examples &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Q&amp;A" href="qa.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#download-plot-some-rt5">1. Download &amp; plot some RT5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-tag-filters">2. Using tag filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#selecting-fields">3. Selecting fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parse-a-dat-file">4. Parse a DAT file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#download-dw-slie-data-from-pma-ng">5. Download DW_SLIE data from PMA NG</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/examples.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>The .py files for these examples can be found in the doc/examples folder.</p>
+<div class="section" id="download-plot-some-rt5">
+<h2>1. Download &amp; plot some RT5<a class="headerlink" href="#download-plot-some-rt5" title="Permalink to this headline">¶</a></h2>
+<p>This example uses the matplotlib module to plot the results. If you get an
+import error for this module you can install it using conda or pip.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">matplotlib</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">matplotlib</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Create the client instance, this will invoke a password prompt.</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">UserLANClient</span><span class="p">()</span>
+
+    <span class="c1"># Get data. The signal name is the same as the one used in Grafana</span>
+    <span class="c1"># Note that by adding the .1h.mean we downsample the data to an hourly mean.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+        <span class="n">signals</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;s38441.RT05.BDenergyAvgOn.1h.mean&#39;</span><span class="p">],</span>
+        <span class="n">from_time</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-02-01&#39;</span><span class="p">),</span>
+        <span class="n">to_time</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-02-10&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BDenergyAvgOn&#39;</span><span class="p">]</span>  <span class="c1"># Set convenient column name</span>
+
+    <span class="c1"># Thats it, lets plot the data to see if it worked.</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;BDenergyAvgOn&#39;</span><span class="p">],</span> <span class="s1">&#39;.r&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-tag-filters">
+<h2>2. Using tag filters<a class="headerlink" href="#using-tag-filters" title="Permalink to this headline">¶</a></h2>
+<p>Some signals contain tags. Tags are used to mark data points with a certain
+condition. For example the tag ‘subroutine’ will tell you the subroutine that
+was used to take the measurement. You can use these tags to efficiently
+filter your data points so if you want to get only the points that were taken
+during the MP subroutine, your tag filter will be {subroutine=MP}. You can
+specify these filters by enclosing them inside curly brackets, at the end of
+a signal. It’s possible to use multiple tag filters as the example below
+illustrates.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c1"># Create the client object</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">UserLANClient</span><span class="p">()</span>
+
+    <span class="c1"># Get data. The signal name is the same as the one used in Grafana</span>
+    <span class="c1"># Note that by adding the {subroutine=MP} part we retrieve only the points</span>
+    <span class="c1"># where this condition is true. It&#39;s possible to add multiple tag filters.</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">&#39;s62265.RT23.TFMmajorAxis{subroutine=MP}{in_spec=True}&#39;</span><span class="p">],</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-08-23 14:00:00&#39;</span><span class="p">),</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-08-23 15:00:00&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="selecting-fields">
+<h2>3. Selecting fields<a class="headerlink" href="#selecting-fields" title="Permalink to this headline">¶</a></h2>
+<p>Most signals in the EUV Dashbaord database have only one field called ‘value’.
+In these cases, like the previous examples, you don’t need to specify the field,
+and pyeuv will assume that you meant the ‘value’ field.</p>
+<p>Some signals however have multiple fields, the example below shows how to obtain
+data from a particular field other than ‘value’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pyeuv.EUVDashboard.clients</span> <span class="kn">import</span> <span class="n">UserLANClient</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c1"># Create the client object</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">UserLANClient</span><span class="p">()</span>
+
+    <span class="c1"># Define time window to get the data for</span>
+    <span class="n">tstart</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-09-01 00:00:00&#39;</span><span class="p">)</span>
+    <span class="n">tstop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-09-05 00:00:00&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Retrive a single field using []</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;s62269.SourceLog.OSD-0200[target_euv]&quot;</span><span class="p">],</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-09-01 14:00:00&#39;</span><span class="p">),</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-09-05 15:00:00&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+    <span class="c1"># Retrieve all fields using the [*]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;s62269.SourceLog.OSD-0200[*]&quot;</span><span class="p">],</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-09-01 14:00:00&#39;</span><span class="p">),</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2018-09-05 15:00:00&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parse-a-dat-file">
+<h2>4. Parse a DAT file<a class="headerlink" href="#parse-a-dat-file" title="Permalink to this headline">¶</a></h2>
+<p>The example below illustrates how to use pyeuv to parse DAT files into a dataframe
+and then plot the contents. Pyeuv supports DATv0, DATv1 and DATv2.</p>
+<p>Note: DATv1 files require metadata, usually provided in a ‘SignalMetadata.csv’ or
+‘SignalMetadata.txt’ file that can be found in the directory where you found the data.
+Pyeuv will look for this file in the same directory as the data files. If the file is
+elsewhere you can use the datv1_metadatafile parameter of the parse_dat function to
+specify it.</p>
+<p>parse_dat will only extract signals that have been specifically requested, the example
+below extracts only the BDenergyAvgOn signal. If you want to know wich signals are
+available in a particular dat file, you can use the ls_dat function of the dat_parser.
+See API Reference for more information.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">pyeuv.Parsers</span> <span class="kn">import</span> <span class="n">dat_parser</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Provide  the list of filenames to process</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RT5_test.xz&#39;</span><span class="p">]</span>
+
+    <span class="n">signal_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BDenergyAvgOn&#39;</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">dat_parser</span><span class="o">.</span><span class="n">parse_dat</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">signal_list</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;BDenergyAvgOn&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="download-dw-slie-data-from-pma-ng">
+<h2>5. Download DW_SLIE data from PMA NG<a class="headerlink" href="#download-dw-slie-data-from-pma-ng" title="Permalink to this headline">¶</a></h2>
+<p>The example below illustrates how to download and plot scanner KPI a.k.a. scanner parameters
+from PMA NG. Note that you need a user account with PMA Authorization as well as an API key.
+For more information on obtaining an API key, please visit the <a class="reference external" href="https://my.asml.com/sectors/bf/ops/FieldCS/CSInfra/PMAKB/All%20you%20need%20to%20know%20on%20Secure%20API/02.%20Tool%20development%20on%20Secure%20API.aspx">PMA knowledge base</a>.
+or contact <a class="reference external" href="mailto:dl-pma-developer-support&#37;&#52;&#48;asml&#46;com">dl-pma-developer-support<span>&#64;</span>asml<span>&#46;</span>com</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">pyeuv.PMA.clients</span> <span class="kn">import</span> <span class="n">PMAClient</span>
+
+
+<span class="c1"># PMA credentials and api_key. Please refer to example #5 in the documentation for more info.</span>
+<span class="n">username</span> <span class="o">=</span> <span class="s2">&quot;&lt;your_pma_username&gt;&quot;</span>
+
+<span class="c1"># Warning: This is for testing only. Do not store passwords in your code.</span>
+<span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;&lt;your_pma_password&gt;&quot;</span>
+<span class="n">api_key</span> <span class="o">=</span> <span class="s2">&quot;&lt;your_pma_api_key&gt;&quot;</span>
+
+<span class="n">machine</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;machine_nr&#39;</span><span class="p">:</span> <span class="mi">9445</span><span class="p">,</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;TSMC 7&#39;</span>
+<span class="p">}</span>
+
+<span class="c1"># Download the data</span>
+<span class="n">pma_client</span> <span class="o">=</span> <span class="n">PMAClient</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span>
+<span class="n">df_slie</span> <span class="o">=</span> <span class="n">pma_client</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">([</span><span class="s1">&#39;DW_SLIE&#39;</span><span class="p">],</span> <span class="n">machine</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2019-04-01&#39;</span><span class="p">),</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2019-05-01&#39;</span><span class="p">),</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s1">&#39;DW_SLIE&#39;</span><span class="p">]</span>
+
+<span class="c1"># Plot the results</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df_slie</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df_slie</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="s1">&#39;.r&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="qa.html" class="btn btn-neutral float-right" title="Q&amp;A" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

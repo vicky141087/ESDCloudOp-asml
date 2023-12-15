@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.Do_It.do_it_library &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.Do_It.do_it_library</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.Do_It.do_it_library</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">do_it_library.py</span>
+<span class="sd">Authors: NGER</span>
+<span class="sd">Date: 2019-05-10</span>
+
+<span class="sd">This file contains the generic library functions for:</span>
+<span class="sd">    - &#39;do_it&#39;,</span>
+<span class="sd">    - &#39;do_it_something&#39;,</span>
+
+<span class="sd">these can be used externally</span>
+
+<span class="sd">The _do_it_verbose function is a local utility that displays</span>
+<span class="sd">    - the name,</span>
+<span class="sd">    - the arguments,</span>
+<span class="sd">    - the values of the arguments,</span>
+
+<span class="sd">from the function that it is called from, when its &#39;verbose&#39; parameter is True</span>
+
+<span class="sd">To facilitate this utility, all functions in the library must have &#39;verbose&#39;</span>
+<span class="sd">as last parameter (default value False),</span>
+<span class="sd">and a call to _do_it_verbose() as first action, as shown in the examples below.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Instruction for use:</span>
+<span class="c1"># Copy the section between &#39;# --&gt;&#39; and # &#39;&lt;--&#39; into each generic library module</span>
+
+<span class="c1"># --&gt;</span>
+<span class="c1"># imports required for verbose on function parameters and values</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">currentframe</span><span class="p">,</span> <span class="n">getargvalues</span><span class="p">,</span> <span class="n">getframeinfo</span>
+
+<span class="c1"># internal tooling functions required in every generic library module</span>
+
+
+<div class="viewcode-block" id="do_it_verbose"><a class="viewcode-back" href="../../../Do_It.html#pyeuv.Do_It.do_it_library.do_it_verbose">[docs]</a><span class="k">def</span> <span class="nf">do_it_verbose</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    _do_it_verbose(...): Shows the name, parameters and values of the function</span>
+<span class="sd">                         that this is called from (the calling function).</span>
+
+<span class="sd">    :param frame: frame object of the calling function,</span>
+<span class="sd">    :param verbose: to switch internal debug info (default: False)</span>
+
+<span class="sd">    Change History:</span>
+<span class="sd">    NGER 20190513 SSPT-202 Creation of template for generic function in library</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Verbose:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Library: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">getargvalues</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Function name: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">getframeinfo</span><span class="p">(</span><span class="n">frame</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    parameter </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span></div>
+
+
+<span class="c1"># &lt;--</span>
+<span class="c1"># -- generic functions in this library module  --------------------------------</span>
+
+
+<div class="viewcode-block" id="do_it"><a class="viewcode-back" href="../../../Do_It.html#pyeuv.Do_It.do_it_library.do_it">[docs]</a><span class="k">def</span> <span class="nf">do_it</span><span class="p">(</span><span class="n">param1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wave_nr</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    do_it(...): Returns the value of the parameter supplied.</span>
+
+<span class="sd">    :param param1: value to be returned,</span>
+
+<span class="sd">        **details**</span>
+<span class="sd">            - &#39;Exception1&#39; is not allowed as value for param1,</span>
+<span class="sd">            - default value = True,</span>
+
+<span class="sd">    :param wave_nr: dummy parameter giving the nr of &#39;waves&#39;,</span>
+
+<span class="sd">        **details**</span>
+<span class="sd">            - default = 3,</span>
+
+<span class="sd">    :param verbose: to switch internal debug info,</span>
+
+<span class="sd">        **details**</span>
+<span class="sd">            - default = False,</span>
+
+<span class="sd">    :Raises ValueError: not allowed value is passed as parameter,</span>
+
+<span class="sd">    :return: the value of param1,</span>
+
+<span class="sd">    :Change History:</span>
+<span class="sd">        NGER 20190513 SSPT-202:</span>
+<span class="sd">        Creation of template for generic function in library,</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="c1"># Following code snippet prints function name</span>
+<span class="c1"># and all parameters and actual values passed when called</span>
+<span class="c1"># This snippet is to be copied into every library function, following the doc</span>
+    <span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">param1</span> <span class="o">==</span> <span class="s2">&quot;Exception1&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A not allowed value was passed for param1&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;Exception1&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;### Not allowed value passed as parameter: </span><span class="si">%s</span><span class="s2"> ###&quot;</span> <span class="o">%</span> <span class="n">param1</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wave hello for </span><span class="si">%s</span><span class="s2"> times!&quot;</span> <span class="o">%</span> <span class="n">wave_nr</span><span class="p">)</span>
+
+    <span class="n">do_it_some_function</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">param1</span></div>
+
+
+<div class="viewcode-block" id="do_it_some_function"><a class="viewcode-back" href="../../../Do_It.html#pyeuv.Do_It.do_it_library.do_it_some_function">[docs]</a><span class="k">def</span> <span class="nf">do_it_some_function</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    do_it_nothing (...): Does nothing, just shows &#39;verbose&#39; propagation.</span>
+
+<span class="sd">    :param verbose: to switch internal debug info,</span>
+
+<span class="sd">        **details**</span>
+<span class="sd">            - default = False,</span>
+
+<span class="sd">    :return:</span>
+
+<span class="sd">    :Change History:</span>
+<span class="sd">        NGER 20190513 SSPT-202</span>
+<span class="sd">        Creation of template for generic function in library,</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="c1"># Following code snippet prints function name</span>
+<span class="c1"># and all parameters and actual values passed when called</span>
+<span class="c1"># This snippet is to be copied into every library function, following the doc</span>
+    <span class="n">do_it_verbose</span><span class="p">(</span><span class="n">currentframe</span><span class="p">(),</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

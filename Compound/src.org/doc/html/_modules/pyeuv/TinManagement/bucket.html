@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pyeuv.TinManagement.bucket &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="../../../_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About pyeuv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyeuv.TinManagement.bucket</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyeuv.TinManagement.bucket</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">bucket.py</span>
+<span class="sd">Authors: RWKL</span>
+<span class="sd">Date: 2018-10-17</span>
+
+<span class="sd">Derive KPIs related to the tin bucket and clogging of it</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="get_drip_pin_clogging_signal_names"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.bucket.get_drip_pin_clogging_signal_names">[docs]</a><span class="k">def</span> <span class="nf">get_drip_pin_clogging_signal_names</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable </span>
+<span class="sd">    names as keys. The dictionary includes all the mean temperature signals of the vanes.</span>
+
+<span class="sd">    :return: dictionary with signal names for drip pin clogging.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;bucket_fill_level&#39;</span> <span class="p">:</span> <span class="s1">&#39;VDR_BUCKET.Fill_level&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;bucket_fill_level2&#39;</span> <span class="p">:</span> <span class="s1">&#39;VDR_BUCKET.FillLevel2&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;bucket_fill_rate_5gp&#39;</span> <span class="p">:</span> <span class="s1">&#39;VDR_BUCKET._FillRate_5Gp&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;bucket_fill_rate_10gp&#39;</span> <span class="p">:</span> <span class="s1">&#39;VDR_BUCKET._FillRate_10Gp&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;bucket_fill_rate_20gp&#39;</span> <span class="p">:</span> <span class="s1">&#39;VDR_BUCKET._FillRate_20Gp&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+<div class="viewcode-block" id="get_pulse_count_signal_names"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.bucket.get_pulse_count_signal_names">[docs]</a><span class="k">def</span> <span class="nf">get_pulse_count_signal_names</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns a dictionary with influx signal names as values and human readable </span>
+<span class="sd">    names as keys. The dictionary contains the collector pulse count.</span>
+
+<span class="sd">    :return: dictionary with signal name for collector pulse count.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">signal_names_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;pulse_count&#39;</span> <span class="p">:</span> <span class="s1">&#39;Collector._PulseCount&#39;</span><span class="p">,</span>            
+            <span class="p">}</span>
+    <span class="k">return</span> <span class="n">signal_names_mapping</span></div>
+
+<div class="viewcode-block" id="get_data_drip_pin_clogging"><a class="viewcode-back" href="../../../TinManagement.html#pyeuv.TinManagement.bucket.get_data_drip_pin_clogging">[docs]</a><span class="k">def</span> <span class="nf">get_data_drip_pin_clogging</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Retreives all the data required for drip pin clogging analysis from influx.</span>
+<span class="sd">    Merges the dataframes from different sources</span>
+
+<span class="sd">    :param client: connection to influx</span>
+<span class="sd">    :param source_id: the source_id for which the signals have to be retrieved</span>
+<span class="sd">    :param from_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :param to_time: start time of the window of data to be retrieved</span>
+<span class="sd">    :return: dataframe containing bucket fill level, rate and pulse count</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_drip_pin_clogging_signal_names</span><span class="p">(),</span> 
+                                   <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+    
+    <span class="n">pulse_count</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_signals_dict</span><span class="p">(</span><span class="n">get_pulse_count_signal_names</span><span class="p">(),</span> 
+                                          <span class="n">source_id</span><span class="p">,</span> <span class="n">from_time</span><span class="p">,</span> <span class="n">to_time</span><span class="p">)</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pulse_count</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">pulse_count</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># remove rows where we only have pulse count data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">get_drip_pin_clogging_signal_names</span><span class="p">(),</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+
+    <span class="c1"># convert pulse_count to Gp</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">pulse_count</span> <span class="o">*=</span> <span class="mf">1e-9</span>
+    
+    <span class="k">return</span> <span class="n">data</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

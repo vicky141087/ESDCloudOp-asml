@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>About pyeuv &mdash; pyeuv 1.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Release Notes" href="release_notes.html" />
+    <link rel="prev" title="Documentation for pyeuv" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyeuv
+          
+
+          
+            
+            <img src="_static/ASML_Logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About pyeuv</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#authors">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#company-secret-notice">Company secret notice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">Q&amp;A</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyeuv</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>About pyeuv</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/about.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="about-pyeuv">
+<h1>About pyeuv<a class="headerlink" href="#about-pyeuv" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">PyEUV - Python modules for working with EUV data.</div>
+<div class="line">Maintainer: Rob de Laat (SW DE DATA Data Science &amp; Engineering) &lt;<a class="reference external" href="mailto:rob&#46;de&#46;laat&#37;&#52;&#48;asml&#46;com">rob<span>&#46;</span>de<span>&#46;</span>laat<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;</div>
+<div class="line">Copyright ASML 2020</div>
+<div class="line">Version: 1.2</div>
+</div>
+<p>This module provides parsers and interfaces to work with EUV Data. This version
+contains the following Features:</p>
+<ol class="arabic simple">
+<li><p>Interface to InfluxDB/Grafana (EUV Dashboard)</p></li>
+<li><p>Interface to PMA NG</p></li>
+<li><p>DAT parser, DATv0, DATv1 and DATv2 are supported, (includes compressed DAT)</p></li>
+<li><p>Parsers for source KPI and scanner Parameters</p></li>
+<li><p>NXE Source Collector data analysis algorithms</p></li>
+<li><p>NXE Illuminator data analysis algorithms</p></li>
+<li><p>NXE Source Tin Management analysis algorithms</p></li>
+</ol>
+<p>The parsers and interfaces output pandas and numpy objects that allow for easy data manipulation,
+making this module perfect for use in your, Python tools, Jupyter Notebooks and hack scripts.</p>
+<p>Please use this module responsibly.
+Persistent abusers will be tracked down for a friendly conversation.</p>
+<p>Before asking questions, have a look at the examples folder, the inline documentation
+of the module and the Q&amp;A.</p>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<p><em>SW DE DATA C Data Science &amp; Eng</em></p>
+<ul class="simple">
+<li><p>Rob de Laat &lt;<a class="reference external" href="mailto:rob&#46;de&#46;laat&#37;&#52;&#48;asml&#46;com">rob<span>&#46;</span>de<span>&#46;</span>laat<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;
+Pyeuv, EUVDashboard, PMA, Parsers</p></li>
+<li><p>Rob Wieggers &lt;<a class="reference external" href="mailto:rob&#46;wieggers&#37;&#52;&#48;asml&#46;com">rob<span>&#46;</span>wieggers<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;
+Collector Reflectivity, Collector Administration, Radon, RADD, Shared, TinManagement</p></li>
+<li><p>Wouter van Roosmalen &lt;<a class="reference external" href="mailto:wouter&#46;van&#46;roosmalen&#37;&#52;&#48;asml&#46;com">wouter<span>&#46;</span>van<span>&#46;</span>roosmalen<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;
+RADD, LUER (Radon Automated Debris Detection)</p></li>
+</ul>
+<p><em>QC DE CSI C Project Management</em></p>
+<ul class="simple">
+<li><p>Rob Wieggers &lt;<a class="reference external" href="mailto:rob&#46;wieggers&#37;&#52;&#48;asml&#46;com">rob<span>&#46;</span>wieggers<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;
+Collector Reflectivity, Collector Administration, Radon, RADD, Shared, TinManagement</p></li>
+</ul>
+<p><em>SF-18 (Spectrally pure EUV Collection)</em></p>
+<ul class="simple">
+<li><p>Nic Geron &lt;<a class="reference external" href="mailto:nic&#46;geron&#37;&#52;&#48;asml&#46;com">nic<span>&#46;</span>geron<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;
+Collector reflectivity, Radon, Do_It</p></li>
+<li><p>Natalia Lukiyanova</p></li>
+<li><p>Dragan Antunovic</p></li>
+</ul>
+<p><em>Source Performance</em></p>
+<ul class="simple">
+<li><p>Jasper Beckers &lt;<a class="reference external" href="mailto:jasper&#46;beckers&#37;&#52;&#48;asml&#46;com">jasper<span>&#46;</span>beckers<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;
+Radon visualization, illumination</p></li>
+<li><p>Damien Aussems &lt;<a class="reference external" href="mailto:damien&#46;aussems&#37;&#52;&#48;asml&#46;com">damien<span>&#46;</span>aussems<span>&#64;</span>asml<span>&#46;</span>com</a>&gt;
+Radon FFM smoothing</p></li>
+</ul>
+<p><em>Source Transmission Control</em></p>
+<ul class="simple">
+<li><p>Cedric Noordam</p></li>
+</ul>
+<p><em>IT Solution Delivery Analytics US</em></p>
+<ul class="simple">
+<li><p>Iris Clerx</p></li>
+</ul>
+<p><em>IT Solution Delivery Analytics P&amp;T</em></p>
+<ul class="simple">
+<li><p>Luc Coenegracht</p></li>
+</ul>
+</div>
+<div class="section" id="company-secret-notice">
+<h2>Company secret notice<a class="headerlink" href="#company-secret-notice" title="Permalink to this headline">¶</a></h2>
+<p>The Pyeuv package is property of ASML and contains code and algorithms
+that are classified as COMPANY SECRET. All rules and regulations
+regarding this information classification apply to this package and any
+derivatives</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="release_notes.html" class="btn btn-neutral float-right" title="Release Notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Documentation for pyeuv" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, ASML HOLDING N.V. (INCLUDING AFFILIATES). ALL RIGHTS RESERVED..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+parameters:
+- name: workingDirectory
+  type: string
+
+steps:
+- template: step-terraform-install.yml
+
+- task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+  displayName: 'Terraform: Init'
+  inputs:
+    workingDirectory: ${{ parameters.workingDirectory }}
+    command: init
+    commandOptions: '-input=false -backend=false'
+
+- task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+  displayName: 'Terraform: Validate'
+  inputs:
+    workingDirectory: ${{ parameters.workingDirectory }}
+    command: validate

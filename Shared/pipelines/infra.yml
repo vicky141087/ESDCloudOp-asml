@@ -1,0 +1,64 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+
+pool: CCoE-SharedAgents
+
+variables:
+  - name: isMain
+    value: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  - name: isManual
+    value: $[eq(variables['Build.Reason'], 'Manual')]
+  - name: isDisasterRecoveryTest
+    value: $[and(eq(variables['Build.Reason'], 'ResourceTrigger'), eq(variables['resources.triggeringCategory'], 'pipeline'), eq(variables['resources.triggeringAlias'], 'disaster-prep'))]
+
+lockBehavior: sequential
+stages:
+  - stage: stage_build
+    displayName: 'Build'
+    jobs:
+    - job: job_build
+      displayName: 'Build'
+      steps:
+      # Runing the Terraform Init and Terraform validate.
+      # This step will also deploy the different terraform modules
+      - template: templates/step-terraform-build.yml
+        parameters:
+          workingDirectory: '$(System.DefaultWorkingDirectory)/infra'
+
+      # Publishing the terraform Artifacts
+      - publish: '$(System.DefaultWorkingDirectory)/infra/'
+        artifact: Terraform
+        displayName: 'Artifact: Publish Terraform'
+      # Publish as artifacts for logging, cant be used in additional steps as template
+      - publish: '$(System.DefaultWorkingDirectory)/infra/variables'
+        artifact: TerraformVariables
+        displayName: 'Artifact: Publish TerraformVariables'
+      - publish: '$(System.DefaultWorkingDirectory)/pipelines/templates/scripts'
+        artifact: Scripts
+        displayName: 'Artifact: Publish Scripts'
+
+  - template: templates/stage-deploy.yml 
+    parameters:
+      condition: and(succeeded(), or(eq(variables.isMain, 'true'),eq(variables.isManual, 'true'), eq(variables.isDisasterRecoveryTest, 'true')))
+      dependson: stage_build
+      environment: 'Shared_DEV'
+      adoAgentPool: 'CCoE-SharedAgents'
+      stageDisplayName: 'DEV'
+      varsPath: '/pipelines/variables/DEV.yml' #templates are parsed during the start and cannot come from artifacts
+      tfvarsPath: 'DEV.tfvars'
+      workingDirectory: 'infra'
+
+  - template: templates/stage-deploy.yml 
+    parameters:
+      condition: and(succeeded(), eq(variables.isMain, 'true'))
+      dependson: 
+      - Shared_DEV_apply
+      environment: 'Shared_PRD'
+      adoAgentPool: 'CCoE-SharedAgents'
+      stageDisplayName: 'PRD'
+      varsPath: '/pipelines/variables/PRD.yml' #templates are parsed during the start and cannot come from artifacts
+      tfvarsPath: 'PRD.tfvars'
+      workingDirectory: 'infra'

@@ -1,0 +1,60 @@
+Collector
+=========
+
+SLIE/DT
+-------
+*Diagrams*
+
+.. image:: uml_diagrams/radon_task_dependency.png
+
+*Function reference*
+
+.. automodule:: pyeuv.Collector.Sliedt.sliedt
+    :members:
+
+Incident detection
+------------------
+.. automodule:: pyeuv.Collector.Sliedt.incident_detection
+    :members:
+
+Radon
+-----
+
+*Functional diagrams*
+
+.. image:: uml_diagrams/radon_task_dependency.png
+.. image:: uml_diagrams/functional_tasks_for_radon_tooling.png
+
+* Function reference *
+
+.. automodule:: pyeuv.Collector.Radon.radon_roi
+    :members:
+.. automodule:: pyeuv.Collector.Radon.radon_io
+    :members:
+.. automodule:: pyeuv.Collector.Radon.radon_scaling
+    :members:
+.. automodule:: pyeuv.Collector.Radon.radon_reference_image
+    :members:
+.. automodule:: pyeuv.Collector.Radon.roi_io
+    :members:
+.. automodule:: pyeuv.Collector.Radon.shared
+    :members:
+.. include:: ../../pyeuv/Collector/Radon/data/readme.md
+
+Radd
+-----
+.. automodule:: pyeuv.Collector.Radon.radd
+    :members:
+
+Illuminator
+-----------
+.. automodule:: pyeuv.Collector.Sliedt.illuminator_degradation
+    :members:
+
+.. automodule:: pyeuv.Collector.Sliedt.illumination_mode
+    :members:
+
+Shared
+------
+.. automodule:: pyeuv.Collector.Shared.directory_structure
+    :members:

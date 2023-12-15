@@ -1,0 +1,31 @@
+parameters:
+    serviceConnection: ''
+    subscriptionId: ''
+    resourceGroupName: ''
+    storageAccountName: ''
+    location: ''
+    storageContainerName: ''
+    subnetId: ''
+    privateDnsSubscriptionId: ''
+    privateDnsResourceGroupName: ''
+    principleIds: ''
+
+steps:
+- task: AzureCLI@2
+  displayName: Ensure base infra
+  inputs:
+    azureSubscription: '${{ parameters.serviceConnection }}'
+    scriptType: pscore
+    addSpnToEnvironment: true
+    scriptLocation: scriptPath
+    scriptPath: '$(System.DefaultWorkingDirectory)/Scripts/create_storage_account.ps1'
+    arguments: >- 
+      -subscriptionId ${{ parameters.subscriptionId }} 
+      -resourceGroup ${{ parameters.resourceGroupName }}
+      -storageAccountName ${{ parameters.storageAccountName }}
+      -location ${{ parameters.location }}
+      -containerName ${{ parameters.storageContainerName }}
+      -subnetId ${{ parameters.subnetId }}
+      -privateDnsSubscriptionId ${{ parameters.privateDnsSubscriptionId }}
+      -privateDnsResourceGroupName ${{ parameters.privateDnsResourceGroupName }}
+      -principleIds ${{ parameters.principleIds }}
